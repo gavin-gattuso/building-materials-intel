@@ -1,0 +1,22 @@
+{
+  "name": "claude-ai-newsletter",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "site": "bun run site/server.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@vercel/node": "^3"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.82.0",
+    "docx": "^9.6.1",
+    "gray-matter": "^4.0.3",
+    "marked": "^17.0.6"
+  }
+}

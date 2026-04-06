@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Building Materials Intelligence</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232733;
+    --border: #2e3347;
+    --text: #e4e6ef;
+    --text-muted: #8b8fa3;
+    --accent: #4f8ff7;
+    --accent-dim: #2a4a8a;
+    --green: #34c759;
+    --red: #ff453a;
+    --orange: #ff9f0a;
+    --yellow: #ffd60a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Layout */
+  .app { display: flex; height: 100vh; }
+  .sidebar { width: 240px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+  .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-header h1 { font-size: 14px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--accent); }
+  .sidebar-header p { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  .nav { flex: 1; padding: 12px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); transition: all 0.15s; }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--accent-dim); color: var(--text); }
+  .nav-icon { width: 18px; text-align: center; }
+
+  .main { flex: 1; overflow-y: auto; }
+  .page { display: none; padding: 32px; max-width: 1200px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* Dashboard */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .stat-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
+  .stat-card .value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+  .stat-card .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .section-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .section-title .badge { font-size: 11px; background: var(--accent-dim); color: var(--accent); padding: 2px 8px; border-radius: 10px; }
+
+  /* Signal cards */
+  .signals-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 32px; }
+  .signal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; cursor: pointer; transition: border-color 0.15s; }
+  .signal-card:hover { border-color: var(--accent); }
+  .signal-card .signal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .signal-card .signal-name { font-size: 13px; font-weight: 600; }
+  .signal-card .signal-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+  .signal-badge.up { background: rgba(255, 69, 58, 0.15); color: var(--red); }
+  .signal-badge.down { background: rgba(52, 199, 89, 0.15); color: var(--green); }
+  .signal-badge.expanding { background: rgba(52, 199, 89, 0.15); color: var(--green); }
+  .signal-badge.tightening { background: rgba(255, 159, 10, 0.15); color: var(--orange); }
+  .signal-badge.weakening { background: rgba(255, 69, 58, 0.15); color: var(--red); }
+  .signal-badge.stable { background: rgba(79, 143, 247, 0.15); color: var(--accent); }
+  .signal-badge.mixed { background: rgba(255, 214, 10, 0.15); color: var(--yellow); }
+  .signal-card .signal-detail { font-size: 12px; color: var(--text-muted); }
+
+  /* Article list */
+  .article-list { display: flex; flex-direction: column; gap: 8px; }
+  .article-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; cursor: pointer; transition: border-color 0.15s; }
+  .article-item:hover { border-color: var(--accent); }
+  .article-meta { display: flex; gap: 12px; align-items: center; margin-bottom: 6px; font-size: 11px; color: var(--text-muted); }
+  .article-meta .date { color: var(--accent); }
+  .article-meta .cat { background: var(--surface2); padding: 1px 6px; border-radius: 4px; }
+  .article-title { font-size: 14px; font-weight: 600; }
+  .article-companies { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+  /* Detail view */
+  .detail-overlay { display: none; position: fixed; top: 0; left: 240px; right: 0; bottom: 0; background: var(--bg); z-index: 100; overflow-y: auto; padding: 32px; }
+  .detail-overlay.open { display: block; }
+  .detail-back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); cursor: pointer; margin-bottom: 20px; }
+  .detail-back:hover { color: var(--text); }
+  .detail-header { margin-bottom: 24px; }
+  .detail-header h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .detail-meta-grid { display: flex; flex-wrap: wrap; gap: 16px; font-size: 12px; color: var(--text-muted); }
+  .detail-content { font-size: 14px; line-height: 1.8; }
+  .detail-content h1, .detail-content h2, .detail-content h3 { margin-top: 24px; margin-bottom: 8px; }
+  .detail-content h1 { font-size: 20px; }
+  .detail-content h2 { font-size: 16px; }
+  .detail-content h3 { font-size: 14px; }
+  .detail-content table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  .detail-content th, .detail-content td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+  .detail-content th { background: var(--surface2); font-weight: 600; }
+  .detail-content ul, .detail-content ol { padding-left: 20px; }
+  .detail-content li { margin-bottom: 4px; }
+
+  /* Search */
+  .search-bar { display: flex; gap: 12px; margin-bottom: 24px; }
+  .search-input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; color: var(--text); font-size: 14px; outline: none; }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--text-muted); }
+  .filter-select { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-size: 13px; outline: none; }
+
+  /* Companies grid */
+  .company-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .company-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; cursor: pointer; transition: border-color 0.15s; }
+  .company-card:hover { border-color: var(--accent); }
+  .company-card .ticker { font-size: 11px; color: var(--accent); font-weight: 600; }
+  .company-card .name { font-size: 14px; font-weight: 600; margin-top: 2px; }
+  .company-card .sector { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+  /* Chat */
+  .chat-container { display: flex; flex-direction: column; height: calc(100vh - 64px); }
+  .chat-messages { flex: 1; overflow-y: auto; padding-bottom: 16px; }
+  .chat-msg { max-width: 85%; margin-bottom: 16px; }
+  .chat-msg.user { margin-left: auto; }
+  .chat-msg.assistant { margin-right: auto; }
+  .chat-bubble { padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.7; }
+  .chat-msg.user .chat-bubble { background: var(--accent-dim); color: var(--text); border-bottom-right-radius: 4px; }
+  .chat-msg.assistant .chat-bubble { background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+  .chat-bubble p { margin-bottom: 8px; }
+  .chat-bubble p:last-child { margin-bottom: 0; }
+  .chat-bubble strong { color: var(--accent); }
+  .chat-bubble code { background: var(--surface2); padding: 1px 4px; border-radius: 3px; font-size: 12px; }
+  .chat-bubble table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 12px; }
+  .chat-bubble th, .chat-bubble td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
+  .chat-bubble th { background: var(--surface2); }
+  .chat-sources { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .chat-sources summary { font-size: 11px; color: var(--text-muted); cursor: pointer; }
+  .chat-sources .source-list { padding: 8px 0 0 0; list-style: none; }
+  .chat-sources .source-list li { font-size: 11px; color: var(--text-muted); padding: 3px 0; }
+  .chat-sources .source-list a { color: var(--accent); }
+
+  /* Search result cards in chat */
+  .search-results { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .search-result-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; cursor: pointer; transition: border-color 0.15s; }
+  .search-result-card:hover { border-color: var(--accent); }
+  .search-result-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .search-result-title { font-size: 13px; font-weight: 600; }
+  .search-result-score { font-size: 10px; background: var(--accent-dim); color: var(--accent); padding: 1px 6px; border-radius: 8px; white-space: nowrap; }
+  .search-result-meta { font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .search-result-excerpts { margin-top: 8px; font-size: 12px; color: var(--text-muted); }
+  .search-result-excerpts li { margin-bottom: 3px; }
+  .search-result-excerpts mark { background: var(--accent-dim); color: var(--accent); padding: 0 2px; border-radius: 2px; }
+  .search-result-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+  .search-result-tag { font-size: 10px; background: var(--surface); border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px; color: var(--text-muted); }
+  .chat-mode-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 2px 8px; border-radius: 8px; margin-bottom: 8px; }
+  .chat-mode-badge.search { background: rgba(79, 143, 247, 0.15); color: var(--accent); }
+  .chat-mode-badge.ai { background: rgba(52, 199, 89, 0.15); color: var(--green); }
+  .chat-input-row { display: flex; gap: 8px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .chat-input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; color: var(--text); font-size: 14px; outline: none; resize: none; font-family: inherit; }
+  .chat-input:focus { border-color: var(--accent); }
+  .chat-send { background: var(--accent); border: none; border-radius: 10px; padding: 12px 20px; color: white; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .chat-send:hover { opacity: 0.9; }
+  .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+  .typing-indicator { display: inline-flex; gap: 4px; padding: 8px 12px; }
+  .typing-indicator span { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: typing 1.2s infinite ease-in-out; }
+  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typing { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-4px); } }
+
+  /* Welcome */
+  .chat-welcome { text-align: center; padding: 60px 20px; }
+  .chat-welcome h2 { font-size: 20px; margin-bottom: 8px; }
+  .chat-welcome p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+  .suggestion-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .suggestion-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 8px 16px; font-size: 12px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+  .suggestion-chip:hover { border-color: var(--accent); color: var(--text); }
+
+  /* Loading */
+  .loading { text-align: center; padding: 40px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h1>Building Materials</h1>
+      <p>Intelligence Platform</p>
+    </div>
+    <div class="nav">
+      <div class="nav-item active" data-page="dashboard"><span class="nav-icon">&#9632;</span> Dashboard</div>
+      <div class="nav-item" data-page="articles"><span class="nav-icon">&#9998;</span> Articles</div>
+      <div class="nav-item" data-page="companies"><span class="nav-icon">&#9881;</span> Companies</div>
+      <div class="nav-item" data-page="drivers"><span class="nav-icon">&#9650;</span> Market Drivers</div>
+      <div class="nav-item" data-page="concepts"><span class="nav-icon">&#9830;</span> Concepts</div>
+      <div class="nav-item" data-page="chat"><span class="nav-icon">&#9993;</span> AI Chat</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- Dashboard -->
+    <div class="page active" id="page-dashboard">
+      <h2 style="font-size:20px;margin-bottom:24px;">Industry Overview</h2>
+      <div class="stats-grid" id="stats-grid"></div>
+      <div class="section-title">Market Health Drivers</div>
+      <div class="signals-grid" id="signals-grid"></div>
+      <div class="section-title">Latest Articles <span class="badge" id="article-count-badge"></span></div>
+      <div class="article-list" id="latest-articles"></div>
+    </div>
+
+    <!-- Articles -->
+    <div class="page" id="page-articles">
+      <h2 style="font-size:20px;margin-bottom:24px;">Knowledge Base Articles</h2>
+      <div class="search-bar">
+        <input class="search-input" id="article-search" placeholder="Search articles..." />
+        <select class="filter-select" id="article-category-filter"><option value="">All Categories</option></select>
+        <select class="filter-select" id="article-company-filter"><option value="">All Companies</option></select>
+      </div>
+      <div class="article-list" id="all-articles"></div>
+    </div>
+
+    <!-- Companies -->
+    <div class="page" id="page-companies">
+      <h2 style="font-size:20px;margin-bottom:24px;">Company Profiles</h2>
+      <div class="company-grid" id="company-grid"></div>
+    </div>
+
+    <!-- Market Drivers -->
+    <div class="page" id="page-drivers">
+      <h2 style="font-size:20px;margin-bottom:24px;">Market Health Drivers</h2>
+      <div class="signals-grid" id="drivers-grid"></div>
+    </div>
+
+    <!-- Concepts -->
+    <div class="page" id="page-concepts">
+      <h2 style="font-size:20px;margin-bottom:24px;">Key Concepts & Analysis</h2>
+      <div class="article-list" id="concepts-list"></div>
+    </div>
+
+    <!-- Chat -->
+    <div class="page" id="page-chat">
+      <div class="chat-container">
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-welcome">
+            <h2>Ask the Knowledge Base</h2>
+            <p id="chat-mode-desc">Search across articles, company profiles, and market analysis. Results include source citations and relevant excerpts.</p>
+            <div class="suggestion-chips">
+              <div class="suggestion-chip" onclick="askSuggestion(this)">What are current steel tariff rates and their impact?</div>
+              <div class="suggestion-chip" onclick="askSuggestion(this)">Summarize CRH's M&A strategy and recent acquisitions</div>
+              <div class="suggestion-chip" onclick="askSuggestion(this)">What is the current state of mortgage rates?</div>
+              <div class="suggestion-chip" onclick="askSuggestion(this)">Which companies are most exposed to tariff risk?</div>
+              <div class="suggestion-chip" onclick="askSuggestion(this)">What is the construction labor shortage outlook?</div>
+              <div class="suggestion-chip" onclick="askSuggestion(this)">Explain the QXO-Kodiak acquisition</div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <textarea class="chat-input" id="chat-input" rows="1" placeholder="Ask a question about building materials..."></textarea>
+          <button class="chat-send" id="chat-send" onclick="sendChat()">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail overlay -->
+    <div class="detail-overlay" id="detail-overlay">
+      <div class="detail-back" onclick="closeDetail()">&larr; Back</div>
+      <div class="detail-header" id="detail-header"></div>
+      <div class="detail-content" id="detail-content"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { marked } from '/marked.esm.js';
+
+// Simple markdown renderer fallback
+function renderMd(md) {
+  if (typeof marked !== 'undefined' && marked.parse) return marked.parse(md);
+  // Basic fallback
+  return md
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+window.renderMd = renderMd;
+
+// State
+let chatHistory = [];
+
+// Navigation
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('page-' + item.dataset.page).classList.add('active');
+    closeDetail();
+  });
+});
+
+// Load dashboard
+async function loadDashboard() {
+  const [stats, drivers, articles] = await Promise.all([
+    fetch('/api/stats').then(r => r.json()),
+    fetch('/api/wiki?type=market-driver').then(r => r.json()),
+    fetch('/api/articles?limit=10').then(r => r.json()),
+  ]);
+
+  // Stats
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-card"><div class="label">Total Articles</div><div class="value">${stats.totalArticles}</div><div class="sub">${stats.dateRange ? stats.dateRange.from + ' to ' + stats.dateRange.to : ''}</div></div>
+    <div class="stat-card"><div class="label">Company Profiles</div><div class="value">${stats.companies}</div><div class="sub">${stats.marketDrivers} market drivers, ${stats.concepts} concepts</div></div>
+    <div class="stat-card"><div class="label">Categories</div><div class="value">${Object.keys(stats.byCategory).length}</div><div class="sub">Across ${Object.keys(stats.byMonth).length} months</div></div>
+    <div class="stat-card"><div class="label">Companies Tracked</div><div class="value">${Object.keys(stats.companyMentions).length}</div><div class="sub">Most mentioned: ${Object.entries(stats.companyMentions).sort((a,b) => b[1]-a[1]).slice(0,3).map(([c,n]) => c+' ('+n+')').join(', ')}</div></div>
+  `;
+
+  // Market driver signals
+  const signalMap = {};
+  for (const d of drivers) {
+    signalMap[d.id] = d;
+  }
+  document.getElementById('signals-grid').innerHTML = drivers.map(d => {
+    const signal = d.frontmatter.current_signal || '';
+    return `<div class="signal-card" onclick="window.openWiki('${d.id}')">
+      <div class="signal-header">
+        <span class="signal-name">${d.title}</span>
+        <span class="signal-badge ${signal}">${signal || 'N/A'}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Latest articles
+  document.getElementById('article-count-badge').textContent = stats.totalArticles;
+  document.getElementById('latest-articles').innerHTML = articles.map(a => articleCard(a)).join('');
+}
+
+function articleCard(a) {
+  return `<div class="article-item" onclick="window.openArticle('${a.id}')">
+    <div class="article-meta">
+      <span class="date">${a.date}</span>
+      <span class="cat">${a.category}</span>
+      <span>${a.source}</span>
+    </div>
+    <div class="article-title">${escHtml(a.title)}</div>
+    ${a.companies?.length ? '<div class="article-companies">' + a.companies.join(', ') + '</div>' : ''}
+  </div>`;
+}
+
+function escHtml(s) { return s.replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+// Articles page
+async function loadArticles(q = '', category = '', company = '') {
+  const params = new URLSearchParams({ limit: '200' });
+  if (q) params.set('q', q);
+  if (category) params.set('category', category);
+  if (company) params.set('company', company);
+  const articles = await fetch('/api/articles?' + params).then(r => r.json());
+  document.getElementById('all-articles').innerHTML = articles.length
+    ? articles.map(a => articleCard(a)).join('')
+    : '<div class="loading">No articles found.</div>';
+}
+
+async function loadArticleFilters() {
+  const stats = await fetch('/api/stats').then(r => r.json());
+  const catSelect = document.getElementById('article-category-filter');
+  for (const cat of Object.keys(stats.byCategory).sort()) {
+    catSelect.innerHTML += `<option value="${cat}">${cat} (${stats.byCategory[cat]})</option>`;
+  }
+  const compSelect = document.getElementById('article-company-filter');
+  for (const [comp, count] of Object.entries(stats.companyMentions).sort((a,b) => b[1]-a[1])) {
+    compSelect.innerHTML += `<option value="${comp}">${comp} (${count})</option>`;
+  }
+}
+
+let searchTimeout;
+document.getElementById('article-search').addEventListener('input', (e) => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    loadArticles(e.target.value, document.getElementById('article-category-filter').value, document.getElementById('article-company-filter').value);
+  }, 300);
+});
+document.getElementById('article-category-filter').addEventListener('change', () => {
+  loadArticles(document.getElementById('article-search').value, document.getElementById('article-category-filter').value, document.getElementById('article-company-filter').value);
+});
+document.getElementById('article-company-filter').addEventListener('change', () => {
+  loadArticles(document.getElementById('article-search').value, document.getElementById('article-category-filter').value, document.getElementById('article-company-filter').value);
+});
+
+// Companies page
+async function loadCompanies() {
+  const companies = await fetch('/api/wiki?type=company').then(r => r.json());
+  document.getElementById('company-grid').innerHTML = companies.map(c => `
+    <div class="company-card" onclick="window.openWiki('${c.id}')">
+      <div class="ticker">${c.frontmatter.ticker || ''}</div>
+      <div class="name">${escHtml(c.title)}</div>
+      <div class="sector">${c.frontmatter.subsector || c.frontmatter.sector || ''}</div>
+    </div>
+  `).join('');
+}
+
+// Drivers page
+async function loadDrivers() {
+  const drivers = await fetch('/api/wiki?type=market-driver').then(r => r.json());
+  document.getElementById('drivers-grid').innerHTML = drivers.map(d => `
+    <div class="signal-card" onclick="window.openWiki('${d.id}')">
+      <div class="signal-header">
+        <span class="signal-name">${d.title}</span>
+        <span class="signal-badge ${d.frontmatter.current_signal || ''}">${d.frontmatter.current_signal || 'N/A'}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Concepts page
+async function loadConcepts() {
+  const concepts = await fetch('/api/wiki?type=concept').then(r => r.json());
+  document.getElementById('concepts-list').innerHTML = concepts.map(c => `
+    <div class="article-item" onclick="window.openWiki('${c.id}')">
+      <div class="article-title">${escHtml(c.title)}</div>
+    </div>
+  `).join('');
+}
+
+// Detail view
+window.openArticle = async function(id) {
+  const article = await fetch('/api/article/' + id).then(r => r.json());
+  document.getElementById('detail-header').innerHTML = `
+    <h2>${escHtml(article.title)}</h2>
+    <div class="detail-meta-grid">
+      <span>${article.date}</span>
+      <span>${article.source}</span>
+      <span>${article.category}</span>
+      ${article.url ? '<a href="' + article.url + '" target="_blank">Original source &rarr;</a>' : ''}
+    </div>
+  `;
+  document.getElementById('detail-content').innerHTML = renderMd(article.content);
+  document.getElementById('detail-overlay').classList.add('open');
+};
+
+window.openWiki = async function(id) {
+  const page = await fetch('/api/wiki/' + id).then(r => r.json());
+  document.getElementById('detail-header').innerHTML = `<h2>${escHtml(page.title)}</h2>`;
+  document.getElementById('detail-content').innerHTML = renderMd(page.content);
+  document.getElementById('detail-overlay').classList.add('open');
+};
+
+window.closeDetail = function() {
+  document.getElementById('detail-overlay').classList.remove('open');
+};
+
+// Chat
+let chatMode = 'search'; // 'search' or 'ai'
+
+// Check mode on load
+fetch('/api/mode').then(r => r.json()).then(data => {
+  chatMode = data.aiEnabled ? 'ai' : 'search';
+  const desc = document.getElementById('chat-mode-desc');
+  if (desc) {
+    desc.textContent = chatMode === 'ai'
+      ? 'AI-powered answers synthesized from the knowledge base. All responses include source citations.'
+      : 'Smart search across articles, company profiles, and market analysis. Results include source citations and relevant excerpts.';
+  }
+});
+
+function highlightTerms(text, terms) {
+  if (!terms || terms.length === 0) return escHtml(text);
+  let result = escHtml(text);
+  for (const term of terms) {
+    const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    result = result.replace(regex, '<mark>$1</mark>');
+  }
+  return result;
+}
+
+function renderSearchResults(data) {
+  const results = data.results || [];
+  if (results.length === 0) return '<p>No matching results found. Try different search terms.</p>';
+
+  const answerHtml = renderMd(data.answer);
+
+  const cardsHtml = results.map(r => {
+    const isArticle = r.type === 'article';
+    const onclick = isArticle ? `window.openArticle('${r.id}')` : `window.openWiki('${r.id}')`;
+    const excerpts = r.excerpts?.length
+      ? `<ul class="search-result-excerpts">${r.excerpts.map(e => `<li>${highlightTerms(e, r.matchedTerms)}</li>`).join('')}</ul>`
+      : '';
+    const meta = isArticle
+      ? `<span>${r.date}</span><span>${r.source}</span><span>${r.category}</span>`
+      : `<span>${r.wikiType}</span>`;
+    const companies = isArticle && r.companies?.length
+      ? `<div class="search-result-tags">${r.companies.map(c => `<span class="search-result-tag">${escHtml(c)}</span>`).join('')}</div>`
+      : '';
+
+    return `<div class="search-result-card" onclick="${onclick}">
+      <div class="search-result-header">
+        <span class="search-result-title">${escHtml(r.title)}</span>
+        <span class="search-result-score">${r.score} pts</span>
+      </div>
+      <div class="search-result-meta">${meta}</div>
+      ${excerpts}
+      ${companies}
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="chat-mode-badge search">&#9906; Smart Search &mdash; ${results.length} results</div>
+    ${answerHtml}
+    <div class="search-results">${cardsHtml}</div>
+  `;
+}
+
+function renderAIResponse(data) {
+  const answerHtml = renderMd(data.answer);
+  const sourcesHtml = data.sources?.length ? `
+    <details class="chat-sources">
+      <summary>${data.sources.length} sources referenced</summary>
+      <ul class="source-list">
+        ${data.sources.map(s => `<li><strong>[${s.index}]</strong> ${escHtml(s.title)} ${s.date ? '(' + s.date + ', ' + s.source + ')' : '(' + s.type + ')'} ${s.url ? '<a href="' + s.url + '" target="_blank">link</a>' : ''}</li>`).join('')}
+      </ul>
+    </details>
+  ` : '';
+  return `
+    <div class="chat-mode-badge ai">&#9733; AI Synthesis</div>
+    ${answerHtml}${sourcesHtml}
+  `;
+}
+
+window.sendChat = async function() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  input.style.height = 'auto';
+
+  const welcome = document.querySelector('.chat-welcome');
+  if (welcome) welcome.remove();
+
+  const messagesEl = document.getElementById('chat-messages');
+
+  messagesEl.innerHTML += `<div class="chat-msg user"><div class="chat-bubble">${escHtml(msg)}</div></div>`;
+  messagesEl.innerHTML += `<div class="chat-msg assistant" id="typing"><div class="chat-bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div></div>`;
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+
+  document.getElementById('chat-send').disabled = true;
+  chatHistory.push({ role: 'user', content: msg });
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg, history: chatHistory }),
+    });
+    const data = await res.json();
+
+    document.getElementById('typing')?.remove();
+
+    if (data.error) {
+      messagesEl.innerHTML += `<div class="chat-msg assistant"><div class="chat-bubble" style="color:var(--red)">Error: ${escHtml(data.error)}</div></div>`;
+    } else {
+      const html = data.mode === 'ai' ? renderAIResponse(data) : renderSearchResults(data);
+      messagesEl.innerHTML += `<div class="chat-msg assistant"><div class="chat-bubble">${html}</div></div>`;
+      chatHistory.push({ role: 'assistant', content: data.answer });
+    }
+  } catch (err) {
+    document.getElementById('typing')?.remove();
+    messagesEl.innerHTML += `<div class="chat-msg assistant"><div class="chat-bubble" style="color:var(--red)">Failed to connect. Is the server running?</div></div>`;
+  }
+
+  document.getElementById('chat-send').disabled = false;
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+};
+
+window.askSuggestion = function(el) {
+  document.getElementById('chat-input').value = el.textContent;
+  window.sendChat();
+};
+
+document.getElementById('chat-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); window.sendChat(); }
+});
+
+// Auto-resize chat input
+document.getElementById('chat-input').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+
+// Init
+loadDashboard();
+loadArticles();
+loadArticleFilters();
+loadCompanies();
+loadDrivers();
+loadConcepts();
+</script>
+</body>
+</html>
