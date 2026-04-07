@@ -1,7 +1,6 @@
 {
   "name": "claude-ai-newsletter",
   "module": "index.ts",
-  "type": "module",
   "private": true,
   "scripts": {
     "site": "bun run site/server.ts"
