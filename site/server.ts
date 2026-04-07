@@ -255,6 +255,25 @@ serve({
         return new Response(null, { headers: { ...headers, "Access-Control-Allow-Methods": "GET, POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" } });
       }
 
+      // Reports API: list available PDF reports
+      if (url.pathname === "/api/reports") {
+        try {
+          const reportsDir = join(PUBLIC, "reports");
+          const { readdirSync, statSync } = require("fs");
+          const files = readdirSync(reportsDir)
+            .filter((f: string) => f.toLowerCase().endsWith(".pdf"))
+            .map((f: string) => {
+              const stat = statSync(join(reportsDir, f));
+              const name = f.replace(/\.pdf$/i, "").replace(/_/g, " ");
+              return { filename: f, name, size: stat.size, modified: stat.mtime };
+            })
+            .sort((a: any, b: any) => new Date(b.modified).getTime() - new Date(a.modified).getTime());
+          return Response.json(files, { headers });
+        } catch {
+          return Response.json([], { headers });
+        }
+      }
+
       return Response.json({ error: "Not found" }, { status: 404, headers });
     }
 
@@ -263,7 +282,7 @@ serve({
     try {
       const file = await readFile(join(PUBLIC, filePath));
       const ext = filePath.split(".").pop();
-      const types: Record<string, string> = { html: "text/html", css: "text/css", js: "application/javascript", png: "image/png", svg: "image/svg+xml" };
+      const types: Record<string, string> = { html: "text/html", css: "text/css", js: "application/javascript", png: "image/png", svg: "image/svg+xml", pdf: "application/pdf" };
       return new Response(file, { headers: { "Content-Type": types[ext || ""] || "application/octet-stream" } });
     } catch {
       const index = await readFile(join(PUBLIC, "index.html"));
