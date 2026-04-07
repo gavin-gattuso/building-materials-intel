@@ -163,6 +163,15 @@ serve({
         return Response.json({ aiEnabled }, { headers });
       }
 
+      if (url.pathname === "/api/financial-ratios") {
+        if (!SB_HEADERS) return Response.json([], { headers });
+        const period = url.searchParams.get("period");
+        let sbUrl = `${SUPABASE_URL}/rest/v1/financial_ratios?select=*&order=company`;
+        if (period) sbUrl += `&period=eq.${encodeURIComponent(period)}`;
+        const res = await fetch(sbUrl, { headers: SB_HEADERS });
+        return Response.json(await res.json(), { headers });
+      }
+
       if (url.pathname === "/api/earnings-calendar") {
         const limit = Number(url.searchParams.get("limit")) || 10;
         return Response.json(getUpcomingEarnings(limit), { headers });

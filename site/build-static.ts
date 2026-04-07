@@ -78,4 +78,25 @@ try {
   console.log("No reports directory found, wrote empty reports.json");
 }
 
+// --- 3. Financial ratios from Supabase ---
+const SB_URL = process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co";
+const SB_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+if (SB_KEY) {
+  try {
+    const res = await fetch(
+      `${SB_URL}/rest/v1/financial_ratios?select=*&order=company`,
+      { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } }
+    );
+    const ratios = await res.json();
+    writeFileSync(join(PUBLIC, "financial-ratios.json"), JSON.stringify(ratios, null, 2));
+    console.log(`Generated financial-ratios.json (${ratios.length} companies)`);
+  } catch (e) {
+    console.log("Failed to fetch financial ratios from Supabase:", e);
+    writeFileSync(join(PUBLIC, "financial-ratios.json"), "[]");
+  }
+} else {
+  console.log("No SUPABASE_SERVICE_ROLE_KEY, skipping financial-ratios.json");
+  writeFileSync(join(PUBLIC, "financial-ratios.json"), "[]");
+}
+
 console.log("Static build complete.");
