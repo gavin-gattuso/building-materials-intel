@@ -349,6 +349,95 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    // /api/synthesize-section — AI synthesis for one report section
+    if (path === "synthesize-section") {
+      if (req.method !== "POST") return res.status(405).json({ error: "POST required" });
+      const { startDate, endDate, section, sectionType } = req.body;
+      if (!startDate || !endDate || !section) return res.status(400).json({ error: "startDate, endDate, section required" });
+
+      // Fetch articles in date range
+      let articles: any[];
+      if (sectionType === "driver") {
+        // For market drivers, search for articles mentioning the driver topic
+        articles = (await searchKB(section, 50)).map(r => r.entry).filter((e: any) =>
+          e.type === "article" && e.date >= startDate && e.date <= endDate
+        );
+      } else {
+        // For news categories, filter by category
+        const all = await getArticles(500);
+        articles = all.filter(a => a.date >= startDate && a.date <= endDate && a.category === section);
+      }
+
+      if (!process.env.ANTHROPIC_API_KEY) {
+        return res.json({ section, articleCount: articles.length, content: "", articles: [], error: "No API key" });
+      }
+
+      const { default: Anthropic } = await import("@anthropic-ai/sdk");
+      const anthropic = new Anthropic();
+
+      const articleContext = articles.slice(0, 20).map((a: any, i: number) =>
+        `[${i + 1}] "${a.title}" (${a.source}, ${a.date})\n${a.content?.slice(0, 1500) || ""}`
+      ).join("\n\n---\n\n");
+
+      const prompt = sectionType === "driver"
+        ? `Analyze these articles about "${section}" in the building materials industry from ${startDate} to ${endDate}. Write:\n1. A 2-3 paragraph overview of the current state of this market driver\n2. An "Impact on Building Materials" paragraph explaining how this affects the industry\n3. A list of 4-6 key data points (numbers, percentages, dollar amounts)\n4. A one-word direction indicator: Up, Down, Stable, Mixed, Expanding, Tightening, Weakening\n5. A one-line signal summary (e.g. "30yr at 6.22%, down 25bps")\n\nRespond in JSON: { "content": "...", "impact": "...", "dataPoints": ["..."], "direction": "...", "signal": "..." }`
+        : `Analyze these ${articles.length} articles in the "${section}" category for building materials from ${startDate} to ${endDate}. For each notable article, write:\n1. A detailed analysis paragraph (3-5 sentences)\n2. Key data points (numbers, percentages, dollar amounts)\n\nAlso write a 1-2 paragraph category overview summarizing the key themes.\n\nRespond in JSON: { "content": "category overview...", "articles": [{ "title": "...", "source": "...", "analysis": "...", "dataPoints": ["..."], "url": "..." }] }`;
+
+      const response = await anthropic.messages.create({
+        model: "claude-sonnet-4-6",
+        max_tokens: 4096,
+        system: "You are a building materials industry analyst writing a detailed professional report. Always respond with valid JSON only, no markdown fences.",
+        messages: [{ role: "user", content: `${prompt}\n\nARTICLES:\n${articleContext}` }],
+      });
+
+      const text = response.content[0].type === "text" ? response.content[0].text : "{}";
+      try {
+        const parsed = JSON.parse(text);
+        return res.json({ section, sectionType, articleCount: articles.length, ...parsed });
+      } catch {
+        return res.json({ section, sectionType, articleCount: articles.length, content: text, articles: [] });
+      }
+    }
+
+    // /api/executive-summary — synthesize executive summary from section summaries
+    if (path === "executive-summary") {
+      if (req.method !== "POST") return res.status(405).json({ error: "POST required" });
+      const { startDate, endDate, sectionSummaries } = req.body;
+
+      if (!process.env.ANTHROPIC_API_KEY) return res.json({ summary: "AI summary unavailable — no API key configured." });
+
+      const { default: Anthropic } = await import("@anthropic-ai/sdk");
+      const anthropic = new Anthropic();
+
+      const context = (sectionSummaries || []).map((s: any) =>
+        `## ${s.section}\n${s.content || ""}\n${s.impact || ""}`
+      ).join("\n\n");
+
+      const response = await anthropic.messages.create({
+        model: "claude-sonnet-4-6",
+        max_tokens: 2048,
+        system: "You are a building materials industry analyst. Write a concise, data-driven executive summary.",
+        messages: [{ role: "user", content: `Write a 2-3 paragraph executive summary for a Building Materials & Building Products intelligence report covering ${startDate} to ${endDate}. Highlight the most important themes, key data points, and market implications.\n\nSECTION SUMMARIES:\n${context}` }],
+      });
+
+      const summary = response.content[0].type === "text" ? response.content[0].text : "";
+      return res.json({ summary });
+    }
+
+    // /api/build-report — assemble docx from pre-synthesized content
+    if (path === "build-report") {
+      if (req.method !== "POST") return res.status(405).json({ error: "POST required" });
+      const { startDate, endDate, executiveSummary, sections, drivers } = req.body;
+
+      const { buildReportDocument } = await import("../lib/docx-formatting");
+      const buffer = await buildReportDocument({ startDate, endDate, executiveSummary, sections: sections || [], drivers: drivers || [] });
+
+      const filename = `Building_Materials_Report_${startDate}_to_${endDate}.docx`;
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      return res.send(buffer);
+    }
+
     return res.status(404).json({ error: "Not found" });
   } catch (err: any) {
     console.error("API error:", err);

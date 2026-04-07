@@ -328,6 +328,24 @@
   .ratios-key { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-bottom: 20px; padding: 10px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
   .ratios-key .key-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-secondary); white-space: nowrap; }
   .ratios-key .key-swatch { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
+
+  /* Report Generator */
+  .report-gen { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 28px; }
+  .report-gen h3 { font-family: var(--font-heading); font-size: 18px; color: var(--primary-dark); margin-bottom: 4px; }
+  .report-gen .rg-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+  .report-gen .rg-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+  .report-gen label { font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 4px; }
+  .report-gen input[type="date"] { font-family: var(--font-body); font-size: 13px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); }
+  .report-gen .rg-btn { font-family: var(--font-body); font-size: 13px; font-weight: 600; padding: 10px 24px; background: var(--primary); color: #fff; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+  .report-gen .rg-btn:hover { background: var(--primary-dark); }
+  .report-gen .rg-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .rg-progress { margin-top: 16px; font-size: 13px; color: var(--text-secondary); }
+  .rg-progress .rg-step { padding: 4px 0; display: flex; align-items: center; gap: 8px; }
+  .rg-progress .rg-step.active { color: var(--primary); font-weight: 600; }
+  .rg-progress .rg-step.done { color: var(--success-text); }
+  .rg-progress .rg-step.done::before { content: "\2713"; }
+  .rg-progress .rg-step.active::before { content: ""; display: inline-block; width: 14px; height: 14px; border: 2px solid var(--primary); border-top-color: transparent; border-radius: 50%; animation: rg-spin 0.8s linear infinite; }
+  @keyframes rg-spin { to { transform: rotate(360deg); } }
   .ratios-period-select { display: flex; justify-content: center; margin-bottom: 16px; }
   .ratios-period-select select { font-family: var(--font-body); font-size: 13px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
   @media (max-width: 768px) {
@@ -452,6 +470,18 @@
       <h2>Published Reports</h2>
       <p>Building Materials & Building Products market health reports from Applied Value</p>
     </div>
+
+    <div class="report-gen">
+      <h3>Generate Custom Report</h3>
+      <p class="rg-sub">AI-powered Building Materials intelligence report for any date range. Exports as Word document.</p>
+      <div class="rg-row">
+        <div><label>Start Date</label><input type="date" id="rg-start"></div>
+        <div><label>End Date</label><input type="date" id="rg-end"></div>
+        <button class="rg-btn" id="rg-btn" onclick="window.generateReport()">Generate Report</button>
+      </div>
+      <div class="rg-progress" id="rg-progress" style="display:none"></div>
+    </div>
+
     <div class="report-downloads" id="report-downloads">
       <div class="loading">Loading reports...</div>
     </div>
@@ -937,6 +967,155 @@ window.openReportSection = async function(slug) {
       : '<div class="loading">No articles tagged for this section yet. Run tag-articles-with-av-sections.ts to populate.</div>';
   } catch (err) {
     console.error('Failed to load report section:', err);
+  }
+};
+
+// Report Generator
+// Set default dates
+(function() {
+  const today = new Date().toISOString().slice(0, 10);
+  const sixMonthsAgo = new Date(Date.now() - 180 * 86400000).toISOString().slice(0, 10);
+  document.getElementById('rg-start').value = sixMonthsAgo;
+  document.getElementById('rg-end').value = today;
+})();
+
+const NEWS_CATEGORIES = [
+  'M&A and Corporate Strategy',
+  'Pricing & Cost Trends',
+  'Tariffs & Trade Policy',
+  'Company Earnings & Performance',
+  'Demand & Construction Activity',
+  'Sustainability & Innovation',
+];
+const MARKET_DRIVERS = [
+  'Interest & Mortgage Rates',
+  'Labor Dynamics',
+  'Material & Energy Costs',
+  'Demand Visibility',
+  'Government Infrastructure Spending',
+  'Credit Availability & Lending Standards',
+  'GDP Growth & Consumer Confidence',
+];
+
+window.generateReport = async function() {
+  const startDate = document.getElementById('rg-start').value;
+  const endDate = document.getElementById('rg-end').value;
+  if (!startDate || !endDate) return alert('Please select both start and end dates.');
+
+  const btn = document.getElementById('rg-btn');
+  const progress = document.getElementById('rg-progress');
+  btn.disabled = true;
+  progress.style.display = 'block';
+
+  function setStep(steps) {
+    progress.innerHTML = steps.map(s =>
+      `<div class="rg-step ${s.status}">${s.label}</div>`
+    ).join('');
+  }
+
+  try {
+    // Step 1: Check article count
+    setStep([{ label: 'Checking articles in date range...', status: 'active' }]);
+    const articlesCheck = await fetch(`/api/articles?limit=1&q=*`).then(r => r.json());
+
+    // Step 2: Synthesize sections in parallel
+    const allSections = [
+      ...NEWS_CATEGORIES.map(s => ({ section: s, sectionType: 'category' })),
+      ...MARKET_DRIVERS.map(s => ({ section: s, sectionType: 'driver' })),
+    ];
+    const totalSteps = allSections.length + 2; // +exec summary +build
+    let completed = 0;
+
+    function updateProgress() {
+      const steps = allSections.map((s, i) => ({
+        label: `${s.sectionType === 'driver' ? '' : ''}${s.section}`,
+        status: i < completed ? 'done' : i === completed ? 'active' : '',
+      }));
+      steps.push({ label: 'Writing executive summary...', status: completed >= allSections.length ? 'active' : '' });
+      steps.push({ label: 'Building Word document...', status: completed >= allSections.length + 1 ? 'active' : '' });
+      setStep(steps);
+    }
+    updateProgress();
+
+    // Fire all synthesis calls in parallel
+    const sectionResults = await Promise.all(
+      allSections.map(async (s) => {
+        const result = await fetch('/api/synthesize-section', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ startDate, endDate, section: s.section, sectionType: s.sectionType }),
+        }).then(r => r.json());
+        completed++;
+        updateProgress();
+        return { ...s, ...result };
+      })
+    );
+
+    const newsSections = sectionResults.filter(s => s.sectionType === 'category');
+    const driverSections = sectionResults.filter(s => s.sectionType === 'driver');
+
+    // Step 3: Executive summary
+    completed = allSections.length;
+    updateProgress();
+    const execResult = await fetch('/api/executive-summary', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ startDate, endDate, sectionSummaries: sectionResults }),
+    }).then(r => r.json());
+
+    // Step 4: Build docx
+    completed = allSections.length + 1;
+    updateProgress();
+
+    const sections = newsSections.map(s => ({
+      category: s.section,
+      content: s.content || '',
+      articles: (s.articles || []).map(a => ({
+        title: a.title || '',
+        source: a.source || '',
+        analysis: a.analysis || '',
+        dataPoints: a.dataPoints || [],
+        url: a.url || '',
+      })),
+    }));
+
+    const drivers = driverSections.map(s => ({
+      driver: s.section,
+      direction: s.direction || 'Mixed',
+      signal: s.signal || '',
+      content: s.content || '',
+      impact: s.impact || '',
+      dataPoints: s.dataPoints || [],
+    }));
+
+    const docResponse = await fetch('/api/build-report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        startDate,
+        endDate,
+        executiveSummary: execResult.summary || '',
+        sections,
+        drivers,
+      }),
+    });
+
+    if (!docResponse.ok) throw new Error('Failed to build document');
+
+    // Download
+    const blob = await docResponse.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Building_Materials_Report_${startDate}_to_${endDate}.docx`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    setStep([{ label: 'Report downloaded successfully!', status: 'done' }]);
+  } catch (err) {
+    progress.innerHTML = `<div class="rg-step" style="color:var(--danger-text)">Error: ${escHtml(err.message)}</div>`;
+  } finally {
+    btn.disabled = false;
   }
 };
 
