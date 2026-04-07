@@ -24,7 +24,7 @@ A remote scheduled trigger (`building-materials-daily-review`, ID: `trig_015uykD
 - Auto-refreshes KB data every 60 seconds
 
 ## Knowledge Base Structure
-- `knowledge-base/raw/articles/` -- 264 markdown articles with YAML frontmatter (date, source, url, category, companies, tags)
+- `knowledge-base/raw/articles/` -- 353+ markdown articles with YAML frontmatter (date, source, url, category, companies, tags)
 - `knowledge-base/wiki/companies/` -- 39 company profiles
 - `knowledge-base/wiki/market-drivers/` -- 7 market health driver pages
 - `knowledge-base/wiki/concepts/` -- 6 concept/analysis pages

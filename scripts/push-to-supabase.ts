@@ -6,7 +6,7 @@ import { readdir, readFile } from "fs/promises";
 import { join, basename } from "path";
 
 const PROJECT_REF = "pmjqymxdaiwfpfglwqux";
-const ACCESS_TOKEN = "sbp_60ef238584fa367cbae0549c8c56e3b03e54917e";
+const ACCESS_TOKEN = process.env.SUPABASE_ACCESS_TOKEN!;
 const API_URL = `https://api.supabase.com/v1/projects/${PROJECT_REF}/database/query`;
 
 const KB = join(import.meta.dir, "..", "knowledge-base");
