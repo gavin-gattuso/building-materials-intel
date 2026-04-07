@@ -1,6 +1,6 @@
 import { serve } from "bun";
 import { readFile } from "fs/promises";
-import { join } from "path";
+import { join, resolve } from "path";
 import { loadKB, getArticles, getWikiPages, searchKB, getStats, type SearchResult } from "./kb";
 import { getUpcomingEarnings } from "./earnings-calendar";
 import { buildReportDocument } from "../lib/docx-formatting";
@@ -557,8 +557,12 @@ Respond in JSON: { "summary": "..." }` }],
 
     // Static files
     let filePath = url.pathname === "/" ? "/index.html" : url.pathname;
+    const resolved = resolve(join(PUBLIC, filePath));
+    if (!resolved.startsWith(resolve(PUBLIC))) {
+      return new Response("Forbidden", { status: 403 });
+    }
     try {
-      const file = await readFile(join(PUBLIC, filePath));
+      const file = await readFile(resolved);
       const ext = filePath.split(".").pop();
       const types: Record<string, string> = { html: "text/html", css: "text/css", js: "application/javascript", png: "image/png", svg: "image/svg+xml", pdf: "application/pdf" };
       return new Response(file, { headers: { "Content-Type": types[ext || ""] || "application/octet-stream" } });

@@ -562,14 +562,33 @@
 <script type="module">
 import { marked } from '/marked.esm.js';
 
+function sanitizeHtml(html) {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  div.querySelectorAll('script,iframe,object,embed,form,link,style').forEach(el => el.remove());
+  div.querySelectorAll('*').forEach(el => {
+    for (const attr of [...el.attributes]) {
+      if (attr.name.startsWith('on') || (attr.name === 'href' && attr.value.trimStart().startsWith('javascript:'))) {
+        el.removeAttribute(attr.name);
+      }
+    }
+  });
+  return div.innerHTML;
+}
+
 function renderMd(md) {
-  if (typeof marked !== 'undefined' && marked.parse) return marked.parse(md);
-  return md
-    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\n/g, '<br>');
+  let html;
+  if (typeof marked !== 'undefined' && marked.parse) {
+    html = marked.parse(md);
+  } else {
+    html = md
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+  }
+  return sanitizeHtml(html);
 }
 window.renderMd = renderMd;
 
@@ -593,13 +612,13 @@ document.querySelectorAll('.header-nav a').forEach(item => {
 // Load dashboard
 async function loadDashboard() {
   const [stats, articles, allArticles, earningsCalendar, weeklySummary] = await Promise.all([
-    fetch('/api/stats').then(r => r.json()),
-    fetch('/api/articles?limit=10').then(r => r.json()),
-    fetch('/api/articles?limit=500').then(r => r.json()),
+    fetch('/api/stats').then(r => r.json()).catch(() => ({ total: 0, byCategory: {}, companyMentions: {}, thisWeek: 0 })),
+    fetch('/api/articles?limit=10').then(r => r.json()).catch(() => []),
+    fetch('/api/articles?limit=500').then(r => r.json()).catch(() => []),
     fetch('/earnings-calendar.json').then(r => r.json()).then(all => {
       const today = new Date().toISOString().slice(0, 10);
       return all.filter(e => e.date >= today).slice(0, 10);
-    }),
+    }).catch(() => []),
     fetch('/weekly-summary.json').then(r => { if (!r.ok) throw new Error(); return r.json(); })
       .catch(() => fetch('/api/weekly-summary').then(r => r.json()).catch(() => null)),
   ]);
@@ -795,6 +814,9 @@ window.openCompanyByTicker = async function(ticker) {
 window.closeDetail = function() {
   document.getElementById('detail-overlay').classList.remove('open');
 };
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeDetail();
+});
 
 // Chat
 let chatMode = 'search';
@@ -885,6 +907,7 @@ window.sendChat = async function() {
 
   document.getElementById('chat-send').disabled = true;
   chatHistory.push({ role: 'user', content: msg });
+  if (chatHistory.length > 50) chatHistory = chatHistory.slice(-50);
 
   try {
     const res = await fetch('/api/chat', {

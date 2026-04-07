@@ -262,11 +262,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (period) query = query.eq("period", period);
         const { data: ratios } = await query;
         const flags: any[] = [];
+        // Pre-fetch articles per company (one searchKB call each) to avoid N+1
+        const companyArticleCache = new Map<string, any[]>();
         for (const row of (ratios || [])) {
-          for (const t of THRESHOLDS) {
-            const val = (row as any)[t.field];
-            if (val == null || Math.abs(val) < t.threshold) continue;
-            const direction = val < 0 ? "drop" : "surge";
+          if (!companyArticleCache.has(row.company)) {
             const results = (await searchKB(row.company, 10)).filter(r => r.entry.type === "article").map(r => r.entry as any);
             results.sort((a: any, b: any) => {
               const catA = (a.category || "").toLowerCase().includes("earning") ? 1 : 0;
@@ -274,6 +273,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               if (catB !== catA) return catB - catA;
               return (b.date || "").localeCompare(a.date || "");
             });
+            companyArticleCache.set(row.company, results);
+          }
+          for (const t of THRESHOLDS) {
+            const val = (row as any)[t.field];
+            if (val == null || Math.abs(val) < t.threshold) continue;
+            const direction = val < 0 ? "drop" : "surge";
+            const results = companyArticleCache.get(row.company) || [];
             const best = results[0];
             const excerpt = best ? (best.content || "").split("\n").find((l: string) => l.trim().length > 40)?.trim().slice(0, 200) || "" : "";
             flags.push({
