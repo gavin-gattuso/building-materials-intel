@@ -34,7 +34,8 @@
   /* Header */
   .header { background: var(--primary); display: flex; align-items: center; padding: 0 24px; height: 56px; position: sticky; top: 0; z-index: 200; }
   .header-brand { display: flex; align-items: center; gap: 14px; }
-  .header-logo { font-size: 18px; font-weight: 700; color: #fff; letter-spacing: 0.3px; white-space: nowrap; }
+  .header-logo { display: flex; align-items: center; white-space: nowrap; }
+  .header-logo img { height: 32px; width: auto; }
   .header-logo span { opacity: 0.7; font-weight: 400; }
   .header-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.35); margin: 0 8px; }
   .header-title { font-size: 15px; font-weight: 500; color: rgba(255,255,255,0.9); white-space: nowrap; }
@@ -206,7 +207,7 @@
 <!-- Header -->
 <div class="header">
   <div class="header-brand">
-    <div class="header-logo">Applied Value</div>
+    <div class="header-logo"><img src="/av-logo.png" alt="Applied Value"></div>
     <div class="header-divider"></div>
     <div class="header-title">Building Materials Intelligence</div>
   </div>
