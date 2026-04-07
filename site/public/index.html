@@ -316,12 +316,13 @@
   .ratio-delta.positive { color: #16664b; }
   .ratio-delta.negative { color: #c62828; }
   .ratio-row.pending { opacity: 0.55; }
-  .ratio-flag { font-size: 11px; padding: 4px 8px 4px 10px; margin: 2px 0 6px 140px; background: #fff3e0; border-left: 3px solid #e65100; border-radius: 0 4px 4px 0; line-height: 1.4; }
-  .ratio-flag.surge { background: #e8f5e9; border-left-color: #2e7d32; }
-  .ratio-flag .flag-icon { margin-right: 4px; }
-  .ratio-flag .flag-text { font-weight: 600; }
-  .ratio-flag .flag-citation { margin-top: 2px; font-weight: 400; color: var(--text-secondary); }
-  .ratio-flag .flag-link { color: var(--primary); text-decoration: underline; }
+  .ratio-delta a { color: inherit; text-decoration: none; border-bottom: 1px dotted currentColor; position: relative; }
+  .ratio-delta a:hover { border-bottom-style: solid; }
+  .ratio-delta .flag-indicator { font-size: 9px; vertical-align: super; margin-left: 1px; cursor: help; }
+  .ratio-delta .delta-tooltip { display: none; position: absolute; bottom: calc(100% + 4px); right: 0; background: #333; color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 400; white-space: normal; max-width: 280px; z-index: 100; pointer-events: none; line-height: 1.4; text-align: left; }
+  .ratio-delta a:hover .delta-tooltip { display: block; }
+  .ratio-flag-inline { font-size: 10px; color: var(--text-secondary); margin-left: 140px; margin-bottom: 2px; line-height: 1.3; }
+  .ratio-flag-inline a { color: var(--primary); }
   .ratio-pending-badge { display: inline-block; font-size: 9px; font-weight: 600; color: #e65100; background: #fff3e0; padding: 1px 6px; border-radius: 8px; margin-left: 4px; vertical-align: middle; letter-spacing: 0.3px; }
   .ratios-legend { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; font-size: 11px; color: var(--text-muted); }
   .ratios-legend .leg-item { display: flex; align-items: center; gap: 4px; }
@@ -332,7 +333,10 @@
   .ratio-avg .ratio-value { font-weight: 700; }
   .ratios-source { text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 24px; }
   .ratios-key { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-bottom: 20px; padding: 10px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
-  .ratios-key .key-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-secondary); white-space: nowrap; }
+  .ratios-key .key-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-secondary); white-space: nowrap; cursor: pointer; padding: 3px 8px; border-radius: 4px; transition: opacity 0.2s, background 0.15s; }
+  .ratios-key .key-item:hover { background: rgba(0,0,0,0.05); }
+  .ratios-key .key-item.active { background: rgba(0,0,0,0.08); box-shadow: 0 0 0 1.5px var(--primary); }
+  .ratios-key .key-item.dimmed { opacity: 0.35; }
   .ratios-key .key-swatch { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
 
   /* Report Generator */
@@ -1206,6 +1210,7 @@ const SEGMENT_COLORS = {
 let ratiosData = [];
 let ratioFlags = {};
 let activeMetric = 'revenue_ltm';
+let activeSegmentFilter = null;
 
 async function loadFinancialRatios() {
   try {
@@ -1222,6 +1227,8 @@ async function loadFinancialRatios() {
     const periodSel = document.getElementById('ratios-period');
     periodSel.innerHTML = periods.map(p => `<option value="${p}">${p}</option>`).join('');
     periodSel.onchange = async () => {
+      activeSegmentFilter = null;
+      updateKeyHighlights();
       await loadRatioFlags(periodSel.value);
       renderRatios();
     };
@@ -1237,6 +1244,8 @@ async function loadFinancialRatios() {
     btnContainer.querySelectorAll('button').forEach(btn => {
       btn.onclick = () => {
         activeMetric = btn.dataset.metric;
+        activeSegmentFilter = null;
+        updateKeyHighlights();
         btnContainer.querySelectorAll('button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         renderRatios();
@@ -1256,14 +1265,37 @@ async function loadFinancialRatios() {
       'Kitchen and Bath': 'Kitchen & Bath',
       'HVAC-R, Fire and Security': 'HVAC-R & Security',
     };
-    document.getElementById('ratios-key').innerHTML = Object.entries(SEGMENT_COLORS)
-      .map(([seg, color]) => `<span class="key-item"><span class="key-swatch" style="background:${color}"></span>${SEGMENT_LABELS[seg] || seg}</span>`)
+    const keyEl = document.getElementById('ratios-key');
+    keyEl.innerHTML = Object.entries(SEGMENT_COLORS)
+      .map(([seg, color]) => `<span class="key-item" data-segment="${escHtml(seg)}"><span class="key-swatch" style="background:${color}"></span>${SEGMENT_LABELS[seg] || seg}</span>`)
       .join('');
+    keyEl.querySelectorAll('.key-item').forEach(item => {
+      item.onclick = () => {
+        const seg = item.dataset.segment;
+        activeSegmentFilter = activeSegmentFilter === seg ? null : seg;
+        updateKeyHighlights();
+        renderRatios();
+      };
+    });
 
     renderRatios();
   } catch {
     document.getElementById('ratios-panels').innerHTML = '<div class="loading">Could not load financial data.</div>';
   }
+}
+
+function updateKeyHighlights() {
+  document.querySelectorAll('#ratios-key .key-item').forEach(item => {
+    if (activeSegmentFilter === null) {
+      item.classList.remove('active', 'dimmed');
+    } else if (item.dataset.segment === activeSegmentFilter) {
+      item.classList.add('active');
+      item.classList.remove('dimmed');
+    } else {
+      item.classList.remove('active');
+      item.classList.add('dimmed');
+    }
+  });
 }
 
 async function loadRatioFlags(period) {
@@ -1307,6 +1339,12 @@ function renderRatios() {
 }
 
 function buildRatioChart(companies, metric) {
+  // Apply segment filter
+  if (activeSegmentFilter) {
+    companies = companies.filter(c => c.segment === activeSegmentFilter);
+  }
+  if (companies.length === 0) return '<div class="loading" style="font-size:12px;color:var(--text-muted)">No companies in this segment for this category.</div>';
+
   const vals = companies.map(c => c[metric.key]).filter(v => v != null);
   if (vals.length === 0) return '<div class="loading">No data available for this metric.</div>';
 
@@ -1321,21 +1359,52 @@ function buildRatioChart(companies, metric) {
     const pct = Math.abs(val) / absMax * 100;
     const valStr = metric.unit === 'BUSD' ? `$${val.toFixed(1)}` : `${val.toFixed(1)}%`;
 
+    // Look up flag early so delta can incorporate article link
+    const flag = ratioFlags[`${c.company}|${metric.key}`];
+
     let deltaHtml = '';
     if (metric.hasDelta && metric.deltaKey) {
       const delta = c[metric.deltaKey];
       if (delta != null) {
         const cls = delta > 0 ? 'positive' : delta < 0 ? 'negative' : '';
-        deltaHtml = `<span class="ratio-delta ${cls}">${delta > 0 ? '+' : ''}${delta.toFixed(1)}</span>`;
+        const deltaText = `${delta > 0 ? '+' : ''}${delta.toFixed(1)}`;
+        if (flag && flag.article) {
+          const verb = flag.direction === 'drop' ? 'dropped' : 'surged';
+          const unitStr = flag.unit === '%' ? '%' : 'pp';
+          const tipText = `${escHtml(flag.metricLabel)} ${verb} ${Math.abs(flag.value).toFixed(1)}${unitStr}`;
+          const tipSrc = `${escHtml(flag.article.title)} (${escHtml(flag.article.source)})`;
+          const icon = flag.direction === 'drop' ? '\u26a0' : '\u2191';
+          deltaHtml = `<span class="ratio-delta ${cls}"><a href="${escHtml(flag.article.url || '#')}" target="_blank" title="${tipText} \u2014 ${tipSrc}">${deltaText}<span class="flag-indicator">${icon}</span><span class="delta-tooltip">${tipText}<br>${tipSrc}</span></a></span>`;
+        } else {
+          deltaHtml = `<span class="ratio-delta ${cls}">${deltaText}</span>`;
+        }
       }
     } else if (metric.allowNeg) {
       const cls = val > 0 ? 'positive' : val < 0 ? 'negative' : '';
-      deltaHtml = `<span class="ratio-delta ${cls}">${val > 0 ? '+' : ''}${val.toFixed(1)}%</span>`;
+      const deltaText = `${val > 0 ? '+' : ''}${val.toFixed(1)}%`;
+      if (flag && flag.article) {
+        const verb = flag.direction === 'drop' ? 'dropped' : 'surged';
+        const unitStr = flag.unit === '%' ? '%' : 'pp';
+        const tipText = `${escHtml(flag.metricLabel)} ${verb} ${Math.abs(flag.value).toFixed(1)}${unitStr}`;
+        const tipSrc = `${escHtml(flag.article.title)} (${escHtml(flag.article.source)})`;
+        const icon = flag.direction === 'drop' ? '\u26a0' : '\u2191';
+        deltaHtml = `<span class="ratio-delta ${cls}"><a href="${escHtml(flag.article.url || '#')}" target="_blank" title="${tipText} \u2014 ${tipSrc}">${deltaText}<span class="flag-indicator">${icon}</span><span class="delta-tooltip">${tipText}<br>${tipSrc}</span></a></span>`;
+      } else {
+        deltaHtml = `<span class="ratio-delta ${cls}">${deltaText}</span>`;
+      }
+    }
+
+    // Compact flag fallback for metrics with no delta column
+    let flagHtml = '';
+    if (flag && !metric.hasDelta && !metric.allowNeg) {
+      const icon = flag.direction === 'drop' ? '\u26a0' : '\u2191';
+      const verb = flag.direction === 'drop' ? 'dropped' : 'surged';
+      const unitStr = flag.unit === '%' ? '%' : 'pp';
+      flagHtml = `<div class="ratio-flag-inline">${icon} ${escHtml(flag.metricLabel)} ${verb} ${Math.abs(flag.value).toFixed(1)}${unitStr}${flag.article ? ` \u2014 <a href="${escHtml(flag.article.url || '#')}" target="_blank">${escHtml(flag.article.title)}</a>` : ''}</div>`;
     }
 
     let barHtml;
     if (hasNeg) {
-      // Two-sided bar for metrics with negatives
       const midPct = 50;
       if (val >= 0) {
         const w = (val / absMax) * midPct;
@@ -1356,25 +1425,6 @@ function buildRatioChart(companies, metric) {
 
     const pendingCls = c.has_reported === false ? ' pending' : '';
     const pendingBadge = c.has_reported === false ? '<span class="ratio-pending-badge">PENDING</span>' : '';
-
-    // Check for change flag
-    let flagHtml = '';
-    const flag = ratioFlags[`${c.company}|${metric.key}`];
-    if (flag) {
-      const icon = flag.direction === 'drop' ? '\u26a0' : '\u2191';
-      const verb = flag.direction === 'drop' ? 'dropped' : 'surged';
-      const unitStr = flag.unit === '%' ? '%' : 'pp';
-      let citation = '';
-      if (flag.article) {
-        const linkUrl = flag.article.url || '#';
-        citation = `<div class="flag-citation">See: <a href="${escHtml(linkUrl)}" target="_blank" class="flag-link">${escHtml(flag.article.title)}</a> (${escHtml(flag.article.source)}, ${flag.article.date})</div>`;
-      }
-      flagHtml = `<div class="ratio-flag ${flag.direction}">
-        <span class="flag-icon">${icon}</span>
-        <span class="flag-text">${escHtml(flag.metricLabel)} ${verb} ${Math.abs(flag.value).toFixed(1)}${unitStr}</span>
-        ${citation}
-      </div>`;
-    }
 
     return `<div class="ratio-row${pendingCls}">
       <span class="ratio-company" title="${escHtml(c.company)}">${escHtml(c.company)}${pendingBadge}</span>
