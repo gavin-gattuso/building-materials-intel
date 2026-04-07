@@ -35,6 +35,33 @@ async function getArticles(limit = 200) {
   return articles.map(a => ({ ...a, companies: companyMap[a.id] || [], type: "article" as const }));
 }
 
+async function getArticlesMeta(limit = 200) {
+  const { data: articles } = await supabase
+    .from("articles")
+    .select("id, slug, title, date, source, url, category")
+    .order("date", { ascending: false })
+    .limit(limit);
+  if (!articles || articles.length === 0) return [];
+
+  const articleIds = articles.map(a => a.id);
+  const { data: junctions } = await supabase
+    .from("article_companies")
+    .select("article_id, companies(name)")
+    .in("article_id", articleIds);
+
+  const companyMap: Record<string, string[]> = {};
+  if (junctions) {
+    for (const j of junctions as any[]) {
+      const name = j.companies?.name;
+      if (name) {
+        if (!companyMap[j.article_id]) companyMap[j.article_id] = [];
+        companyMap[j.article_id].push(name);
+      }
+    }
+  }
+  return articles.map(a => ({ ...a, companies: companyMap[a.id] || [], type: "article" as const }));
+}
+
 async function getArticleBySlug(slug: string) {
   const { data } = await supabase.from("articles").select("id, slug, title, date, source, url, category, content").eq("slug", slug).single();
   if (!data) return null;
@@ -302,7 +329,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       let results: any[] = q
         ? (await searchKB(q, limit)).map(r => r.entry).filter(e => e.type === "article")
-        : await getArticles(limit);
+        : await getArticlesMeta(limit);
 
       if (category) results = results.filter((a: any) => a.category?.toLowerCase().includes(category.toLowerCase()));
       if (company) results = results.filter((a: any) => a.companies?.some((c: string) => c.toLowerCase().includes(company.toLowerCase())));

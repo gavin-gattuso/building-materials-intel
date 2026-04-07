@@ -3,45 +3,10 @@
  * Calculates COGS/Sales and SG&A/Sales ratios. Outputs JSON to stdout.
  */
 import YahooFinance from "yahoo-finance2";
+import { TRACKED_COMPANIES } from "../lib/constants";
 const yf = new YahooFinance({ suppressNotices: ["yahooSurvey"] });
 
-const companies = [
-  {company:"CRH",ticker:"CRH",category:"materials"},
-  {company:"CEMEX",ticker:"CX",category:"materials"},
-  {company:"Heidelberg Materials",ticker:"HEI.DE",category:"materials"},
-  {company:"Holcim",ticker:"HOLN.SW",category:"materials"},
-  {company:"Martin Marietta",ticker:"MLM",category:"materials"},
-  {company:"Taiheiyo Cement",ticker:"5233.T",category:"materials"},
-  {company:"Vulcan Materials",ticker:"VMC",category:"materials"},
-  {company:"AGC",ticker:"5201.T",category:"materials"},
-  {company:"Owens Corning",ticker:"OC",category:"materials"},
-  {company:"Saint-Gobain",ticker:"SGO.PA",category:"materials"},
-  {company:"Canfor",ticker:"CFP.TO",category:"materials"},
-  {company:"Interfor",ticker:"IFP.TO",category:"materials"},
-  {company:"UFP Industries",ticker:"UFPI",category:"materials"},
-  {company:"West Fraser",ticker:"WFG.TO",category:"materials"},
-  {company:"Weyerhaeuser",ticker:"WY",category:"materials"},
-  {company:"ArcelorMittal",ticker:"MT",category:"materials"},
-  {company:"Nucor",ticker:"NUE",category:"materials"},
-  {company:"Steel Dynamics",ticker:"STLD",category:"materials"},
-  {company:"Wienerberger",ticker:"WIE.VI",category:"materials"},
-  {company:"Builders FirstSource",ticker:"BLDR",category:"products"},
-  {company:"Carlisle Companies",ticker:"CSL",category:"products"},
-  {company:"Kingspan",ticker:"KRX.IR",category:"products"},
-  {company:"QXO",ticker:"QXO",category:"products"},
-  {company:"ASSA ABLOY",ticker:"ASSA-B.ST",category:"products"},
-  {company:"JELD-WEN",ticker:"JELD",category:"products"},
-  {company:"LIXIL",ticker:"5938.T",category:"products"},
-  {company:"Sanwa Holdings",ticker:"5929.T",category:"products"},
-  {company:"Advanced Drainage Systems",ticker:"WMS",category:"products"},
-  {company:"Geberit",ticker:"GEBN.SW",category:"products"},
-  {company:"Fortune Brands",ticker:"FBIN",category:"products"},
-  {company:"Masco",ticker:"MAS",category:"products"},
-  {company:"Carrier Global",ticker:"CARR",category:"products"},
-  {company:"Daikin Industries",ticker:"6367.T",category:"products"},
-  {company:"Johnson Controls",ticker:"JCI",category:"products"},
-  {company:"Trane Technologies",ticker:"TT",category:"products"},
-];
+const companies = TRACKED_COMPANIES;
 
 const results: any[] = [];
 

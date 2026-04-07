@@ -11,36 +11,13 @@
  */
 
 import { createClient } from "@supabase/supabase-js";
+import { getYahooTicker } from "../lib/constants";
 
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co";
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 if (!SUPABASE_KEY) { console.error("SUPABASE_SERVICE_ROLE_KEY required"); process.exit(1); }
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// All 35 tracked companies with Yahoo Finance tickers
-// Some international tickers need mapping from our internal format
-const TICKER_MAP: Record<string, string> = {
-  "HEI.DE": "HEI.DE",
-  "HOLN.SW": "HOLN.SW",
-  "5233.T": "5233.T",
-  "5201.T": "5201.T",
-  "SGO.PA": "SGO.PA",
-  "CFP.TO": "CFP.TO",
-  "IFP.TO": "IFP.TO",
-  "WFG.TO": "WFG.TO",
-  "ASSA-B.ST": "ASSA-B.ST",
-  "5938.T": "5938.T",
-  "5929.T": "5929.T",
-  "GEBN.SW": "GEBN.SW",
-  "WIE.VI": "WIE.VI",
-  "6367.T": "6367.T",
-  "KRX.IR": "KRX.IR",
-};
-
-function getYahooTicker(ticker: string): string {
-  return TICKER_MAP[ticker] || ticker;
-}
 
 // Determine current reporting period based on date
 function getCurrentPeriod(): string {

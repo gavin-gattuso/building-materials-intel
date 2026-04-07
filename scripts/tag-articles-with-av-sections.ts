@@ -7,6 +7,7 @@
 import { readdir, readFile } from "fs/promises";
 import { join, basename } from "path";
 import matter from "gray-matter";
+import { TRACKED_COMPANY_NAMES } from "../lib/constants";
 
 // Supports both REST API (SUPABASE_SERVICE_ROLE_KEY) and Management API (SUPABASE_ACCESS_TOKEN)
 const PROJECT_REF = "pmjqymxdaiwfpfglwqux";
@@ -99,17 +100,7 @@ const SECTION_RULES: Record<string, { keywords: string[]; categories: string[]; 
   },
 };
 
-// The 35 tracked companies trigger public-company-performance tagging
-const TRACKED_COMPANIES = new Set([
-  "CRH", "CEMEX", "Heidelberg Materials", "Holcim", "Martin Marietta", "Taiheiyo Cement", "Vulcan Materials",
-  "AGC", "Owens Corning", "Saint-Gobain",
-  "Canfor", "Interfor", "UFP Industries", "West Fraser", "Weyerhaeuser",
-  "ArcelorMittal", "Nucor", "Steel Dynamics", "Wienerberger",
-  "Builders FirstSource", "Carlisle Companies", "Kingspan", "QXO",
-  "ASSA ABLOY", "JELD-WEN", "LIXIL", "Sanwa Holdings",
-  "Advanced Drainage Systems", "Geberit", "Fortune Brands", "Masco",
-  "Carrier Global", "Daikin Industries", "Johnson Controls", "Trane Technologies",
-]);
+// The 35 tracked companies trigger public-company-performance tagging (from lib/constants.ts)
 
 function scoreArticleForSection(
   sectionSlug: string,
@@ -142,7 +133,7 @@ function scoreArticleForSection(
   // Company-specific boost for performance sections
   if (sectionSlug === "public-company-performance" || sectionSlug === "public-company-snapshot") {
     for (const c of article.companies) {
-      if (TRACKED_COMPANIES.has(c)) {
+      if (TRACKED_COMPANY_NAMES.has(c)) {
         score += 0.2;
         break;
       }
