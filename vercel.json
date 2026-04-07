@@ -2,6 +2,7 @@
   "buildCommand": "npm install && npx bun site/build-static.ts",
   "outputDirectory": "site/public",
   "rewrites": [
+    { "source": "/api/build-report", "destination": "/api/build-report" },
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]

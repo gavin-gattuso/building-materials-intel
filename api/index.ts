@@ -1,6 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
-import { buildReportDocument } from "../lib/docx-formatting";
 
 const supabase = createClient(
   (process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co").trim(),
@@ -511,19 +510,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       const summary = response.content[0].type === "text" ? response.content[0].text : "";
       return res.json({ summary });
-    }
-
-    // /api/build-report — assemble docx from pre-synthesized content
-    if (path === "build-report") {
-      if (req.method !== "POST") return res.status(405).json({ error: "POST required" });
-      const { startDate, endDate, executiveSummary, sections, drivers } = req.body;
-
-      const buffer = await buildReportDocument({ startDate, endDate, executiveSummary, sections: sections || [], drivers: drivers || [] });
-
-      const filename = `Building_Materials_Report_${startDate}_to_${endDate}.docx`;
-      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-      return res.send(buffer);
     }
 
     return res.status(404).json({ error: "Not found" });
