@@ -31,6 +31,42 @@ A remote scheduled trigger (`building-materials-daily-review`, ID: `trig_015uykD
 - `lib/docx-formatting.ts` -- Shared formatting utilities (brand colors, heading styles, trend table, title block)
 - Important: ESM imports in `api/` must use `.js` extensions for Vercel Node.js runtime compatibility
 
+## Vercel API Endpoints
+The main API (`api/index.ts`) handles all endpoints except build-report:
+- `GET /api/stats` -- Article counts, category breakdown, company mentions
+- `GET /api/mode` -- Whether AI synthesis is enabled
+- `GET /api/articles?q=&category=&company=&limit=` -- Search/filter articles
+- `GET /api/article/{slug}` -- Full article detail
+- `GET /api/wiki?type=company|market-driver|concept` -- Wiki page listings
+- `GET /api/wiki/{slug}` -- Full wiki page content
+- `GET /api/weekly-summary` -- Latest AI-generated weekly digest
+- `GET /api/financial-ratios?period=` -- Financial metrics for all 35 companies
+- `GET /api/financial-ratio-flags?period=` -- Flagged >15% YoY changes with linked articles
+- `GET /api/av-sections` -- 9 Applied Value report sections
+- `GET /api/av-sections/{slug}` -- Section detail with tagged articles and relevance scores
+- `GET /api/av-coverage` -- Article coverage counts per report section
+- `POST /api/chat` -- Smart search or AI synthesis (body: {message, history})
+- `POST /api/synthesize-section` -- AI synthesis for report sections
+- `POST /api/executive-summary` -- AI-generated executive summary
+- `POST /api/build-report` -- Generates .docx report (separate serverless function in `api/build-report.ts`)
+
+## Database (Supabase)
+- All data served from Supabase (PostgreSQL) -- articles, companies, market_drivers, concepts, financial_ratios, weekly_summaries, av_report_sections, article_av_sections, earnings_calendar
+- Env vars: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_ANON_KEY
+- Migration scripts in `scripts/` (migrate-to-supabase.ts, migrate-av-reports-schema.ts, etc.)
+
+## Scripts
+- `scripts/push-to-supabase.ts` -- Upload parsed KB to Supabase
+- `scripts/update-financial-ratios.ts` -- Fetch Yahoo Finance data, calculate metrics, flag changes
+- `scripts/generate-weekly-summary.ts` -- AI weekly digest (runs Friday via trigger)
+- `scripts/tag-articles-with-av-sections.ts` -- AI-tag articles to 9 AV report sections
+- `scripts/fetch-fy2025.ts` / `fetch-cogs-sga.ts` -- Financial data fetchers
+- `scripts/lint-kb.ts` -- Validate KB markdown frontmatter
+
+## Static Build
+- `site/build-static.ts` -- Generates static JSON files at build time (earnings-calendar.json, reports.json, financial-ratios.json, weekly-summary.json)
+- Vercel build command: `npm install && npx bun site/build-static.ts`
+
 ## Knowledge Base Structure
 - `knowledge-base/raw/articles/` -- 353+ markdown articles with YAML frontmatter (date, source, url, category, companies, tags)
 - `knowledge-base/wiki/companies/` -- 39 company profiles
