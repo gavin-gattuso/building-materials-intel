@@ -314,7 +314,6 @@
     <a data-page="companies">Companies</a>
     <a data-page="drivers">Market Drivers</a>
     <a data-page="concepts">Concepts</a>
-    <a data-page="foundational">Foundational</a>
     <a data-page="reports">Reports</a>
     <a data-page="chat">AI Chat</a>
   </div>
@@ -390,18 +389,6 @@
       <p>Deep-dive analysis pages on critical industry topics</p>
     </div>
     <div class="article-list" id="concepts-list"></div>
-  </div>
-
-  <!-- Foundational -->
-  <div class="page" id="page-foundational">
-    <div class="hero">
-      <h2>Foundational Knowledge</h2>
-      <p>20+ years of industry expertise — cycles, supply chain economics, consolidation history, regulation, and structural trends</p>
-    </div>
-    <div class="search-bar">
-      <select class="filter-select" id="foundational-category-filter"><option value="">All Categories</option></select>
-    </div>
-    <div class="card-grid" id="foundational-grid"></div>
   </div>
 
   <!-- Reports -->
@@ -642,31 +629,6 @@ async function loadConcepts() {
       <div class="article-title">${escHtml(c.title)}</div>
     </div>
   `).join('');
-}
-
-// Foundational page
-async function loadFoundational() {
-  const pages = await fetch('/api/wiki?type=foundational').then(r => r.json());
-  const categories = [...new Set(pages.map(p => p.frontmatter?.category).filter(Boolean))].sort();
-  const catFilter = document.getElementById('foundational-category-filter');
-  catFilter.innerHTML = '<option value="">All Categories</option>' + categories.map(c => `<option value="${c}">${c.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>`).join('');
-  catFilter.onchange = () => renderFoundational(pages, catFilter.value);
-  renderFoundational(pages, '');
-}
-
-function renderFoundational(pages, filterCat) {
-  const filtered = filterCat ? pages.filter(p => p.frontmatter?.category === filterCat) : pages;
-  const categoryLabels = { 'industry-cycles': 'Industry Cycles', 'supply-chain': 'Supply Chain', 'consolidation': 'M&A & Consolidation', 'regulation': 'Regulation & Policy', 'technology': 'Technology & Trends', 'regional': 'Regional & Segments' };
-  document.getElementById('foundational-grid').innerHTML = filtered.map(p => {
-    const cat = p.frontmatter?.category || '';
-    const label = categoryLabels[cat] || cat.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    return `<div class="signal-card" onclick="window.openWiki('${p.id}')">
-      <div class="signal-header">
-        <span class="signal-name">${escHtml(p.title)}</span>
-        <span class="signal-badge stable" style="font-size:11px">${label}</span>
-      </div>
-    </div>`;
-  }).join('');
 }
 
 // Detail view
@@ -930,7 +892,6 @@ loadArticleFilters();
 loadCompanies();
 loadDrivers();
 loadConcepts();
-loadFoundational();
 loadReportDownloads();
 loadReports();
 </script>
