@@ -2,7 +2,7 @@
 date: 2026-02-12
 source: GlobeNewswire / Interfor Corporation
 url: https://www.globenewswire.com/news-release/2026/02/12/3237763/0/en/Interfor-Reports-Q4-25-Results.html
-category: Earnings
+category: Earnings & Financials
 companies: [Interfor]
 tags: [earnings, Q4-2025, lumber, production-curtailments, equity-offering, capital-spending]
 ---

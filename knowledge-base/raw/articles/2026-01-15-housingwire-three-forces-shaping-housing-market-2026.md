@@ -2,7 +2,7 @@
 date: 2026-01-15
 source: HousingWire
 url: https://www.housingwire.com/articles/housing-market-2026-trends/
-category: Market
+category: Industry Outlook
 companies: [Builders FirstSource]
 tags: [housing-market, 2026, mortgage-rates, demand, affordability, construction, trends]
 ---

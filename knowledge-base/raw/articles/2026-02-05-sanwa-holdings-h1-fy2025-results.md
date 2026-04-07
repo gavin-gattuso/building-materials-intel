@@ -2,7 +2,7 @@
 date: 2026-02-05
 source: Sanwa Holdings IR / Quartr
 url: https://www.sanwa-hldgs.co.jp/english/ir/
-category: Earnings
+category: Earnings & Financials
 companies: [Sanwa Holdings]
 tags: [earnings, H1 FY2025, record profit, Japan, Overhead Door, tariffs]
 ---

@@ -2,7 +2,7 @@
 date: 2026-03-20
 source: HousingWire
 url: https://www.housingwire.com/articles/tariffs-home-cost-impact/
-category: Market
+category: Industry Outlook
 companies: []
 tags: [tariffs, housing-costs, building-materials, lumber, trade-policy, affordability]
 ---

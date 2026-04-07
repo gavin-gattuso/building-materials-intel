@@ -2,7 +2,7 @@
 date: 2026-04-03
 source: Roofing Contractor
 url: https://www.roofingcontractor.com/articles/102046-contractor-ai-adoption-surges-in-2026-report-finds
-category: Industry
+category: Industry Outlook
 companies: []
 tags: [roofing, AI, technology, adoption, contractors, digital-transformation, 2026]
 ---

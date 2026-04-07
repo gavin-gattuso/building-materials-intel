@@ -2,7 +2,7 @@
 date: 2026-02-24
 source: Seeking Alpha
 url: https://seekingalpha.com/news/4556146-ufp-industries-targets-100m-deckorators-sales-jump-in-2026-as-capacity-expands-cost-savings
-category: Earnings
+category: Earnings & Financials
 companies: [UFP Industries]
 tags: [Q4 2025, Deckorators, composite decking, growth, capacity expansion]
 ---

@@ -2,7 +2,7 @@
 date: 2026-03-01
 source: CemNet
 url: https://www.cemnet.com/Articles/story/181012/usa-disrupting-industry-dynamics.html
-category: Market
+category: Industry Outlook
 companies: [CEMEX, Heidelberg Materials, Holcim, CRH]
 tags: [cement, USA, type-IL, imports, disruption, market-dynamics, tariffs]
 ---

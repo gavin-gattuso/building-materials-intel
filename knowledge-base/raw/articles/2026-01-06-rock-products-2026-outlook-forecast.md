@@ -2,7 +2,7 @@
 date: 2026-01-06
 source: Rock Products
 url: https://rockproducts.com/2026/01/06/2026-outlook-forecast/
-category: Market
+category: Industry Outlook
 companies: []
 tags: [outlook, forecast, aggregates, demand, megaprojects, infrastructure, tariffs]
 ---

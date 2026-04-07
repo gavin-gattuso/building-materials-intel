@@ -2,7 +2,7 @@
 date: 2025-08-28
 source: Fitch Ratings / Insider Monkey
 url: https://www.insidermonkey.com/blog/vulcan-materials-company-nysevmc-upgraded-at-fitch-ratings-amid-strong-financials-1609056/
-category: Credit
+category: Credit & Lending
 companies: [Vulcan Materials]
 tags: [Fitch, credit-rating, upgrade, Vulcan-Materials, aggregates, credit]
 ---

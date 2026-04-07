@@ -2,7 +2,7 @@
 date: 2026-01-02
 source: Freddie Mac / Fortune / CBS News
 url: https://www.freddiemac.com/pmms
-category: Mortgage Rates & Housing Finance
+category: Interest Rates & Monetary Policy
 companies: [Freddie Mac]
 tags: [mortgage-rates, housing-market, affordability, Federal-Reserve, 30-year-fixed]
 ---

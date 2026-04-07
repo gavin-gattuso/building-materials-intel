@@ -2,7 +2,7 @@
 date: 2026-03-31
 source: Trading Economics / Barchart / OK Lumber Co.
 url: https://www.barchart.com/story/news/470021/where-are-lumber-prices-heading-into-the-2026-construction-season
-category: Pricing & Cost Trends
+category: Pricing & Material Costs
 companies: [Canfor, Interfor, West Fraser, Weyerhaeuser, UFP Industries]
 tags: [lumber-prices, futures, 17-month-low, spring-construction, tariffs, carbon-tax, supply]
 ---

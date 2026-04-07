@@ -2,7 +2,7 @@
 date: 2026-01-15
 source: Trading Economics / Yahoo Finance / NAHB
 url: https://finance.yahoo.com/news/prospects-lumber-prices-spring-2026-150002091.html
-category: Pricing & Cost Trends
+category: Pricing & Material Costs
 companies: [Weyerhaeuser, West Fraser Timber, Canfor]
 tags: [lumber, prices, housing-demand, mortgage-rates, futures, framing-lumber, tariffs]
 ---

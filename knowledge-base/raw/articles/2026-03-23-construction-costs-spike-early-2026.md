@@ -2,7 +2,7 @@
 date: 2026-03-23
 source: Inman
 url: https://www.inman.com/2026/03/23/construction-costs-spike-early-in-2026-signaling-trouble-ahead/
-category: Construction Costs
+category: Pricing & Material Costs
 companies: []
 tags: [construction-costs, inflation, oil-prices, materials, real-estate-development]
 ---

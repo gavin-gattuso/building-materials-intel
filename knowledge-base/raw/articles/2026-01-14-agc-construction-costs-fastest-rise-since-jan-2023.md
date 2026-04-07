@@ -2,7 +2,7 @@
 date: 2026-01-14
 source: Associated General Contractors of America
 url: https://www.agc.org/news/2026/01/14/construction-costs-rise-fastest-rate-january-2023-november-outpacing-increases-contractors-bid
-category: Commodity Prices & Costs
+category: Pricing & Material Costs
 companies: []
 tags: [construction-costs, PPI, tariffs, aluminum, steel, copper, bid-prices]
 ---

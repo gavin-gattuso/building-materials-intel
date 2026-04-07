@@ -2,7 +2,7 @@
 date: 2026-01-30
 source: Rock Products
 url: https://rockproducts.com/2026/01/30/eagle-materials-concrete-and-aggregates-revenue-up-22/
-category: Market
+category: Industry Outlook
 companies: []
 tags: [eagle-materials, earnings, revenue, concrete, aggregates, growth]
 ---

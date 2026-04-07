@@ -2,7 +2,7 @@
 date: 2026-02-05
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4866266-assa-abloy-ab-publ-2025-q4-results-earnings-call-presentation
-category: Earnings
+category: Earnings & Financials
 companies: [ASSA ABLOY]
 tags: [Q4 2025, earnings, access solutions, security, doors, locks]
 ---

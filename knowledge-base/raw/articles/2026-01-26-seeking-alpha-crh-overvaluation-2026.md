@@ -2,7 +2,7 @@
 date: 2026-01-26
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4873083-crh-plc-overvaluation-in-2026
-category: Analysis
+category: Industry Outlook
 companies: [CRH]
 tags: [valuation, overvaluation, P/E ratio, North America, aggregates, cement]
 ---

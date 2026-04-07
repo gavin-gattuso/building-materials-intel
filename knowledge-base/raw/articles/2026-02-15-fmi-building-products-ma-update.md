@@ -2,7 +2,7 @@
 date: 2026-02-15
 source: FMI Corp
 url: https://fmicorp.com/insights/thought-leadership/building-products-ma-and-sector-update-february-2026
-category: M&A
+category: M&A and Corporate Strategy
 companies: [FMI Corp, SRS Distribution, LS Building Products, Sider Lumber]
 tags: [M&A, deal volume, private equity, strategic buyers, building products]
 ---

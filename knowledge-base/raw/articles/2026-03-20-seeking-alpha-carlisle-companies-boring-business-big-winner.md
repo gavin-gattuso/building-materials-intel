@@ -2,7 +2,7 @@
 date: 2026-03-20
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4884012-carlisle-companies-stock-boring-business-might-be-your-next-big-winner
-category: Analysis
+category: Industry Outlook
 companies: [Carlisle Companies]
 tags: [Buy rating, roofing, building envelope, long-term, compounding]
 ---

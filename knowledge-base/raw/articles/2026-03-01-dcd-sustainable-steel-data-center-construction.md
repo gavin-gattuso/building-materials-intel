@@ -2,7 +2,7 @@
 date: 2026-03-01
 source: Data Center Dynamics
 url: https://www.datacenterdynamics.com/en/product-news/three-reasons-to-build-data-centers-with-sustainable-steel/
-category: Infrastructure
+category: Infrastructure & Government Spending
 companies: [Nucor, Steel Dynamics]
 tags: [data-centers, steel, sustainable-construction, materials, decarbonization]
 ---

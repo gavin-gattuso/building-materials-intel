@@ -2,7 +2,7 @@
 date: 2026-01-15
 source: NAHB
 url: https://www.nahb.org/blog/2026/01/building-material-price-growth
-category: Pricing & Cost Trends
+category: Pricing & Material Costs
 companies: []
 tags: [material-prices, metals, lumber, concrete]
 ---

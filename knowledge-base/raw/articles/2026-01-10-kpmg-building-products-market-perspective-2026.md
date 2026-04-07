@@ -2,7 +2,7 @@
 date: 2026-01-10
 source: KPMG Corporate Finance
 url: https://corporatefinance.kpmg.com/us/en/insights/2026/building-products-and-solutions.html
-category: M&A / Deals
+category: M&A and Corporate Strategy
 companies: [KPMG, Home Depot, QXO, SRS Distribution]
 tags: [M&A, building-products, distribution, housing-shortage, R-and-R, KPMG]
 ---

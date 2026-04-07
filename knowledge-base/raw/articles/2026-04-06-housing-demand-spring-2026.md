@@ -2,7 +2,7 @@
 date: 2026-04-01
 source: HousingWire / Builder Magazine / NAHB
 url: https://www.housingwire.com/articles/spring-2026-housing-market-hesitation-homebuyer-confidence/
-category: Demand Visibility
+category: Housing & Demand
 companies: [Zonda]
 tags: [housing-demand, new-home-sales, builder-confidence, HMI]
 ---

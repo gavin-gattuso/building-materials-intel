@@ -2,7 +2,7 @@
 date: 2026-02-17
 source: Vulcan Materials
 url: https://www.prnewswire.com/news-releases/vulcan-reports-fourth-quarter-and-full-year-2025-results-302689055.html
-category: Earnings
+category: Earnings & Financials
 companies: [Vulcan Materials]
 tags: [earnings, revenue, EBITDA, Q4-miss, aggregates, per-ton-profit, guidance]
 ---

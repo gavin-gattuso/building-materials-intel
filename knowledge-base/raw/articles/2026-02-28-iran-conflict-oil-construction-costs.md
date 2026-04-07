@@ -2,7 +2,7 @@
 date: 2026-02-28
 source: Reuters
 url: https://www.cnn.com/2026/03/01/business/oil-prices-us-attack-iran-vis
-category: Energy & Geopolitics
+category: Pricing & Material Costs
 companies: []
 tags: [Iran war, oil prices, diesel, energy costs, construction costs, geopolitics, supply chain]
 ---

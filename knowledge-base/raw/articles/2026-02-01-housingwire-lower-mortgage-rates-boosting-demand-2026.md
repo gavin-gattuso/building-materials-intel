@@ -2,7 +2,7 @@
 date: 2026-02-01
 source: HousingWire
 url: https://www.housingwire.com/articles/mortgage-rates-housing-demand-2026/
-category: Market
+category: Industry Outlook
 companies: []
 tags: [mortgage-rates, housing-demand, 2026, interest-rates, home-sales, affordability]
 ---

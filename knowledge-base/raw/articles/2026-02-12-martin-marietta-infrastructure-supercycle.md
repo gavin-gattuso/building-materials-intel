@@ -2,7 +2,7 @@
 date: 2026-02-12
 source: FinancialContent / MarketMinute
 url: https://markets.financialcontent.com/stocks/article/marketminute-2026-2-13-bedrock-of-the-economy-martin-mariettas-q4-results-signal-a-multi-year-infrastructure-supercycle
-category: Infrastructure
+category: Infrastructure & Government Spending
 companies: [Martin Marietta, Vulcan Materials]
 tags: [infrastructure-supercycle, IIJA, public-works, aggregates-demand, pricing-power]
 ---

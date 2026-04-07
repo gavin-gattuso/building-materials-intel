@@ -2,7 +2,7 @@
 date: 2026-03-25
 source: Rock Products
 url: https://rockproducts.com/2026/03/25/the-pulse-march-2026/
-category: Market
+category: Industry Outlook
 companies: [CRH]
 tags: [aggregates, pulse-index, market-data, march-2026, demand, construction]
 ---

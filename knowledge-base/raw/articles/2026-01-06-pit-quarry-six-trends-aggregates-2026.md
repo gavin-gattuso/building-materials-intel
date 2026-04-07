@@ -2,7 +2,7 @@
 date: 2026-01-06
 source: Pit & Quarry
 url: https://www.pitandquarry.com/six-trends-in-aggregates-for-2026/
-category: Industry
+category: Industry Outlook
 companies: [Vulcan Materials, Martin Marietta, CRH]
 tags: [aggregates, trends, outlook, 2026, infrastructure, data-centers, pricing]
 ---

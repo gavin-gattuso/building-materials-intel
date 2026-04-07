@@ -2,7 +2,7 @@
 date: 2026-03-16
 source: NAHB
 url: https://www.nahb.org/news-and-economics/press-releases/2026/03/builder-sentiment-inches-higher-but-affordability-concerns-persist
-category: Housing Market
+category: Housing & Demand
 companies: [NAHB, Wells Fargo]
 tags: [builder-confidence, HMI, housing-market, affordability, price-cuts, incentives]
 ---

@@ -2,7 +2,7 @@
 date: 2026-01-14
 source: Yahoo Finance
 url: https://finance.yahoo.com/news/wells-fargo-bullish-masco-mas-121104945.html
-category: Rating
+category: Earnings & Financials
 companies: [Masco]
 tags: [Overweight, Wells Fargo, price target, plumbing, fixtures, home improvement]
 ---

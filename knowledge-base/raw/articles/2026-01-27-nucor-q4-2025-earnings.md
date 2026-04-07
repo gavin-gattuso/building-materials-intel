@@ -2,7 +2,7 @@
 date: 2026-01-27
 source: Nucor Investor Relations
 url: https://investors.nucor.com/news/news-details/2026/Nucor-Reports-Results-for-the-Fourth-Quarter-of-2025/
-category: Earnings
+category: Earnings & Financials
 companies: [Nucor]
 tags: [earnings, Q4 2025, steel, EPS miss, revenue, guidance, dividend]
 ---

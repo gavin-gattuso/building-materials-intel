@@ -2,7 +2,7 @@
 date: 2026-01-30
 source: S&P Global Ratings
 url: https://www.spglobal.com/ratings/en/research/articles/250130-issuer-ranking-global-building-material-companies-strongest-to-weakest-13396767
-category: Credit
+category: Credit & Lending
 companies: [CRH, Vulcan Materials, Martin Marietta, Holcim, Heidelberg Materials, Saint-Gobain, CEMEX]
 tags: [credit-ratings, S&P-Global, building-materials, issuer-ranking, credit]
 ---

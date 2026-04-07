@@ -2,7 +2,7 @@
 date: 2026-03-12
 source: PwC
 url: https://www.pwc.co.uk/industries/engineering-construction/insights/construction-and-housebuilding-outlook.html
-category: Outlook
+category: Industry Outlook
 companies: []
 tags: [UK, construction, housebuilding, infrastructure, residential, commercial, PwC]
 ---

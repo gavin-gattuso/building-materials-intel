@@ -2,7 +2,7 @@
 date: 2026-02-26
 source: Freddie Mac / Scotsman Guide / Mortgage News Daily
 url: https://www.scotsmanguide.com/news/freddie-mac-data-shows-30-year-mortgage-rate-hovering-near-6-to-start-2026/
-category: Interest Rates
+category: Interest Rates & Monetary Policy
 companies: [Freddie Mac]
 tags: [mortgage-rates, 30-year-fixed, housing-affordability, Freddie-Mac-PMMS, rate-dip]
 ---

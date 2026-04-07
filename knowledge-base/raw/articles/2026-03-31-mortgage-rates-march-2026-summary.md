@@ -2,7 +2,7 @@
 date: 2026-03-31
 source: Freddie Mac
 url: https://www.freddiemac.com/pmms
-category: Mortgage Rates
+category: Interest Rates & Monetary Policy
 companies: [Freddie Mac, Zillow]
 tags: [mortgage-rates, housing-affordability, interest-rates, refinancing]
 ---

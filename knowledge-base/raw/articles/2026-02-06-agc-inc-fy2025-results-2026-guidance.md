@@ -2,7 +2,7 @@
 date: 2026-02-06
 source: AGC Inc. / Investing.com
 url: https://www.agc.com/en/ir/library/result/index.html
-category: Earnings
+category: Earnings & Financials
 companies: [AGC Inc]
 tags: [earnings, FY2025, glass, automotive, display, chemicals, guidance-2026]
 ---

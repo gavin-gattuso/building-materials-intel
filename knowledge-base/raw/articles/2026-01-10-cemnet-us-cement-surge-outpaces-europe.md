@@ -2,7 +2,7 @@
 date: 2026-01-10
 source: CemNet
 url: https://www.cemnet.com/News/story/180442/us-cement-surge-outpaces-europe-as-divergence-widens.html
-category: Market
+category: Industry Outlook
 companies: [CEMEX, Heidelberg Materials, Holcim, CRH]
 tags: [cement, USA, europe, divergence, margins, pricing, market-dynamics]
 ---

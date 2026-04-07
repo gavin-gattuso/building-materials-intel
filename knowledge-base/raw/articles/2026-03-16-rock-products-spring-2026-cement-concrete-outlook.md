@@ -2,7 +2,7 @@
 date: 2026-03-16
 source: Rock Products
 url: https://rockproducts.com/2026/03/16/sullivan-releases-spring-2026-construction-cement-concrete-outlook/
-category: Market
+category: Industry Outlook
 companies: []
 tags: [cement, concrete, construction, outlook, spring-2026, demand, pricing]
 ---

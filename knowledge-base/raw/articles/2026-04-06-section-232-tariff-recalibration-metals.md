@@ -2,7 +2,7 @@
 date: 2026-04-06
 source: White House / Customs Intel / Construction Dive
 url: https://www.whitehouse.gov/fact-sheets/2026/04/fact-sheet-president-donald-j-trump-strengthens-tariffs-on-steel-aluminum-and-copper-imports/
-category: Pricing & Cost Trends
+category: Pricing & Material Costs
 companies: [Nucor, Steel Dynamics, Commercial Metals, Century Aluminum]
 tags: [tariffs, Section-232, steel, aluminum, copper, metals-recalibration, construction-costs, April-2026]
 ---

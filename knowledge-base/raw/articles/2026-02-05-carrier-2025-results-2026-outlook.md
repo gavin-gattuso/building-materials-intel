@@ -2,7 +2,7 @@
 date: 2026-02-05
 source: PR Newswire / Carrier IR
 url: https://www.prnewswire.com/news-releases/carrier-reports-2025-results-and-announces-2026-outlook-302680038.html
-category: Earnings
+category: Earnings & Financials
 companies: [Carrier Global]
 tags: [earnings, full year 2025, Q4 2025, data center, guidance, pure-play HVAC]
 ---

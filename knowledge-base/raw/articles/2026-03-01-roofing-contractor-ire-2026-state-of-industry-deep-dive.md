@@ -2,7 +2,7 @@
 date: 2026-03-01
 source: Roofing Contractor
 url: https://www.roofingcontractor.com/articles/101771-ire-2026-general-session-a-deep-dive-into-the-state-of-the-industry-report
-category: Industry
+category: Industry Outlook
 companies: [Owens Corning, Carlisle Companies]
 tags: [roofing, IRE-2026, state-of-industry, trade-show, fuel-costs, labor]
 ---

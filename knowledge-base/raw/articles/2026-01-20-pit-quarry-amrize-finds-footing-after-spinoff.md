@@ -2,7 +2,7 @@
 date: 2026-01-20
 source: Pit & Quarry
 url: https://www.pitandquarry.com/amrize-finds-footing-after-spinoff-looks-ahead-to-2026/
-category: Industry
+category: Industry Outlook
 companies: [Holcim]
 tags: [amrize, holcim, spinoff, aggregates, 2026, strategy]
 ---

@@ -2,7 +2,7 @@
 date: 2026-02-25
 source: Kingspan Group
 url: https://www.kingspangroup.com/content/dam/kingspan-group-website/documents/2026-reports---presentations/kgr-full-year-results-2025.pdf
-category: Earnings
+category: Earnings & Financials
 companies: [Kingspan]
 tags: [earnings, FY 2025, insulation, building envelope, US expansion, roofing, data centers, Steico]
 ---

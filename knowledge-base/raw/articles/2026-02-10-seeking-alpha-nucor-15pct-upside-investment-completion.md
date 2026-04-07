@@ -2,7 +2,7 @@
 date: 2026-02-10
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4862615-nucor-15-percent-upside-potential-driven-by-investment-completion-and-strategic-growth
-category: Analysis
+category: Industry Outlook
 companies: [Nucor]
 tags: [Buy rating, price target, capex, growth, steel]
 ---

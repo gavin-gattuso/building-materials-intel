@@ -2,7 +2,7 @@
 date: 2026-02-20
 source: Roofing Contractor
 url: https://www.roofingcontractor.com/articles/101759-roofing-contractors-bet-on-tech-for-growth-in-2026
-category: Industry
+category: Industry Outlook
 companies: [Owens Corning]
 tags: [roofing, technology, AI, digital-transformation, growth, 2026]
 ---

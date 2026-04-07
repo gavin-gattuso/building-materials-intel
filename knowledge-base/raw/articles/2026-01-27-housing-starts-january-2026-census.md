@@ -2,7 +2,7 @@
 date: 2026-01-27
 source: U.S. Census Bureau / KPMG
 url: https://www.census.gov/construction/nrc/pdf/newresconst.pdf
-category: Housing Data
+category: Housing & Demand
 companies: []
 tags: [housing-starts, building-permits, multifamily, single-family, Census-Bureau]
 ---

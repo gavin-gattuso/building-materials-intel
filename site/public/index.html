@@ -411,7 +411,7 @@ async function loadDashboard() {
 
   // Top category (exclude Earnings)
   const topCat = Object.entries(stats.byCategory)
-    .filter(([cat]) => cat.toLowerCase() !== 'earnings')
+    .filter(([cat]) => !cat.toLowerCase().includes('earnings'))
     .sort((a,b) => b[1] - a[1])[0];
 
   document.getElementById('stats-grid').innerHTML = `

@@ -2,7 +2,7 @@
 date: 2026-01-10
 source: PwC
 url: https://www.pwc.com/us/en/industries/industrial-products/library/engineering-construction-deals-outlook.html
-category: M&A / Deals
+category: M&A and Corporate Strategy
 companies: [PwC]
 tags: [M&A, construction, deals, data-centers, energy, grid-modernization, labor]
 ---

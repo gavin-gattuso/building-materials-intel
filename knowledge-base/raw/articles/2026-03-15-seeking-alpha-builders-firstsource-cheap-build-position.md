@@ -2,7 +2,7 @@
 date: 2026-03-15
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4883504-builders-firstsource-stock-nice-build-position-while-it-cheap
-category: Analysis
+category: Industry Outlook
 companies: [Builders FirstSource]
 tags: [Buy rating, undervalued, housing, building products distribution]
 ---

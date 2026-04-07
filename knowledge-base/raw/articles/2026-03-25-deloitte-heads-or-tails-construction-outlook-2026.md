@@ -2,7 +2,7 @@
 date: 2026-03-25
 source: Deloitte
 url: https://constructionexec.com/article/heads-or-tails-deloittes-2026-construction-industry-outlook/
-category: Outlook
+category: Industry Outlook
 companies: []
 tags: [construction, tariffs, material-costs, steel, aluminum, data-centers, supply-chain, labor, Deloitte]
 ---

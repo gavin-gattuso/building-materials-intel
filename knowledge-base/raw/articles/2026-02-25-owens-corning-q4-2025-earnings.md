@@ -2,7 +2,7 @@
 date: 2026-02-25
 source: Investing.com
 url: https://www.investing.com/news/company-news/owens-corning-q4-2025-slides-earnings-miss-but-capital-returns-strong-93CH-4524929
-category: Earnings
+category: Earnings & Financials
 companies: [Owens Corning]
 tags: [earnings, Q4-2025, roofing, insulation, composites, revenue-miss]
 ---

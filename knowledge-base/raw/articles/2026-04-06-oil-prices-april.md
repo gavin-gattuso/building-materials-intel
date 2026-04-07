@@ -2,7 +2,7 @@
 date: 2026-04-06
 source: Fortune
 url: https://fortune.com/article/price-of-oil-04-06-2026/
-category: Material & Energy Costs
+category: Pricing & Material Costs
 companies: []
 tags: [oil-prices, energy, Brent-crude]
 ---

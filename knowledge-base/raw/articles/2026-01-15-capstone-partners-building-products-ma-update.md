@@ -2,7 +2,7 @@
 date: 2026-01-15
 source: Capstone Partners
 url: https://www.capstonepartners.com/insights/article-building-products-ma-update/
-category: M&A / Deals
+category: M&A and Corporate Strategy
 companies: [Capstone Partners]
 tags: [M&A, building-products, deal-volume, valuations, private-equity, data-centers]
 ---

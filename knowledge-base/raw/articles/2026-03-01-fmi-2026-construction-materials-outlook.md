@@ -2,7 +2,7 @@
 date: 2026-03-01
 source: FMI Corp
 url: https://fmicorp.com/insights/thought-leadership/strategic-positioning-in-a-steadying-market-2026-construction-materials-outlook
-category: Outlook
+category: Industry Outlook
 companies: [Martin Marietta, Vulcan Materials, CRH, Holcim, Heidelberg Materials]
 tags: [construction-materials, M&A, infrastructure, IIJA, data-centers, aggregates, cement, FMI]
 ---

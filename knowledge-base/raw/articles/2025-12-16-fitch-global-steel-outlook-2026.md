@@ -2,7 +2,7 @@
 date: 2025-12-16
 source: Fitch Ratings / GMK Center
 url: https://gmk.center/en/news/fitch-ratings-expects-global-steel-market-to-recover-in-2026/
-category: Credit
+category: Credit & Lending
 companies: [ArcelorMittal, Nucor, Steel Dynamics]
 tags: [Fitch, steel, credit-outlook, tariffs, protectionism, demand]
 ---

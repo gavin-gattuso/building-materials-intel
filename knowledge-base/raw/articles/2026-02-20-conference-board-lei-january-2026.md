@@ -2,7 +2,7 @@
 date: 2026-02-20
 source: Conference Board
 url: https://www.conference-board.org/topics/us-leading-indicators/
-category: Economic-Data
+category: Economic Data & Indicators
 companies: []
 tags: [LEI, leading-economic-index, Conference-Board, recession-risk, GDP, demand]
 ---

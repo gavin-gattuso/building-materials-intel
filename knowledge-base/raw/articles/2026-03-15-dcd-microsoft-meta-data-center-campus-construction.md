@@ -2,7 +2,7 @@
 date: 2026-03-15
 source: Data Center Dynamics
 url: https://www.datacenterdynamics.com/en/news/microsoft-breaks-ground-on-data-center-campus-in-cheyenne-wyoming/
-category: Infrastructure
+category: Infrastructure & Government Spending
 companies: []
 tags: [data-centers, microsoft, meta, construction, campus, AI, capex]
 ---

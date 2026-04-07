@@ -2,7 +2,7 @@
 date: 2026-04-01
 source: NAHB / Yahoo Finance
 url: https://www.nahb.org/news-and-economics/housing-economics/indices/housing-market-index
-category: Demand Visibility
+category: Housing & Demand
 companies: [D.R. Horton, Lennar, PulteGroup, NVR, Toll Brothers]
 tags: [NAHB, HMI, builder-confidence, housing-market, tariffs, incentives, price-cuts]
 ---

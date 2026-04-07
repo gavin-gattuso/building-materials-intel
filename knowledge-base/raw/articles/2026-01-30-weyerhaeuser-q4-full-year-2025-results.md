@@ -2,7 +2,7 @@
 date: 2026-01-30
 source: Weyerhaeuser Investor Relations / StockTitan
 url: https://www.stocktitan.net/news/WY/weyerhaeuser-reports-fourth-quarter-full-year-2025-yuyk4rehoxup.html
-category: Earnings
+category: Earnings & Financials
 companies: [Weyerhaeuser]
 tags: [earnings, Q4-2025, timberlands, wood-products, REIT, dividend, climate-solutions]
 ---

@@ -2,7 +2,7 @@
 date: 2026-02-04
 source: BigGo Finance / Quartr
 url: https://finance.biggo.com/news/jpx_tdnet_140120260204546821
-category: Earnings
+category: Earnings & Financials
 companies: [Daikin Industries]
 tags: [earnings, Q3 FY2026, revenue growth, operating profit decline, tariff impact, guidance revision]
 ---

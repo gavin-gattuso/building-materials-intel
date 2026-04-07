@@ -2,7 +2,7 @@
 date: 2026-01-30
 source: Associated General Contractors of America
 url: https://www.agc.org/news/2026/01/30/double-digit-increases-aluminum-steel-and-copper-costs-drive-producer-price-indexes-construction
-category: Commodity Prices & Costs
+category: Pricing & Material Costs
 companies: []
 tags: [PPI, aluminum, steel, copper, tariffs, construction-costs, January-2026-data]
 ---

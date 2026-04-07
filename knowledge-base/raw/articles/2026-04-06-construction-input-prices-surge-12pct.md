@@ -2,7 +2,7 @@
 date: 2026-04-06
 source: Construction Dive / Construction Owners
 url: https://www.constructionowners.com/news/construction-costs-surge-in-2026
-category: Pricing & Cost Trends
+category: Pricing & Material Costs
 companies: []
 tags: [construction-costs, PPI, energy-prices, tariffs]
 ---

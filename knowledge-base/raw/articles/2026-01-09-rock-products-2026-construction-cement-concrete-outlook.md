@@ -2,7 +2,7 @@
 date: 2026-01-09
 source: Rock Products
 url: https://rockproducts.com/2026/01/09/the-2026-construction-cement-and-concrete-outlook/
-category: Market
+category: Industry Outlook
 companies: [CEMEX, Heidelberg Materials, Holcim, CRH]
 tags: [cement, concrete, construction, outlook, 2026, interest-rates, inflation, demand]
 ---

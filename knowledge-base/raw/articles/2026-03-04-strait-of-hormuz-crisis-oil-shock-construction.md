@@ -2,7 +2,7 @@
 date: 2026-03-04
 source: CNBC
 url: https://www.cnbc.com/2026/03/11/strait-of-hormuz-closure-shipping-economy-oil.html
-category: Energy & Geopolitics
+category: Pricing & Material Costs
 companies: []
 tags: [oil-prices, strait-of-hormuz, iran, energy-crisis, construction-costs, supply-chain]
 ---

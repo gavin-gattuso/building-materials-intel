@@ -2,7 +2,7 @@
 date: 2026-01-30
 source: Bureau of Economic Analysis / Advisor Perspectives
 url: https://www.bea.gov/news/2026/gdp-advance-estimate-4th-quarter-and-year-2025
-category: GDP Growth & Consumer Confidence
+category: Economic Data & Indicators
 companies: []
 tags: [GDP, economic-growth, Q4-2025, consumer-spending, construction-spending, recession-risk]
 ---

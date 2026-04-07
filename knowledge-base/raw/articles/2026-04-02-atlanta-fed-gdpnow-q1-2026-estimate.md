@@ -2,7 +2,7 @@
 date: 2026-04-02
 source: Federal Reserve Bank of Atlanta
 url: https://www.atlantafed.org/research-and-data/data/gdpnow
-category: Economic-Data
+category: Economic Data & Indicators
 companies: []
 tags: [GDP, GDPNow, Atlanta-Fed, Q1-2026, economic-growth, recession-risk]
 ---

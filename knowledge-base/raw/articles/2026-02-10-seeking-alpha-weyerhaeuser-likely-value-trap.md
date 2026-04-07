@@ -2,7 +2,7 @@
 date: 2026-02-10
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4836535-weyerhaeuser-remains-a-likely-value-trap
-category: Analysis
+category: Industry Outlook
 companies: [Weyerhaeuser]
 tags: [Sell rating, lumber, timberlands, housing, REIT, value trap]
 ---

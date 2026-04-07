@@ -2,7 +2,7 @@
 date: 2026-02-01
 source: CemNet
 url: https://www.cemnet.com/News/story/179683/usa-lifts-vietnam-cement-import-tariffs-to-20-.html
-category: Market
+category: Industry Outlook
 companies: []
 tags: [cement, tariffs, imports, vietnam, trade-policy, USA]
 ---

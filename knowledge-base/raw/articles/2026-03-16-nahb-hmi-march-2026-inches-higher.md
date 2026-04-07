@@ -2,7 +2,7 @@
 date: 2026-03-16
 source: NAHB / Advisor Perspectives
 url: https://www.advisorperspectives.com/dshort/updates/2026/03/16/nahb-housing-market-index-builder-confidence-march-2026
-category: Demand Visibility
+category: Housing & Demand
 companies: []
 tags: [NAHB, HMI, builder-confidence, housing-market, spring-selling-season]
 ---

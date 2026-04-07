@@ -2,7 +2,7 @@
 date: 2026-03-05
 source: Engineering News-Record
 url: https://www.enr.com/articles/62348-constructions-labor-relief-masks-structural-risk-as-demand-cools
-category: Labor Market
+category: Labor & Workforce
 companies: []
 tags: [labor-market, workforce, demographics, wages, construction-employment]
 ---

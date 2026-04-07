@@ -2,7 +2,7 @@
 date: 2026-02-26
 source: Saint-Gobain Press Release
 url: https://www.saint-gobain.com/en/news/2025-results
-category: Earnings
+category: Earnings & Financials
 companies: [Saint-Gobain]
 tags: [earnings, full-year-2025, EBITDA, dividend, construction-chemicals, glass]
 ---

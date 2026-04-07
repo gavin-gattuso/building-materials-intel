@@ -2,7 +2,7 @@
 date: 2026-03-25
 source: Governor of California
 url: https://www.gov.ca.gov/2026/03/25/governor-newsom-announces-nearly-900-million-for-cutting-edge-transportation-systems-of-the-future/
-category: Infrastructure
+category: Infrastructure & Government Spending
 companies: []
 tags: [infrastructure, California, transportation, state-spending, IIJA, construction-projects]
 ---

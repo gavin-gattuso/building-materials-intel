@@ -2,7 +2,7 @@
 date: 2026-01-21
 source: AIA / Calculated Risk
 url: https://www.aia.org/resource-center/abi-january-2026-billings-remain-soft-start-2026
-category: Demand Visibility
+category: Housing & Demand
 companies: []
 tags: [ABI, Architecture-Billings-Index, nonresidential-construction, design-contracts, leading-indicator]
 ---

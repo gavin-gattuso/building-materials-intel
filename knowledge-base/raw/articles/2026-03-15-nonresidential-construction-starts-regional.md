@@ -2,7 +2,7 @@
 date: 2026-03-15
 source: ConstructConnect
 url: https://news.constructconnect.com/nonresidential-construction-starts-regional-analysis-march-2026
-category: Construction Spending
+category: Infrastructure & Government Spending
 companies: [ConstructConnect]
 tags: [construction-starts, nonresidential, regional-analysis, data-centers, manufacturing]
 ---

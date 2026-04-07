@@ -2,7 +2,7 @@
 date: 2025-11-06
 source: ADS IR / Morningstar
 url: https://investors.ads-pipe.com/press-releases/press-release-details/2025/Advanced-Drainage-Systems-Announces-Second-Quarter-Fiscal-2026-Results/default.aspx
-category: Earnings
+category: Earnings & Financials
 companies: [Advanced Drainage Systems]
 tags: [earnings, Q2 FY2026, revenue growth, margin expansion]
 ---

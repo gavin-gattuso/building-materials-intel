@@ -2,7 +2,7 @@
 date: 2026-03-01
 source: Roofing Contractor
 url: https://www.roofingcontractor.com/articles/101424-lowes-completes-acquisition-of-fbm
-category: M&A
+category: M&A and Corporate Strategy
 companies: [Lowe's, Foundation Building Materials, Artisan Design Group]
 tags: [M&A, acquisition, pro-market, distribution, building-products]
 ---

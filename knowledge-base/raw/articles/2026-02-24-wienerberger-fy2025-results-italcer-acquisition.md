@@ -2,7 +2,7 @@
 date: 2026-02-24
 source: Wienerberger AG
 url: https://www.wienerberger.com/en/media/press-releases/2026/20260224-CMD-FY25-Italcer.html
-category: Earnings
+category: Earnings & Financials
 companies: [Wienerberger, Italcer]
 tags: [earnings, FY 2025, acquisition, Italcer, ceramics, renovation, building products, Europe]
 ---

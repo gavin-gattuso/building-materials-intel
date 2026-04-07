@@ -2,7 +2,7 @@
 date: 2026-02-24
 source: The Conference Board / Advisor Perspectives
 url: https://www.advisorperspectives.com/dshort/updates/2026/02/24/consumer-confidence-inched-up-in-february
-category: GDP Growth & Consumer Confidence
+category: Economic Data & Indicators
 companies: []
 tags: [consumer-confidence, Conference-Board, present-situation, expectations, recovery]
 ---

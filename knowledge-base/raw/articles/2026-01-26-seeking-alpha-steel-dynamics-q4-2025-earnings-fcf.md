@@ -2,7 +2,7 @@
 date: 2026-01-26
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4862648-steel-dynamics-free-cash-flow-inflecting-but-valuation-is-full
-category: Earnings
+category: Earnings & Financials
 companies: [Steel Dynamics]
 tags: [earnings, Q4 2025, steel, free cash flow, valuation, tariffs]
 ---

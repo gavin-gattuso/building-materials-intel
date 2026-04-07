@@ -2,7 +2,7 @@
 date: 2026-03-05
 source: Roofing Contractor
 url: https://www.roofingcontractor.com/articles/101828-roofing-suppliers-shine-at-ire-2026
-category: Industry
+category: Industry Outlook
 companies: [Carlisle Companies, Owens Corning]
 tags: [roofing, carlisle, insulation, product-launch, IRE-2026, suppliers]
 ---

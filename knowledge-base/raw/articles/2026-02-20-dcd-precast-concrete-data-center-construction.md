@@ -2,7 +2,7 @@
 date: 2026-02-20
 source: Data Center Dynamics
 url: https://www.datacenterdynamics.com/en/marketwatch/the-case-for-total-precast-concrete-data-center-construction/
-category: Infrastructure
+category: Infrastructure & Government Spending
 companies: []
 tags: [data-centers, concrete, precast, construction-methods, materials, modular]
 ---

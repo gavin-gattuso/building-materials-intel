@@ -2,7 +2,7 @@
 date: 2026-02-27
 source: Holcim
 url: https://www.holcim.com/media/media-releases/full-year-2025-results
-category: Earnings
+category: Earnings & Financials
 companies: [Holcim]
 tags: [earnings, EBIT, margin, post-spinoff, Amrize, free-cash-flow]
 ---

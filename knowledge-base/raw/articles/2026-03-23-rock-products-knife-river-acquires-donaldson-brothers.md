@@ -2,7 +2,7 @@
 date: 2026-03-23
 source: Rock Products
 url: https://rockproducts.com/2026/03/23/knife-river-acquires-donaldson-brothers-ready-mix/
-category: Industry
+category: Industry Outlook
 companies: []
 tags: [knife-river, acquisition, ready-mix, aggregates, consolidation, montana]
 ---

@@ -2,7 +2,7 @@
 date: 2026-02-15
 source: CemNet
 url: https://www.cemnet.com/News/story/180669/heidelberg-materials-expects-a-strong-performance-in-2026.html
-category: Market
+category: Industry Outlook
 companies: [Heidelberg Materials]
 tags: [heidelberg-materials, earnings, outlook, 2026, cement, decarbonization]
 ---

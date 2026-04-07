@@ -2,7 +2,7 @@
 date: 2026-02-01
 source: Pit & Quarry
 url: https://www.pitandquarry.com/martin-marietta-sets-fourth-quarter-records-in-building-materials/
-category: Market
+category: Industry Outlook
 companies: [Martin Marietta]
 tags: [martin-marietta, earnings, Q4, records, building-materials, aggregates, pricing]
 ---

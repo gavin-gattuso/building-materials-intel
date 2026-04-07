@@ -2,7 +2,7 @@
 date: 2026-02-17
 source: StockStory
 url: https://stockstory.org/us/stocks/nyse/bldr/news/earnings/builders-firstsource-nysebldr-reports-sales-below-analyst-estimates-in-q4-cy2025-earnings
-category: Earnings
+category: Earnings & Financials
 companies: [Builders FirstSource]
 tags: [earnings, building products, housing market, Q4 2025, revenue miss]
 ---

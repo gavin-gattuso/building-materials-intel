@@ -2,7 +2,7 @@
 date: 2026-03-19
 source: AIA / Arch Paper
 url: https://www.aia.org/resource-center/abi-february-2026-business-conditions-architecture-firms-may-stabilize-soon
-category: Demand Visibility
+category: Housing & Demand
 companies: []
 tags: [ABI, Architecture-Billings-Index, nonresidential-construction, stabilization, design-contracts, leading-indicator]
 ---

@@ -2,7 +2,7 @@
 date: 2026-03-05
 source: KPMG
 url: https://kpmg.com/us/en/articles/2026/january-2026-construction-spending.html
-category: Research
+category: Industry Outlook
 companies: []
 tags: [construction-spending, economic-data, residential, nonresidential, data-centers, tariffs, KPMG]
 ---

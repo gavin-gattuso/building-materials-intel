@@ -2,7 +2,7 @@
 date: 2026-01-28
 source: The Conference Board / SBE Council
 url: https://sbecouncil.org/2026/01/28/consumer-confidence-dives-at-start-of-2026/
-category: GDP Growth & Consumer Confidence
+category: Economic Data & Indicators
 companies: []
 tags: [consumer-confidence, Conference-Board, present-situation, expectations, recession-risk]
 ---

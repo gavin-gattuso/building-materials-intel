@@ -2,7 +2,7 @@
 date: 2026-02-28
 source: Associated General Contractors of America
 url: https://www.agc.org/news/2026/03/18/soaring-fuel-and-metals-costs-send-prices-higher-construction-materials-february-iran-war-makes
-category: Material Prices
+category: Pricing & Material Costs
 companies: [Associated General Contractors, Associated Builders and Contractors]
 tags: [construction costs, PPI, material prices, steel, aluminum, copper, lumber, diesel, inflation]
 ---

@@ -2,7 +2,7 @@
 date: 2026-02-05
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4862852-builders-firstsource-the-margin-floor-is-in-building-back-higher-in-2026
-category: Analysis
+category: Industry Outlook
 companies: [Builders FirstSource]
 tags: [margins, housing, recovery, EBITDA, free cash flow, valuation]
 ---

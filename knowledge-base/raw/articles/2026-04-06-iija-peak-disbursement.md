@@ -2,7 +2,7 @@
 date: 2026-01-27
 source: ConstructionBids.ai
 url: https://constructionbids.ai/resources/government-construction-opportunities-2026
-category: Government Infrastructure Spending
+category: Infrastructure & Government Spending
 companies: []
 tags: [IIJA, infrastructure, federal-spending, roads, bridges, water]
 ---

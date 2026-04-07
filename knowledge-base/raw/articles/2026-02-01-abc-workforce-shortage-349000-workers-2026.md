@@ -2,7 +2,7 @@
 date: 2026-02-01
 source: ABC (Associated Builders and Contractors) / Construction Dive
 url: https://www.abc.org/News-Media/News-Releases/abc-construction-industry-must-attract-349000-workers-in-2026-despite-macroeconomic-headwinds
-category: Labor Market
+category: Labor & Workforce
 companies: []
 tags: [labor-shortage, workforce, ABC, construction-employment, retirement, apprenticeship, electricians, data-centers]
 ---

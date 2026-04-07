@@ -2,7 +2,7 @@
 date: 2026-02-15
 source: USCIS / NAHB / Economic Policy Institute / SHRM
 url: https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-2b-non-agricultural-workers/temporary-increase-in-h-2b-nonimmigrant-visas-for-fy-2026
-category: Labor Market
+category: Labor & Workforce
 companies: []
 tags: [immigration, H-2B-visa, construction-labor, workforce, deportation, labor-shortage, policy]
 ---

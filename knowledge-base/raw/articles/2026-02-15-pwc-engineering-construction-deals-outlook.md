@@ -2,7 +2,7 @@
 date: 2026-02-15
 source: PwC
 url: https://www.pwc.com/us/en/industries/industrial-products/library/engineering-construction-deals-outlook.html
-category: M&A
+category: M&A and Corporate Strategy
 companies: [PwC]
 tags: [M&A, deals outlook, engineering, construction, private equity]
 ---

@@ -2,7 +2,7 @@
 date: 2026-01-30
 source: LIXIL Newsroom / Investing.com
 url: https://newsroom.lixil.com/20260130_q3earnings
-category: Earnings
+category: Earnings & Financials
 companies: [LIXIL]
 tags: [earnings, Q3 FYE2026, core earnings, water technology, renovation]
 ---

@@ -2,7 +2,7 @@
 date: 2026-03-15
 source: HousingWire
 url: https://www.housingwire.com/articles/the-insurance-challenge-builders-face-in-the-2026-spring-housing-market/
-category: Market
+category: Industry Outlook
 companies: []
 tags: [insurance, homebuilders, spring-2026, housing-costs, risk, construction]
 ---

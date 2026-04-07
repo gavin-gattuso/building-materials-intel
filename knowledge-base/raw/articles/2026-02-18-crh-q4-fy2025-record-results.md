@@ -2,7 +2,7 @@
 date: 2026-02-18
 source: CRH plc
 url: https://www.crh.com/media/press-releases/2026/crh-reports-q4-and-fy-2025-results/
-category: Earnings
+category: Earnings & Financials
 companies: [CRH]
 tags: [earnings, revenue, EBITDA, margin-expansion, S-and-P-500, record-results]
 ---

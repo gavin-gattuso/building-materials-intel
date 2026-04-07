@@ -2,7 +2,7 @@
 date: 2026-01-20
 source: Yahoo Finance
 url: https://finance.yahoo.com/news/why-jeld-wen-jeld-stock-190625869.html
-category: Rating
+category: Earnings & Financials
 companies: [JELD-WEN]
 tags: [price target, Jefferies, Hold rating, doors, windows, restructuring]
 ---

@@ -2,7 +2,7 @@
 date: 2026-01-10
 source: KPMG
 url: https://kpmg.com/us/en/articles/2026/january-2026-economic-compass.html
-category: Economic Indicators
+category: Economic Data & Indicators
 companies: [KPMG]
 tags: [GDP, economic-outlook, two-speed-economy, inflation, unemployment, KPMG]
 ---

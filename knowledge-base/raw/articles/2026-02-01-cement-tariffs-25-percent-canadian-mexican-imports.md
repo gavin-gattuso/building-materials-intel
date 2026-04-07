@@ -2,7 +2,7 @@
 date: 2026-02-01
 source: ENR / CostFlowAI / American Cement Association
 url: https://www.enr.com/articles/60393-new-tariffs-on-mexico-canada-will-drive-up-construction-prices
-category: Pricing & Cost Trends
+category: Pricing & Material Costs
 companies: [CRH, Martin Marietta, Vulcan Materials, Eagle Materials, Summit Materials]
 tags: [cement, concrete, tariffs, Canadian-imports, Mexican-imports, material-prices, infrastructure]
 ---

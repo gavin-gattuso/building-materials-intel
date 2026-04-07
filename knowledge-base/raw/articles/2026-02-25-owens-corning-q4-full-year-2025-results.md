@@ -2,7 +2,7 @@
 date: 2026-02-25
 source: Owens Corning Newsroom / BusinessWire
 url: https://newsroom.owenscorning.com/all-news-releases/news-details/2026/Owens-Corning-Reports-Fourth-Quarter-and-Full-Year-2025-Results/default.aspx
-category: Earnings
+category: Earnings & Financials
 companies: [Owens Corning]
 tags: [earnings, insulation, roofing, doors, impairment, Masonite, Q4-2025]
 ---

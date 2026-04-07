@@ -2,7 +2,7 @@
 date: 2026-02-12
 source: West Fraser Timber / PR Newswire
 url: https://www.prnewswire.com/news-releases/west-fraser-announces-fourth-quarter-2025-results-302685597.html
-category: Earnings
+category: Earnings & Financials
 companies: [West Fraser]
 tags: [earnings, Q4-2025, goodwill-impairment, lumber, OSB, restructuring, full-year-2025]
 ---

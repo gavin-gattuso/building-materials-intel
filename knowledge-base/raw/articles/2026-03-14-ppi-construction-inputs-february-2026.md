@@ -2,7 +2,7 @@
 date: 2026-03-14
 source: Bureau of Labor Statistics / NAHB Eye on Housing
 url: https://eyeonhousing.org/2026/03/building-material-price-growth-remains-entrenched-above-3/
-category: Pricing & Cost Trends
+category: Pricing & Material Costs
 companies: []
 tags: [PPI, construction-costs, material-prices, building-materials, residential-construction, tariffs]
 ---

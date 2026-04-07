@@ -2,7 +2,7 @@
 date: 2026-02-25
 source: Heidelberg Materials
 url: https://www.heidelbergmaterials.com/en/sustainability/we-decarbonize-the-construction-industry/ccus
-category: Regulatory Policy
+category: Tariffs & Trade Policy
 companies: [Heidelberg Materials]
 tags: [CCUS, carbon-capture, decarbonization, Edmonton, Brevik, sustainability, net-zero]
 ---

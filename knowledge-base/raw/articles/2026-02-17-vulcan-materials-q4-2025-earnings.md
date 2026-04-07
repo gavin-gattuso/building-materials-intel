@@ -2,7 +2,7 @@
 date: 2026-02-17
 source: Motley Fool
 url: https://www.fool.com/earnings/call-transcripts/2026/02/17/vulcan-materials-vmc-q4-2025-earnings-transcript/
-category: Earnings
+category: Earnings & Financials
 companies: [Vulcan Materials]
 tags: [earnings, Q4-2025, aggregates, construction-materials, revenue-miss]
 ---

@@ -2,7 +2,7 @@
 date: 2026-03-01
 source: Engineering News-Record
 url: https://www.enr.com/articles/62734-1q-2026-cost-report-tariffs-contributed-to-price-hikes-for-many-materials-in-2025
-category: Material Prices
+category: Pricing & Material Costs
 companies: []
 tags: [material-prices, steel, lumber, concrete, tariffs, cost-report, ENR]
 ---

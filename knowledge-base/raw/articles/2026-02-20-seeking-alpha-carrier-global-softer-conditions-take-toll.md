@@ -2,7 +2,7 @@
 date: 2026-02-20
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4867002-carrier-global-corporation-softer-conditions-continue-to-take-their-toll
-category: Analysis
+category: Industry Outlook
 companies: [Carrier Global]
 tags: [HVAC, residential, headwinds, earnings, balance sheet, data centers]
 ---

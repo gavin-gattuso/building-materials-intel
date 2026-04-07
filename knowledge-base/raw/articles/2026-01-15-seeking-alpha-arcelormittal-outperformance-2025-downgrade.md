@@ -2,7 +2,7 @@
 date: 2026-01-15
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4859409-arcelormittal-outperformance-confirmed-2025-2026e-is-coming-rating-downgrade
-category: Rating
+category: Earnings & Financials
 companies: [ArcelorMittal]
 tags: [downgrade, steel, valuation, tariffs, China, Europe]
 ---

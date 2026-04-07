@@ -2,7 +2,7 @@
 date: 2026-01-28
 source: Federal Reserve / CNBC / J.P. Morgan
 url: https://www.cnbc.com/2026/01/28/fed-rate-decision-january-2026.html
-category: Monetary Policy
+category: Interest Rates & Monetary Policy
 companies: []
 tags: [Federal-Reserve, FOMC, interest-rates, fed-funds-rate, dissent, inflation, rate-pause]
 ---

@@ -2,7 +2,7 @@
 date: 2026-02-26
 source: QXO Investor Relations
 url: https://investors.qxo.com/news/news-details/2026/QXO-Reports-Fourth-Quarter-2025-Results/default.aspx
-category: Earnings
+category: Earnings & Financials
 companies: [QXO]
 tags: [earnings, Q4 2025, Beacon Roofing, integration, EBITDA, revenue, Brad Jacobs]
 ---

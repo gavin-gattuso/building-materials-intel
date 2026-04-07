@@ -2,7 +2,7 @@
 date: 2026-02-05
 source: Fortune Brands IR / MarketBeat
 url: https://ir.fbin.com/news-releases/news-release-details/fortune-brands-innovations-announces-fourth-quarter-and-full
-category: Earnings
+category: Earnings & Financials
 companies: [Fortune Brands Innovations]
 tags: [earnings, Q4 2025, revenue decline, tariff headwinds, guidance]
 ---

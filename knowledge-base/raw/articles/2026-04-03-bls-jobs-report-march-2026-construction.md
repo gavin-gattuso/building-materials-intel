@@ -2,7 +2,7 @@
 date: 2026-04-03
 source: Bureau of Labor Statistics / CNBC
 url: https://www.bls.gov/news.release/empsit.nr0.htm
-category: Labor Market
+category: Labor & Workforce
 companies: []
 tags: [employment, construction-jobs, BLS, unemployment, nonfarm-payrolls, wage-growth, Kaiser-strike]
 ---

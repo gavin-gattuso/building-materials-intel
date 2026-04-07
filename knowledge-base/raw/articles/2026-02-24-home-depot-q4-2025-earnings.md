@@ -2,7 +2,7 @@
 date: 2026-02-24
 source: CNBC
 url: https://www.nasdaq.com/articles/home-depot-lowes-buying-earnings-dip
-category: Earnings
+category: Earnings & Financials
 companies: [Home Depot]
 tags: [earnings, retail, home improvement, Q4 2025, housing market]
 ---

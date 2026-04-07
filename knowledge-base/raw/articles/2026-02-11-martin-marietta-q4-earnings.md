@@ -2,7 +2,7 @@
 date: 2026-02-11
 source: Financial Content
 url: https://markets.financialcontent.com/stocks/article/marketminute-2026-2-12-infrastructure-resilience-martin-mariettas-2025-results-signal-continued-strength-in-us-public-works
-category: Earnings
+category: Earnings & Financials
 companies: [Martin Marietta Materials]
 tags: [earnings, aggregates, infrastructure, Q4 2025, pricing power]
 ---

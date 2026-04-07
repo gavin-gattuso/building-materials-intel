@@ -2,7 +2,7 @@
 date: 2026-03-10
 source: CRH
 url: https://www.crh.com/media/press-releases/2025/crh-completes-2-1b-acquisition-of-eco-material-technologies/
-category: M&A
+category: M&A and Corporate Strategy
 companies: [CRH, Eco Material Technologies]
 tags: [M&A, acquisition, cement, fly-ash, pozzolans, sustainability, SCMs]
 ---

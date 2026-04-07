@@ -2,7 +2,7 @@
 date: 2026-02-26
 source: Business Wire
 url: https://www.businesswire.com/news/home/20260225244984/en/Installed-Building-Products-Reports-Record-Fourth-Quarter-and-Fiscal-Year-2025-Profitability
-category: Earnings
+category: Earnings & Financials
 companies: [Installed Building Products, Thermo-Tech, Biomax, CKV, Northstar Comfort Services]
 tags: [earnings, acquisitions, insulation, installation services, M&A, Q4 2025]
 ---

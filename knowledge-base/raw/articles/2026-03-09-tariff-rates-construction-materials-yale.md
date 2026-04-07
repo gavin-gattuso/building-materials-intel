@@ -2,7 +2,7 @@
 date: 2026-03-09
 source: Yale Budget Lab
 url: https://budgetlab.yale.edu/research/state-tariffs-march-9-2026
-category: Trade Policy
+category: Tariffs & Trade Policy
 companies: []
 tags: [tariffs, trade-policy, steel, aluminum, lumber, construction-costs]
 ---

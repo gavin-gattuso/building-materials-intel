@@ -2,7 +2,7 @@
 date: 2026-02-01
 source: CBS News / CSIS / Construction Dive / ABC Carolinas
 url: https://www.cbsnews.com/news/trump-copper-tariff-price/
-category: Pricing & Cost Trends
+category: Pricing & Material Costs
 companies: []
 tags: [copper, tariffs, Section-232, construction-costs, MEP, electrical, plumbing, material-prices]
 ---

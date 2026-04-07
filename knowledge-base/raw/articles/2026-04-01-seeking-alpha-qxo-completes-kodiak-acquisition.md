@@ -2,7 +2,7 @@
 date: 2026-04-01
 source: Seeking Alpha
 url: https://seekingalpha.com/pr/20458559-qxo-completes-acquisition-of-kodiak-building-partners
-category: Analysis
+category: Industry Outlook
 companies: [QXO]
 tags: [acquisition, Kodiak Building Partners, building products distribution, Brad Jacobs]
 ---

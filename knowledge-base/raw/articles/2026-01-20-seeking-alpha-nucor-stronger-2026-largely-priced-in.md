@@ -2,7 +2,7 @@
 date: 2026-01-20
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4857512-nucor-a-stronger-2026-largely-priced-in-downgrade
-category: Rating
+category: Earnings & Financials
 companies: [Nucor]
 tags: [downgrade, steel, earnings, valuation, capex, tariffs]
 ---

@@ -2,7 +2,7 @@
 date: 2026-03-12
 source: S&P Global
 url: https://www.spglobal.com/ratings/en/regulatory/article/industry-credit-outlook-2026-building-materials-s101665606
-category: Credit Outlook
+category: Credit & Lending
 companies: [CRH, Vulcan Materials, Martin Marietta, Eagle Materials, Summit Materials]
 tags: [credit-outlook, ratings, building-materials, leverage, debt]
 ---

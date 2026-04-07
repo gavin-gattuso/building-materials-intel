@@ -2,7 +2,7 @@
 date: 2026-02-15
 source: Engineering News-Record
 url: https://www.enr.com/articles/62580-section-122-tariffs-leave-construction-cost-exposure-largely-intact
-category: Trade Policy
+category: Tariffs & Trade Policy
 companies: []
 tags: [tariffs, Section 122, trade policy, construction costs, steel, aluminum, lumber]
 ---

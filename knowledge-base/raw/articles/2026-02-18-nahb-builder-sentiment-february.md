@@ -2,7 +2,7 @@
 date: 2026-02-18
 source: NAHB
 url: https://www.nahb.org/news-and-economics/press-releases/2026/02/builder-sentiment-edges-lower-on-affordability-concerns
-category: Housing Market
+category: Housing & Demand
 companies: [NAHB, Wells Fargo]
 tags: [builder confidence, HMI, housing market, affordability, home builder sentiment]
 ---

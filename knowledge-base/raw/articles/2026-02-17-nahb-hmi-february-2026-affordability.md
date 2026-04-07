@@ -2,7 +2,7 @@
 date: 2026-02-17
 source: NAHB / Advisor Perspectives
 url: https://www.nahb.org/news-and-economics/press-releases/2026/02/builder-sentiment-edges-lower-on-affordability-concerns
-category: Demand Visibility
+category: Housing & Demand
 companies: [D.R. Horton, Lennar, PulteGroup, NVR, Toll Brothers]
 tags: [NAHB, HMI, builder-confidence, housing-market, affordability, incentives]
 ---

@@ -2,7 +2,7 @@
 date: 2026-02-11
 source: Yahoo Finance
 url: https://finance.yahoo.com/news/qxo-inc-qxo-announces-2-062820119.html
-category: Analysis
+category: Industry Outlook
 companies: [QXO]
 tags: [acquisition, Kodiak Building Partners, building products distribution, M&A]
 ---

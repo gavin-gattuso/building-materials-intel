@@ -2,7 +2,7 @@
 date: 2026-03-01
 source: TechCrunch / Construction Dive / Bloomberg / Equipment World
 url: https://www.constructiondive.com/news/data-centers-construction-2026-trends/810016/
-category: Demand Visibility
+category: Housing & Demand
 companies: [Amazon, Google, Meta, Microsoft, Oracle, Nvidia]
 tags: [data-centers, AI-infrastructure, construction-spending, hyperscale, electrical, copper, steel, concrete]
 ---

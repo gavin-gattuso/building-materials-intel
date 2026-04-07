@@ -2,7 +2,7 @@
 date: 2026-03-01
 source: Construction Dive / ABC
 url: https://www.constructiondive.com/news/labor-demand-gap-shrinks-abc-construction-staff/810681/
-category: Labor Dynamics
+category: Labor & Workforce
 companies: [Bridgit]
 tags: [labor-shortage, workforce, wages, attrition, immigration]
 ---

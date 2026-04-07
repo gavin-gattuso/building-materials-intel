@@ -2,7 +2,7 @@
 date: 2026-03-05
 source: GlobeNewswire / Canfor Corporation
 url: https://www.globenewswire.com/news-release/2026/03/05/3250751/0/en/Canfor-reports-results-for-the-fourth-quarter-of-2025.html
-category: Earnings
+category: Earnings & Financials
 companies: [Canfor]
 tags: [earnings, Q4-2025, lumber, pulp, operating-loss, tariffs, restructuring]
 ---

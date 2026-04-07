@@ -2,7 +2,7 @@
 date: 2026-03-18
 source: Federal Reserve / FRED Blog / Schwab
 url: https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260318.htm
-category: Economic-Data
+category: Economic Data & Indicators
 companies: []
 tags: [Federal-Reserve, FOMC, dot-plot, SEP, interest-rates, GDP, inflation, unemployment]
 ---

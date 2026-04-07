@@ -2,7 +2,7 @@
 date: 2026-02-18
 source: JELD-WEN IR / Benzinga
 url: https://investors.jeld-wen.com/news-and-events/news/news-details/2026/JELD-WEN-Reports-Fourth-Quarter-and-Full-Year-2025-Results-Establishes-2026-Guidance/
-category: Earnings
+category: Earnings & Financials
 companies: [JELD-WEN]
 tags: [earnings, Q4 2025, guidance, revenue decline, loss, goodwill impairment]
 ---

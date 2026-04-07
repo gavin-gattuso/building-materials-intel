@@ -2,7 +2,7 @@
 date: 2026-01-06
 source: NAHB / Eye on Housing
 url: https://www.nahb.org/blog/2026/01/building-material-price-growth
-category: Commodity Prices & Costs
+category: Pricing & Material Costs
 companies: []
 tags: [NAHB, PPI, residential-construction, material-prices, softwood-lumber, metals]
 ---

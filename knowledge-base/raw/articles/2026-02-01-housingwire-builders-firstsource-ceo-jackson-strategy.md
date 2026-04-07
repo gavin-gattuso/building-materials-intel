@@ -2,7 +2,7 @@
 date: 2026-02-01
 source: HousingWire
 url: https://www.housingwire.com/articles/builders-firstsource-ceo-peter-jackson/
-category: Industry
+category: Industry Outlook
 companies: [Builders FirstSource]
 tags: [builders-firstsource, strategy, digital, acquisitions, homebuilding, supply-chain]
 ---

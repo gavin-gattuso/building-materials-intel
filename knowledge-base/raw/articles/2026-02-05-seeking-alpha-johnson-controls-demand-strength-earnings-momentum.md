@@ -2,7 +2,7 @@
 date: 2026-02-05
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4873608-johnson-controls-international-demand-strength-sustains-earnings-momentum
-category: Earnings
+category: Earnings & Financials
 companies: [Johnson Controls]
 tags: [Q1 2026, earnings, data centers, orders, backlog, EPS guidance]
 ---

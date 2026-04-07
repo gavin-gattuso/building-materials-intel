@@ -2,7 +2,7 @@
 date: 2026-03-10
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4864591-waterproof-your-portfolio-using-carlisle-companies
-category: Analysis
+category: Industry Outlook
 companies: [Carlisle Companies]
 tags: [Buy rating, waterproofing, roofing, building envelope, margin expansion]
 ---

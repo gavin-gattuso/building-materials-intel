@@ -2,7 +2,7 @@
 date: 2026-02-11
 source: Bureau of Labor Statistics
 url: https://www.bls.gov/news.release/archives/empsit_02112026.htm
-category: Labor Market
+category: Labor & Workforce
 companies: []
 tags: [employment, construction-jobs, BLS, unemployment, wage-growth, labor-market]
 ---

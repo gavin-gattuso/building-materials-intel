@@ -2,7 +2,7 @@
 date: 2026-01-27
 source: Bain & Company
 url: https://www.bain.com/about/media-center/press-releases/2026/global-ma-poised-to-sustain-momentum-in-2026-after-great-rebound-finds-bain--company/
-category: M&A
+category: M&A and Corporate Strategy
 companies: []
 tags: [M&A, global, private-equity, deal-value, geopolitics, tariffs, building-products, Bain]
 ---

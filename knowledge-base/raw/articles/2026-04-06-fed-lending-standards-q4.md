@@ -2,7 +2,7 @@
 date: 2026-02-01
 source: ABA Banking Journal / Federal Reserve
 url: https://bankingjournal.aba.com/2026/02/fed-survey-lending-standards-tightened-for-commercial-loans-in-q4/
-category: Credit Availability & Lending Standards
+category: Credit & Lending
 companies: []
 tags: [lending-standards, SLOOS, Fed-survey, CRE, construction-loans]
 ---

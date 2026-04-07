@@ -2,7 +2,7 @@
 date: 2026-03-12
 source: Geberit IR / Investing.com
 url: https://www.investing.com/news/earnings/geberit-2025-profit-flat-dividend-breaches-payout-ceiling-as-costs-weigh-4556174
-category: Earnings
+category: Earnings & Financials
 companies: [Geberit]
 tags: [earnings, full year 2025, profit flat, dividend, margin pressure, renovation]
 ---

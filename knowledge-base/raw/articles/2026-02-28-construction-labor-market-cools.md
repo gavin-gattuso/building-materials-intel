@@ -2,7 +2,7 @@
 date: 2026-02-28
 source: Construction Dive
 url: https://www.constructiondive.com/news/construction-slow-labor-market-february-2026/816383/
-category: Labor Market
+category: Labor & Workforce
 companies: [Bureau of Labor Statistics, Associated Builders and Contractors]
 tags: [labor shortage, wages, hiring, construction employment, BLS]
 ---

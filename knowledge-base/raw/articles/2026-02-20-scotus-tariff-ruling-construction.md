@@ -2,7 +2,7 @@
 date: 2026-02-20
 source: Construction Dive
 url: https://www.constructiondive.com/news/supreme-court-tariff-ruling-means-construction/812771/
-category: Trade Policy
+category: Tariffs & Trade Policy
 companies: [Associated Builders and Contractors, Associated General Contractors]
 tags: [tariffs, Supreme Court, IEEPA, Section 122, trade policy, construction costs]
 ---

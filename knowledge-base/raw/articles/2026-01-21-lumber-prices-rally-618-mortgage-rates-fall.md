@@ -2,7 +2,7 @@
 date: 2026-01-21
 source: Trading Economics / Barchart / Yahoo Finance
 url: https://finance.yahoo.com/news/prospects-lumber-prices-spring-2026-150002091.html
-category: Pricing & Cost Trends
+category: Pricing & Material Costs
 companies: [Canfor, Interfor, West Fraser, Weyerhaeuser, UFP Industries]
 tags: [lumber-prices, futures, mortgage-rates, seasonal-demand, rally]
 ---

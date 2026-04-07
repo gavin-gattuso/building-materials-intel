@@ -2,7 +2,7 @@
 date: 2026-02-10
 source: Data Center Dynamics
 url: https://www.datacenterdynamics.com/en/news/us-construction-firmly-prioritizing-data-centers-as-growth-projected-following-a-year-of-decline-report/
-category: Infrastructure
+category: Infrastructure & Government Spending
 companies: []
 tags: [data-centers, construction, US, growth, infrastructure-spending, demand]
 ---

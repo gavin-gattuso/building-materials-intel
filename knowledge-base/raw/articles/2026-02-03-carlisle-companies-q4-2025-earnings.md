@@ -2,7 +2,7 @@
 date: 2026-02-03
 source: Carlisle Companies IR
 url: https://www.carlisle.com/investors/news/press-release-details/2026/Carlisle-Companies-Reports-Fourth-Quarter-Results/default.aspx
-category: Earnings
+category: Earnings & Financials
 companies: [Carlisle Companies]
 tags: [earnings, Q4 2025, roofing, building envelope, Vision 2030, EBITDA margin]
 ---

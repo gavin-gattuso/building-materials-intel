@@ -2,7 +2,7 @@
 date: 2026-03-10
 source: Capstone Partners
 url: https://www.capstonepartners.com/insights/article-hvac-equipment-sector-ma-update/
-category: M&A
+category: M&A and Corporate Strategy
 companies: [Carrier Global, Daikin Industries, Johnson Controls, Trane Technologies]
 tags: [HVAC, M&A, data-centers, cooling, tariffs, steel, aluminum, electrification, Capstone]
 ---

@@ -2,7 +2,7 @@
 date: 2026-01-10
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4847181-vulcan-materials-2026-looks-attractive-with-clear-growth-visibility-margin-upside
-category: Analysis
+category: Industry Outlook
 companies: [Vulcan Materials]
 tags: [Buy rating, aggregates, infrastructure, margin expansion, growth]
 ---

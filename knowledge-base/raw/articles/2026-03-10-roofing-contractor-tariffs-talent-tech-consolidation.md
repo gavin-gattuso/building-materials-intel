@@ -2,7 +2,7 @@
 date: 2026-03-10
 source: Roofing Contractor
 url: https://www.roofingcontractor.com/articles/101235-tariffs-talent-and-tech-the-new-rules-of-roofing-consolidation
-category: Industry
+category: Industry Outlook
 companies: []
 tags: [roofing, tariffs, labor, technology, consolidation, M&A, market-trends]
 ---

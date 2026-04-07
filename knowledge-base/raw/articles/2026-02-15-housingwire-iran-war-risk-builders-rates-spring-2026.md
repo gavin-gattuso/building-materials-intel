@@ -2,7 +2,7 @@
 date: 2026-02-15
 source: HousingWire
 url: https://www.housingwire.com/articles/homebuilders-uncertainty-spring-2026/
-category: Market
+category: Industry Outlook
 companies: []
 tags: [geopolitical-risk, iran, homebuilders, mortgage-rates, spring-2026, uncertainty]
 ---

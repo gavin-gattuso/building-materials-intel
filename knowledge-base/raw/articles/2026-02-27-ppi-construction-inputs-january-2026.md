@@ -2,7 +2,7 @@
 date: 2026-02-27
 source: Bureau of Labor Statistics / AGC
 url: https://www.bls.gov/news.release/archives/ppi_02272026.htm
-category: Pricing & Cost Trends
+category: Pricing & Material Costs
 companies: []
 tags: [PPI, construction-costs, material-prices, metals, tariffs, inflation, building-materials]
 ---

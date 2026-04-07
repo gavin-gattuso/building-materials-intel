@@ -2,7 +2,7 @@
 date: 2026-02-26
 source: NPR
 url: https://www.npr.org/2026/02/26/nx-s1-5726386/home-mortgage-rates-below-6
-category: Interest Rates
+category: Interest Rates & Monetary Policy
 companies: [Freddie Mac, Fannie Mae, Bankrate]
 tags: [mortgage rates, housing affordability, interest rates, homebuying]
 ---

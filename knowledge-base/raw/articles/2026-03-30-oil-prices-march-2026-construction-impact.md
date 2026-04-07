@@ -2,7 +2,7 @@
 date: 2026-03-30
 source: Fortune
 url: https://fortune.com/article/price-of-oil-03-30-2026/
-category: Energy Prices
+category: Pricing & Material Costs
 companies: []
 tags: [oil-prices, diesel, energy-costs, iran, strait-of-hormuz, construction-costs]
 ---

@@ -2,7 +2,7 @@
 date: 2026-02-05
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4865676-trane-technologies-upgrade-to-buy-on-cheaper-valuation-and-better-fundamentals
-category: Rating
+category: Earnings & Financials
 companies: [Trane Technologies]
 tags: [upgrade, Buy rating, HVAC, data centers, valuation, EPS guidance]
 ---

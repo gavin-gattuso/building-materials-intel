@@ -2,7 +2,7 @@
 date: 2026-02-05
 source: BusinessWire / ADS IR
 url: https://www.businesswire.com/news/home/20260205107143/en/Advanced-Drainage-Systems-Announces-Third-Quarter-Fiscal-2026-Results-Increases-Stock-Repurchase-Authorization
-category: Earnings
+category: Earnings & Financials
 companies: [Advanced Drainage Systems]
 tags: [earnings, Q3 FY2026, revenue growth, EBITDA, stock buyback]
 ---

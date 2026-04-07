@@ -2,7 +2,7 @@
 date: 2026-02-25
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4874585-steel-dynamics-verdict-is-still-out-on-trump-tariffs-issue
-category: Analysis
+category: Industry Outlook
 companies: [Steel Dynamics]
 tags: [tariffs, steel, trade policy, domestic production, uncertainty]
 ---

@@ -2,7 +2,7 @@
 date: 2026-03-23
 source: U.S. Census Bureau / AGC / Construction Dive
 url: https://www.census.gov/construction/c30/pdf/release.pdf
-category: Demand Visibility
+category: Housing & Demand
 companies: []
 tags: [construction-spending, Census-Bureau, nonresidential, residential, public-construction, data-centers, manufacturing]
 ---

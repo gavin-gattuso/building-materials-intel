@@ -2,7 +2,7 @@
 date: 2026-01-27
 source: U.S. Census Bureau / TD Economics
 url: https://www.census.gov/construction/nrc/pdf/newresconst.pdf
-category: Demand Visibility
+category: Housing & Demand
 companies: []
 tags: [housing-starts, building-permits, residential-construction, Census-Bureau, single-family, multifamily]
 ---

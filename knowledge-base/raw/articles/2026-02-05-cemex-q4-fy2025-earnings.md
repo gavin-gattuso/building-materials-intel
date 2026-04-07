@@ -2,7 +2,7 @@
 date: 2026-02-05
 source: Benzinga / MarketBeat
 url: https://www.benzinga.com/insights/earnings/26/02/50405416/cemex-q4-earnings-report-what-investors-need-to-know
-category: Earnings
+category: Earnings & Financials
 companies: [CEMEX]
 tags: [earnings, revenue, EPS-miss, Project-Cutting-Edge, cost-savings, EBITDA]
 ---

@@ -2,7 +2,7 @@
 date: 2026-02-05
 source: ASSA ABLOY IR / Investing.com
 url: https://www.assaabloy.com/group/en/news-media/press-releases/id.56401aabfcd2530b
-category: Earnings
+category: Earnings & Financials
 companies: [ASSA ABLOY]
 tags: [earnings, Q4 2025, record margins, organic growth, dividend]
 ---

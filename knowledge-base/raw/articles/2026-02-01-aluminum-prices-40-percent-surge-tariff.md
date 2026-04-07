@@ -2,7 +2,7 @@
 date: 2026-02-01
 source: American Douglas Metals / AGC / BLS
 url: https://americandouglasmetals.com/aluminum-prices-hit-new-highs-u-s-construction-cost-analysis-2026/
-category: Pricing & Cost Trends
+category: Pricing & Material Costs
 companies: []
 tags: [aluminum, tariffs, Section-232, construction-costs, material-prices, curtain-wall, roofing]
 ---

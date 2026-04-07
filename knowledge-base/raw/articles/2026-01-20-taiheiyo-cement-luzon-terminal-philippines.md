@@ -2,7 +2,7 @@
 date: 2026-01-20
 source: CemNet
 url: https://www.cemnet.com/News/story/179239/taiheiyo-cement-will-complete-luzon-terminal-in-2026.html
-category: Infrastructure
+category: Infrastructure & Government Spending
 companies: [Taiheiyo Cement]
 tags: [Philippines, Luzon, terminal, cement-supply, Asia-Pacific, expansion]
 ---

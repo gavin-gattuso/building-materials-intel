@@ -2,7 +2,7 @@
 date: 2026-03-01
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4878860-qxo-30b-dream-still-waiting-for-execution
-category: Analysis
+category: Industry Outlook
 companies: [QXO]
 tags: [valuation, M&A strategy, building products distribution, Brad Jacobs, Beacon Roofing]
 ---

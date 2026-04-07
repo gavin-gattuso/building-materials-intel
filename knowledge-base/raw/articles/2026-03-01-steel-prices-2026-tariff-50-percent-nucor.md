@@ -2,7 +2,7 @@
 date: 2026-03-01
 source: Steel Industry News / Steel Market Update
 url: https://steelindustry.news/nucor-continues-to-hold-steel-price-at-950-ton-what-q1-2026-holds-for-steel-prices-tariffs-and-market-recovery/
-category: Pricing & Cost Trends
+category: Pricing & Material Costs
 companies: [Nucor, U.S. Steel, Steel Dynamics]
 tags: [steel-prices, tariffs, Section-232, hot-rolled-coil, construction-costs, data-centers, Nucor]
 ---

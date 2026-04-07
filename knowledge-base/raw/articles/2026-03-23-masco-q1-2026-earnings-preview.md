@@ -2,7 +2,7 @@
 date: 2026-03-23
 source: BusinessWire / Yahoo Finance
 url: https://www.businesswire.com/news/home/20260323977739/en/Masco-Corporation-Announces-Date-for-Earnings-Release-and-Conference-Call-for-2026-First-Quarter
-category: Earnings
+category: Earnings & Financials
 companies: [Masco]
 tags: [earnings preview, Q1 2026, analyst expectations]
 ---

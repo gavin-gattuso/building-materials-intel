@@ -2,7 +2,7 @@
 date: 2026-01-15
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4873538-vulcan-materials-examining-a-somewhat-overvalued-sector-leader
-category: Analysis
+category: Industry Outlook
 companies: [Vulcan Materials]
 tags: [valuation, aggregates, Hold rating, infrastructure, construction]
 ---

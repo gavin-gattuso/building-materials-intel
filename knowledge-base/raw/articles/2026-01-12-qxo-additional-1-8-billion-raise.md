@@ -2,7 +2,7 @@
 date: 2026-01-12
 source: Housing Wire
 url: https://www.housingwire.com/articles/qxo-acqusition-funding/
-category: M&A / Deals
+category: M&A and Corporate Strategy
 companies: [QXO, Apollo Global Management, Temasek]
 tags: [M&A, building-products, distribution, capital-raise, Brad-Jacobs, QXO]
 ---

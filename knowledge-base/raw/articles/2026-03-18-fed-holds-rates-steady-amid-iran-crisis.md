@@ -2,7 +2,7 @@
 date: 2026-03-18
 source: CNBC
 url: https://www.cnbc.com/2026/03/18/fed-interest-rate-decision-march-2026.html
-category: Monetary Policy
+category: Interest Rates & Monetary Policy
 companies: [Federal Reserve]
 tags: [interest-rates, fed-decision, construction-lending, mortgage-rates, iran-crisis]
 ---

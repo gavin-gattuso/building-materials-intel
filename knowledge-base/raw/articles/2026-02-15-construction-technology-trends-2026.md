@@ -2,7 +2,7 @@
 date: 2026-02-15
 source: Deloitte
 url: https://www.deloitte.com/us/en/insights/industry/engineering-and-construction/engineering-and-construction-industry-outlook.html
-category: Technology
+category: Construction Technology
 companies: [Holcim, Autodesk]
 tags: [construction technology, 3D printing, robotics, AI, prefabrication, digital transformation]
 ---

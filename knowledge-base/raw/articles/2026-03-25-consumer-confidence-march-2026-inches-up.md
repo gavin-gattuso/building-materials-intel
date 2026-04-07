@@ -2,7 +2,7 @@
 date: 2026-03-25
 source: The Conference Board / PR Newswire
 url: https://www.prnewswire.com/news-releases/us-consumer-confidence-inched-up-again-in-march-302730107.html
-category: GDP Growth & Consumer Confidence
+category: Economic Data & Indicators
 companies: []
 tags: [consumer-confidence, Conference-Board, present-situation, expectations, Iran-conflict]
 ---

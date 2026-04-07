@@ -2,7 +2,7 @@
 date: 2026-02-20
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4869285-advanced-drainage-systems-doing-great-not-mean-gains-deserve-to-flow
-category: Analysis
+category: Industry Outlook
 companies: [Advanced Drainage Systems]
 tags: [valuation, stormwater, infrastructure, NDS acquisition, revenue guidance]
 ---

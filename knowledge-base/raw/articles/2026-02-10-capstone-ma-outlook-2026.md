@@ -2,7 +2,7 @@
 date: 2026-02-10
 source: Capstone Partners
 url: https://www.capstonepartners.com/insights/merger-and-acquisition-outlook-2026/
-category: M&A
+category: M&A and Corporate Strategy
 companies: []
 tags: [M&A-outlook, middle-market, private-equity, construction, building-products, Capstone]
 ---

@@ -2,7 +2,7 @@
 date: 2026-04-01
 source: Conference Board / Various
 url: https://www.fakta.co/us-consumer-confidence-april-2026-spending
-category: GDP Growth & Consumer Confidence
+category: Economic Data & Indicators
 companies: []
 tags: [consumer-confidence, GDP, inflation, recession-probability]
 ---

@@ -2,7 +2,7 @@
 date: 2026-02-10
 source: Taiheiyo Cement Corporation
 url: https://www.taiheiyo-cement.co.jp/english/summary/pdf/260210_1.pdf
-category: Earnings
+category: Earnings & Financials
 companies: [Taiheiyo Cement]
 tags: [earnings, Japan, impairment, revenue-decline, fiscal-year, guidance-revision]
 ---

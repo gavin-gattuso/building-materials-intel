@@ -2,7 +2,7 @@
 date: 2026-03-09
 source: Rock Products
 url: https://rockproducts.com/2026/03/09/conexpo-con-agg-2026-attracts-more-than-140000-attendees/
-category: Industry
+category: Industry Outlook
 companies: [CRH, Martin Marietta, Vulcan Materials]
 tags: [ConExpo, trade-show, aggregates, construction-equipment, industry-event]
 ---

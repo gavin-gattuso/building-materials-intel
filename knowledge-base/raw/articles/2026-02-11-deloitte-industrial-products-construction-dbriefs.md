@@ -2,7 +2,7 @@
 date: 2026-02-11
 source: Deloitte
 url: https://www.deloitte.com/us/en/dbriefs-webcasts/industry-outlook-2026-industrial-products-and-construction.html
-category: Research
+category: Industry Outlook
 companies: []
 tags: [industrial-products, construction, webcast, industrial-policy, strategic-spending, Deloitte]
 ---

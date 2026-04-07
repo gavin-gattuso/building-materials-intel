@@ -2,7 +2,7 @@
 date: 2026-03-20
 source: PwC
 url: https://www.pwc.com/gx/en/services/deals/trends/industrials-services.html
-category: M&A
+category: M&A and Corporate Strategy
 companies: [Builders FirstSource, CRH]
 tags: [M&A, global, industrials, construction, building-materials, tariffs, onshoring, modular-construction, PwC]
 ---

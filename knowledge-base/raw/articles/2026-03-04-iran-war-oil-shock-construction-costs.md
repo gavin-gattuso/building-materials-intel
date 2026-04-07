@@ -2,7 +2,7 @@
 date: 2026-03-04
 source: CNBC / Al Jazeera / Bloomberg / Fortune / IEA
 url: https://www.cnbc.com/2026/03/28/oil-gas-prices-iran-war-hormuz.html
-category: Energy & Geopolitics
+category: Pricing & Material Costs
 companies: []
 tags: [Iran-war, oil-prices, Strait-of-Hormuz, energy-crisis, construction-costs, diesel, asphalt, inflation]
 ---

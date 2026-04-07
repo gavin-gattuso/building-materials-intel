@@ -2,7 +2,7 @@
 date: 2026-01-26
 source: Federal Reserve
 url: https://www.federalreserve.gov/data/sloos/sloos-202601.htm
-category: Construction Lending & Credit
+category: Credit & Lending
 companies: []
 tags: [Federal-Reserve, SLOOS, lending-standards, construction-loans, credit, CRE]
 ---

@@ -2,7 +2,7 @@
 date: 2026-03-25
 source: Invesco
 url: https://www.invesco.com/us/en/insights/lending-standards-ease-constructive-signal-for-commercial-real-estate.html
-category: Construction Lending
+category: Credit & Lending
 companies: [Federal Reserve, FDIC]
 tags: [lending-standards, commercial-real-estate, SLOOS, construction-lending, credit]
 ---

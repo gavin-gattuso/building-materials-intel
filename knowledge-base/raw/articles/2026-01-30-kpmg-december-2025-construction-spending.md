@@ -2,7 +2,7 @@
 date: 2026-01-30
 source: KPMG
 url: https://kpmg.com/us/en/articles/2026/december-2025-construction-spending.html
-category: Research
+category: Industry Outlook
 companies: []
 tags: [construction-spending, economic-data, monthly-data, KPMG]
 ---

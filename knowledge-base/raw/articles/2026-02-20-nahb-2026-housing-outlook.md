@@ -2,7 +2,7 @@
 date: 2026-02-20
 source: NAHB
 url: https://www.nahb.org/news-and-economics/press-releases/2026/02/2026-housing-outlook-ongoing-challenges-cautious-optimism-and-incremental-gains
-category: Housing Market
+category: Housing & Demand
 companies: [NAHB]
 tags: [housing outlook, housing starts, building permits, affordability, new home sales]
 ---

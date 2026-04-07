@@ -2,7 +2,7 @@
 date: 2026-01-29
 source: Trane Technologies IR / Yahoo Finance
 url: https://investors.tranetechnologies.com/news-and-events/news-releases/news-release-details/2026/Trane-Technologies-Reports-Strong-Fourth-Quarter-and-Full-Year-2025-Results-Robust-Bookings-and-Backlog-Provide-Strong-Visibility-Entering-2026/default.aspx
-category: Earnings
+category: Earnings & Financials
 companies: [Trane Technologies]
 tags: [earnings, Q4 2025, full year 2025, bookings record, backlog, guidance, dividend]
 ---

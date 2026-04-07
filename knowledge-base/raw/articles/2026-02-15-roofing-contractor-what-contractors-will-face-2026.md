@@ -2,7 +2,7 @@
 date: 2026-02-15
 source: Roofing Contractor
 url: https://www.roofingcontractor.com/articles/101718-what-roofing-contractors-will-face-in-2026
-category: Industry
+category: Industry Outlook
 companies: []
 tags: [roofing, challenges, 2026, labor, margins, backlog, collections]
 ---

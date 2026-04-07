@@ -2,7 +2,7 @@
 date: 2026-01-10
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4855140-martin-marietta-is-still-too-richly-valued-going-into-2026e
-category: Analysis
+category: Industry Outlook
 companies: [Martin Marietta]
 tags: [valuation, aggregates, cement, infrastructure, overvalued]
 ---

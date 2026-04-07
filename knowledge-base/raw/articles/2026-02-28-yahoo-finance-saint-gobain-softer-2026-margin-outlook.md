@@ -2,7 +2,7 @@
 date: 2026-02-28
 source: Yahoo Finance
 url: https://finance.yahoo.com/news/saint-gobain-reports-stable-2025-180007112.html
-category: Earnings
+category: Earnings & Financials
 companies: [Saint-Gobain]
 tags: [margins, EBITDA, 2026 outlook, European construction, weather impact]
 ---

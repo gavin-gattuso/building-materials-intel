@@ -2,7 +2,7 @@
 date: 2026-03-13
 source: Bureau of Economic Analysis / Advisor Perspectives
 url: https://www.advisorperspectives.com/dshort/updates/2026/03/13/gdp-gross-domestic-product-q4-2025-second-estimate
-category: GDP Growth & Consumer Confidence
+category: Economic Data & Indicators
 companies: []
 tags: [GDP, economic-growth, Q4-2025, revision, recession-risk, construction]
 ---

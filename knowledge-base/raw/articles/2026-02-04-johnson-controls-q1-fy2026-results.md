@@ -2,7 +2,7 @@
 date: 2026-02-04
 source: PR Newswire / Johnson Controls IR
 url: https://www.prnewswire.com/news-releases/johnson-controls-reports-strong-q1-results-raises-fy26-guidance-302678372.html
-category: Earnings
+category: Earnings & Financials
 companies: [Johnson Controls]
 tags: [earnings, Q1 FY2026, guidance raised, EPS growth, record backlog, data center]
 ---

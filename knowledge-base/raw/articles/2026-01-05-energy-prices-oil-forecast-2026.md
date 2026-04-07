@@ -2,7 +2,7 @@
 date: 2026-01-05
 source: CNN Business / IEA / EIA
 url: https://www.cnn.com/2026/01/05/business/2026-gas-prices-oil
-category: Energy Prices
+category: Pricing & Material Costs
 companies: []
 tags: [oil-prices, energy, construction-costs, Brent-crude, WTI, EIA, IEA]
 ---

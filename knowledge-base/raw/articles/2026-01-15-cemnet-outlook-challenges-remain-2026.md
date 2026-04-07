@@ -2,7 +2,7 @@
 date: 2026-01-15
 source: CemNet
 url: https://www.cemnet.com/Articles/story/180531/outlook-challenges-remain-in-2026.html
-category: Market
+category: Industry Outlook
 companies: [CEMEX, Heidelberg Materials, Holcim, CRH]
 tags: [cement, outlook, 2026, challenges, demand, pricing, global]
 ---

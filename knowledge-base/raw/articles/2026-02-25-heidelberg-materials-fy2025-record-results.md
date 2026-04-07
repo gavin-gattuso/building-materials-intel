@@ -2,7 +2,7 @@
 date: 2026-02-25
 source: Heidelberg Materials
 url: https://www.heidelbergmaterials.com/en/pr-2026-02-25
-category: Earnings
+category: Earnings & Financials
 companies: [Heidelberg Materials]
 tags: [earnings, record-results, RCO, EBITDA-margin, cost-discipline, price-management]
 ---

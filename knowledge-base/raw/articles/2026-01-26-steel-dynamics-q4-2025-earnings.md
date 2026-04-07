@@ -2,7 +2,7 @@
 date: 2026-01-26
 source: Steel Dynamics Investor Relations
 url: https://ir.steeldynamics.com/steel-dynamics-reports-fourth-quarter-and-annual-2025-results/
-category: Earnings
+category: Earnings & Financials
 companies: [Steel Dynamics]
 tags: [earnings, Q4 2025, steel, aluminum, record shipments, free cash flow, buyback]
 ---

@@ -2,7 +2,7 @@
 date: 2026-03-15
 source: KPMG
 url: https://kpmg.com/dk/en/insights/market-trends/global-construction-survey.html
-category: Research
+category: Industry Outlook
 companies: []
 tags: [construction, survey, global, resilience, workforce, digital-transformation, risk-management, KPMG]
 ---

@@ -2,7 +2,7 @@
 date: 2026-03-15
 source: Construction Dive
 url: https://www.constructiondive.com/news/labor-demand-gap-shrinks-abc-construction-staff/810681/
-category: Labor Market
+category: Labor & Workforce
 companies: [ABC, Associated Builders and Contractors]
 tags: [labor-shortage, wages, workforce, demographics, immigration]
 ---

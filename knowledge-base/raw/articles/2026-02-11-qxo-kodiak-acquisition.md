@@ -2,7 +2,7 @@
 date: 2026-02-11
 source: Bloomberg
 url: https://www.bloomberg.com/news/articles/2026-02-11/qxo-set-to-buy-kodiak-building-partners-for-about-2-25-billion
-category: M&A
+category: M&A and Corporate Strategy
 companies: [QXO, Kodiak Building Partners, Court Square Capital Partners]
 tags: [acquisition, building products distribution, lumber, roofing, M&A]
 ---

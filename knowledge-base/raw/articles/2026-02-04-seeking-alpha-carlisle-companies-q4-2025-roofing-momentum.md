@@ -2,7 +2,7 @@
 date: 2026-02-04
 source: Seeking Alpha
 url: https://seekingalpha.com/article/4862531-carlisle-companies-stock-residential-construction-driven-momentum
-category: Earnings
+category: Earnings & Financials
 companies: [Carlisle Companies]
 tags: [Q4 2025, roofing, building envelope, margins, buybacks, dividends]
 ---

@@ -2,7 +2,7 @@
 date: 2026-01-27
 source: West Fraser Timber / StockTitan
 url: https://www.stocktitan.net/news/WFG/west-fraser-announces-goodwill-impairment-and-provides-2026-s6zljqz0nzcb.html
-category: Earnings
+category: Earnings & Financials
 companies: [West Fraser]
 tags: [goodwill-impairment, lumber-segment, US-operations, 2026-guidance, downcycle]
 ---

@@ -2,7 +2,7 @@
 date: 2026-02-25
 source: Seeking Alpha
 url: https://seekingalpha.com/news/4556877-owens-corning-outlines-800m-capex-for-2026-amid-strategic-shift-and-market-headwinds
-category: Earnings
+category: Earnings & Financials
 companies: [Owens Corning]
 tags: [Q4 2025, capex, roofing, insulation, housing headwinds, dividends]
 ---

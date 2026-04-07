@@ -2,7 +2,7 @@
 date: 2026-03-06
 source: Bain & Company
 url: https://www.bain.com/insights/building-products-m-and-a-report-2026/
-category: M&A
+category: M&A and Corporate Strategy
 companies: [Lowe's, Home Depot, CRH, Foundation Building Materials, GMS, Eco Material Technologies, SRS Distribution]
 tags: [M&A, acquisitions, building-products, private-equity, strategic-buyers]
 ---

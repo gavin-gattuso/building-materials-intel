@@ -2,7 +2,7 @@
 date: 2026-02-11
 source: Martin Marietta Materials
 url: https://ir.martinmarietta.com/news-releases/news-release-details/martin-marietta-reports-fourth-quarter-and-full-year-2025
-category: Earnings
+category: Earnings & Financials
 companies: [Martin Marietta]
 tags: [earnings, revenue, aggregates, EBITDA, volume-growth, pricing, infrastructure-supercycle]
 ---

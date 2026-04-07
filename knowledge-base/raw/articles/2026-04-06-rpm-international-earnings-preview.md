@@ -2,7 +2,7 @@
 date: 2026-04-05
 source: Daily Political
 url: https://www.dailypolitical.com/2026/04/05/rpm-international-rpm-projected-to-post-quarterly-earnings-on-wednesday.html
-category: Company Earnings & Performance
+category: Earnings & Financials
 companies: [RPM International]
 tags: [earnings, Q3-2026, coatings, sealants]
 ---

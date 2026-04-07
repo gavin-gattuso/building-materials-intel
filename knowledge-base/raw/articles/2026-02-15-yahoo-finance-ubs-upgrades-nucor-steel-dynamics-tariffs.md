@@ -2,7 +2,7 @@
 date: 2026-02-15
 source: Yahoo Finance
 url: https://finance.yahoo.com/news/ubs-upgrades-nucor-steel-dynamics-154618207.html
-category: Rating
+category: Earnings & Financials
 companies: [Nucor, Steel Dynamics]
 tags: [upgrade, UBS, Buy rating, tariffs, price target, steel]
 ---

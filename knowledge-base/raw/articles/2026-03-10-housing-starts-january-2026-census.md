@@ -2,7 +2,7 @@
 date: 2026-03-10
 source: Census Bureau
 url: https://www.census.gov/construction/nrc/current/index.html
-category: Housing Data
+category: Housing & Demand
 companies: []
 tags: [housing-starts, building-permits, residential-construction, census-data]
 ---

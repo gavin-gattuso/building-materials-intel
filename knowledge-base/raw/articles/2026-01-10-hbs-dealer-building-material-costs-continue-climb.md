@@ -2,7 +2,7 @@
 date: 2026-01-10
 source: HBS Dealer
 url: https://hbsdealer.com/building-material-costs-continue-climb
-category: Commodity Prices & Costs
+category: Pricing & Material Costs
 companies: []
 tags: [material-prices, lumber, metals, tariffs, PPI, dealer-channel, HBS-Dealer]
 ---

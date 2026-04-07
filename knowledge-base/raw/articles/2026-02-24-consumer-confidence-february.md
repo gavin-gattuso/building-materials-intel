@@ -2,7 +2,7 @@
 date: 2026-02-24
 source: Conference Board
 url: https://www.conference-board.org/topics/consumer-confidence/
-category: Economic Data
+category: Economic Data & Indicators
 companies: [Conference Board]
 tags: [consumer confidence, economic outlook, recession risk, consumer spending]
 ---

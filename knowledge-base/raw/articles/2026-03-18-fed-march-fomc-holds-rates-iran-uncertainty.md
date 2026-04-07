@@ -2,7 +2,7 @@
 date: 2026-03-18
 source: Federal Reserve / Fox Business / Yahoo Finance
 url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260318a.htm
-category: Monetary Policy
+category: Interest Rates & Monetary Policy
 companies: []
 tags: [Federal-Reserve, FOMC, interest-rates, fed-funds-rate, Iran-war, inflation, rate-cut-forecast]
 ---

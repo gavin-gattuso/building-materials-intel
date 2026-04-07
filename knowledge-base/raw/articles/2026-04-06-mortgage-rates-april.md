@@ -2,7 +2,7 @@
 date: 2026-04-06
 source: Yahoo Finance / Zillow
 url: https://finance.yahoo.com/personal-finance/mortgages/article/mortgage-refinance-rates-today-monday-april-6-2026-100000808.html
-category: Interest & Mortgage Rates
+category: Interest Rates & Monetary Policy
 companies: []
 tags: [mortgage-rates, interest-rates, housing-affordability]
 ---

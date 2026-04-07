@@ -2,7 +2,7 @@
 date: 2026-02-23
 source: PR Newswire / UFP Industries
 url: https://www.prnewswire.com/news-releases/ufp-industries-announces-fourth-quarter-2025-results-302694964.html
-category: Earnings
+category: Earnings & Financials
 companies: [UFP Industries]
 tags: [earnings, Q4-2025, Deckorators, packaging, residential, cost-reduction, share-buyback]
 ---

@@ -2,7 +2,7 @@
 date: 2026-01-29
 source: FMI Corp
 url: https://fmicorp.com/insights/thought-leadership/2026-north-american-engineering-and-construction-overview-first-quarter
-category: Outlook
+category: Industry Outlook
 companies: []
 tags: [construction-spending, forecast, data-centers, infrastructure, engineering, FMI]
 ---

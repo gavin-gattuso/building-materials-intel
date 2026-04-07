@@ -2,7 +2,7 @@
 date: 2026-02-10
 source: Pit & Quarry
 url: https://www.pitandquarry.com/aggregate-shipments-pricing-up-in-q4-at-vulcan-materials/
-category: Market
+category: Industry Outlook
 companies: [Vulcan Materials]
 tags: [vulcan-materials, earnings, Q4, aggregates, shipments, pricing, EBITDA]
 ---

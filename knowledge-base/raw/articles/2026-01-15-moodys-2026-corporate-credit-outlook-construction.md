@@ -2,7 +2,7 @@
 date: 2026-01-15
 source: Moody's Ratings
 url: https://www.moodys.com/web/en/us/insights/credit-risk/outlooks/corporates-2026.html
-category: Credit
+category: Credit & Lending
 companies: []
 tags: [Moodys, credit-outlook, construction, building-materials, tariffs, credit]
 ---

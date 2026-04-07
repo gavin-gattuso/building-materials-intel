@@ -2,7 +2,7 @@
 date: 2026-03-09
 source: Construction Dive
 url: https://www.constructiondive.com/news/construction-dive-march-2026-economic-roundup/814254/
-category: Industry Analysis
+category: Industry Outlook
 companies: []
 tags: [construction-spending, economic-roundup, employment, nonresidential, data-centers]
 ---

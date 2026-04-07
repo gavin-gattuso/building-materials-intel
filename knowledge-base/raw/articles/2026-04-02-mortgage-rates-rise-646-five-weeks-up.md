@@ -2,7 +2,7 @@
 date: 2026-04-02
 source: Freddie Mac / Fox Business / Globe Newswire
 url: https://www.globenewswire.com/news-release/2026/04/02/3267659/0/en/The-30-Year-Fixed-Rate-Mortgage-Averages-6-46.html
-category: Interest Rates
+category: Interest Rates & Monetary Policy
 companies: [Freddie Mac]
 tags: [mortgage-rates, 30-year-fixed, housing-affordability, Freddie-Mac-PMMS, Iran-conflict, oil-prices]
 ---

@@ -2,7 +2,7 @@
 date: 2026-02-12
 source: GlobeNewsWire
 url: https://www.globenewswire.com/news-release/2026/02/12/3237332/28124/en/United-States-Construction-Industry-Report-2026-CHIPS-Act-Megaprojects-Data-Centers-IIJA-Infrastructure-Spending-Redefine-U-S-Construction-Investments-Forecast-to-2030.html
-category: Infrastructure
+category: Infrastructure & Government Spending
 companies: []
 tags: [IIJA, CHIPS Act, data centers, infrastructure spending, construction forecast]
 ---

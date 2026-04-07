@@ -2,7 +2,7 @@
 date: 2026-01-07
 source: Rock Products
 url: https://rockproducts.com/2026/01/07/the-coming-infrastructure-reset-politics-economics-and-the-next-big-bill/
-category: Infrastructure
+category: Infrastructure & Government Spending
 companies: []
 tags: [infrastructure, IIJA, reauthorization, policy, federal-spending, highway-funding]
 ---

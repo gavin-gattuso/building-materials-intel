@@ -2,7 +2,7 @@
 date: 2026-02-15
 source: NAHB
 url: https://www.nahb.org/advocacy/top-priorities/building-materials-trade-policy/how-tariffs-impact-home-building
-category: Trade Policy
+category: Tariffs & Trade Policy
 companies: [NAHB]
 tags: [tariffs, building materials, housing affordability, material costs, home building]
 ---

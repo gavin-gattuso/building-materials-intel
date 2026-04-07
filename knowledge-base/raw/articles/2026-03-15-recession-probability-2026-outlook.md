@@ -2,7 +2,7 @@
 date: 2026-03-15
 source: Goldman Sachs / Moody's / J.P. Morgan / RSM / The Motley Fool
 url: https://www.fool.com/investing/2026/03/13/what-are-the-chances-of-a-us-recession-in-2026/
-category: GDP Growth & Consumer Confidence
+category: Economic Data & Indicators
 companies: []
 tags: [recession, probability, economic-outlook, GDP-growth, forecasts, construction-impact]
 ---

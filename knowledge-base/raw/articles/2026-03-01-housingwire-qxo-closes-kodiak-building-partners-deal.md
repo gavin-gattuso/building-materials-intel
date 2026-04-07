@@ -2,7 +2,7 @@
 date: 2026-03-01
 source: HousingWire
 url: https://www.housingwire.com/articles/qxo-closes-on-kodiak-building-partners-deal/
-category: Industry
+category: Industry Outlook
 companies: [QXO]
 tags: [QXO, kodiak, acquisition, building-materials, distribution, consolidation]
 ---

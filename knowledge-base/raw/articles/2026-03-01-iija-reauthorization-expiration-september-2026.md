@@ -2,7 +2,7 @@
 date: 2026-03-01
 source: Transportation for America / Funding Landscape / AASHTO
 url: https://fundinglandscape.com/answers/infrastructure-iija-funding-2026
-category: Infrastructure
+category: Infrastructure & Government Spending
 companies: [CRH, Vulcan Materials, Martin Marietta, Summit Materials, Granite Construction]
 tags: [IIJA, infrastructure, reauthorization, highway-funding, federal-spending, Highway-Trust-Fund, expiration]
 ---

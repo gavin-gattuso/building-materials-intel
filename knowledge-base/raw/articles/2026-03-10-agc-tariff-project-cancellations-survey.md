@@ -2,7 +2,7 @@
 date: 2026-03-10
 source: AGC / ABC Carolinas / Construction Dive / US Glass Magazine
 url: https://www.agc.org/tariff-resources-contractors
-category: Pricing & Cost Trends
+category: Pricing & Material Costs
 companies: []
 tags: [tariffs, project-cancellations, construction-costs, AGC, contractor-survey, steel, aluminum, escalation-clauses]
 ---

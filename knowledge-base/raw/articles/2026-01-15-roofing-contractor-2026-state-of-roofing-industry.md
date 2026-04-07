@@ -2,7 +2,7 @@
 date: 2026-01-15
 source: Roofing Contractor
 url: https://www.roofingcontractor.com/articles/101643-2026-state-of-the-roofing-industry-report
-category: Market
+category: Industry Outlook
 companies: [Owens Corning, Carlisle Companies]
 tags: [roofing, state-of-industry, 2026, market-size, labor, materials, growth]
 ---

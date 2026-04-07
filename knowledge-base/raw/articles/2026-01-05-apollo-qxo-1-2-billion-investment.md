@@ -2,7 +2,7 @@
 date: 2026-01-05
 source: Bloomberg
 url: https://www.bloomberg.com/news/articles/2026-01-05/apollo-leads-1-2-billion-investment-in-brad-jacobs-qxo
-category: M&A / Deals
+category: M&A and Corporate Strategy
 companies: [QXO, Apollo Global Management, Temasek]
 tags: [M&A, building-products, distribution, private-equity, Brad-Jacobs]
 ---

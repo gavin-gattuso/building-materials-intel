@@ -2,7 +2,7 @@
 date: 2026-01-06
 source: MIT Technology Review
 url: https://www.technologyreview.com/2026/01/06/1129010/building-materials-are-getting-closer-to-doubling-as-batteries/
-category: Construction Technology & Innovation
+category: Construction Technology
 companies: [MIT]
 tags: [innovation, energy-storage, concrete, supercapacitor, carbon-concrete, sustainability]
 ---

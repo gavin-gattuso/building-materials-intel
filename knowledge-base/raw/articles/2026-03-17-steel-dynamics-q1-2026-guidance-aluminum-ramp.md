@@ -2,7 +2,7 @@
 date: 2026-03-17
 source: Steel Dynamics Investor Relations
 url: https://ir.steeldynamics.com/steel-dynamics-provides-first-quarter-2026-earnings-guidance/
-category: Earnings
+category: Earnings & Financials
 companies: [Steel Dynamics]
 tags: [earnings guidance, Q1 2026, aluminum, Columbus Mississippi, flat rolled, ramp-up]
 ---

@@ -2,7 +2,7 @@
 date: 2026-02-25
 source: CNBC
 url: https://www.cnbc.com/2026/02/25/lowes-low-q4-2025-earnings.html
-category: Earnings
+category: Earnings & Financials
 companies: [Lowes]
 tags: [earnings, retail, home improvement, Q4 2025, comparable sales]
 ---

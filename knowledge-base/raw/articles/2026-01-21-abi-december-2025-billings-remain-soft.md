@@ -2,7 +2,7 @@
 date: 2026-01-21
 source: AIA / Design Cost Data
 url: https://www.aia.org/resource-center/abi-december-2025-architecture-firm-billings-remain-soft-end-year
-category: Economic-Data
+category: Economic Data & Indicators
 companies: []
 tags: [ABI, Architecture-Billings-Index, nonresidential-construction, leading-indicator, demand]
 ---

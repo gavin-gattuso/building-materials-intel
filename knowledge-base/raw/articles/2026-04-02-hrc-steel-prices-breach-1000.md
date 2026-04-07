@@ -2,7 +2,7 @@
 date: 2026-04-02
 source: Multiple (Trading Economics, Steel Industry News, CME Group)
 url: https://tradingeconomics.com/commodity/hrc-steel
-category: Pricing & Cost Trends
+category: Pricing & Material Costs
 companies: [Nucor, Steel Dynamics, ArcelorMittal]
 tags: [steel prices, HRC, hot rolled coil, tariffs, pricing, commodity]
 ---

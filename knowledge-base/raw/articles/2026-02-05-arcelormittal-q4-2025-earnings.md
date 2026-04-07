@@ -2,7 +2,7 @@
 date: 2026-02-05
 source: Investing.com
 url: https://www.investing.com/news/company-news/arcelormittal-q4-2025-slides-strategic-growth-drives-earnings-beat-despite-revenue-miss-93CH-4488423
-category: Earnings
+category: Earnings & Financials
 companies: [ArcelorMittal]
 tags: [earnings, Q4 2025, steel, EPS beat, revenue miss, EBITDA, share buyback]
 ---

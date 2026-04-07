@@ -2,7 +2,7 @@
 date: 2026-01-28
 source: The Conference Board
 url: https://www.prnewswire.com/news-releases/us-consumer-confidence-fell-sharply-in-january-302671278.html
-category: Economic Indicators
+category: Economic Data & Indicators
 companies: []
 tags: [consumer-confidence, Conference-Board, recession-signal, economic-outlook, inflation]
 ---

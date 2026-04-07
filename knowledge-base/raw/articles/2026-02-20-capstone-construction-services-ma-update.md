@@ -2,7 +2,7 @@
 date: 2026-02-20
 source: Capstone Partners
 url: https://www.capstonepartners.com/insights/article-construction-ma-update/
-category: M&A
+category: M&A and Corporate Strategy
 companies: []
 tags: [construction-services, M&A, deal-volume, data-centers, labor-shortages, consolidation, Capstone]
 ---

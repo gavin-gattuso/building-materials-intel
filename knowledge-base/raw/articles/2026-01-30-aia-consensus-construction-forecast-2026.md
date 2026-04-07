@@ -2,7 +2,7 @@
 date: 2026-01-30
 source: AIA / Electrical Marketing
 url: https://www.aia.org/resource-center/consensus-construction-forecast/january-2026
-category: Economic-Data
+category: Economic Data & Indicators
 companies: []
 tags: [AIA, construction-forecast, nonresidential, demand, infrastructure-spending, data-centers]
 ---

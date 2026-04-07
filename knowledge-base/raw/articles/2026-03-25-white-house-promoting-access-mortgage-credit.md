@@ -2,7 +2,7 @@
 date: 2026-03-25
 source: White House
 url: https://www.whitehouse.gov/presidential-actions/2026/03/promoting-access-to-mortgage-credit/
-category: Regulatory Policy
+category: Tariffs & Trade Policy
 companies: [Federal Reserve, FDIC, NCUA, CFPB, OCC]
 tags: [executive-order, mortgage-credit, construction-lending, community-banks, housing-policy]
 ---

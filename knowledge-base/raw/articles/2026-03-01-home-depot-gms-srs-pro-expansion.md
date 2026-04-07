@@ -2,7 +2,7 @@
 date: 2026-03-01
 source: CNBC
 url: https://www.cnbc.com/2025/06/30/home-depot-srs-distribution-buys-gms.html
-category: M&A
+category: M&A and Corporate Strategy
 companies: [Home Depot, GMS, SRS Distribution]
 tags: [M&A, acquisition, pro-market, drywall, steel-framing, distribution]
 ---

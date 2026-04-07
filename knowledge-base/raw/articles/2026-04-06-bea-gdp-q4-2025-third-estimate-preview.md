@@ -2,7 +2,7 @@
 date: 2026-04-06
 source: Bureau of Economic Analysis
 url: https://www.bea.gov/news/schedule
-category: Economic-Data
+category: Economic Data & Indicators
 companies: []
 tags: [GDP, BEA, Q4-2025, third-estimate, economic-growth, recession-risk]
 ---
