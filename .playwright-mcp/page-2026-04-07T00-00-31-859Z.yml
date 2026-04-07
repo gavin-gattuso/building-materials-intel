@@ -1,0 +1,14 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - img "Applied Value Group" [ref=e4]
+      - heading "Newsletter Hub" [level=1] [ref=e9]
+    - navigation [ref=e10]:
+      - link "Browse" [ref=e11] [cursor=pointer]:
+        - /url: "#/"
+      - link "Subscribe" [ref=e12] [cursor=pointer]:
+        - /url: "#/subscribe"
+      - link "Sources" [ref=e13] [cursor=pointer]:
+        - /url: "#/sources"
+  - generic [ref=e15]: Loading...
+  - generic [ref=e16]: Compiled by Jarvis AI Newsletter Assistant · Applied Value LLC
