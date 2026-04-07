@@ -3,157 +3,182 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Building Materials Intelligence</title>
+<title>Applied Value - Building Materials Intelligence</title>
 <style>
   :root {
-    --bg: #0f1117;
-    --surface: #1a1d27;
-    --surface2: #232733;
-    --border: #2e3347;
-    --text: #e4e6ef;
-    --text-muted: #8b8fa3;
-    --accent: #4f8ff7;
-    --accent-dim: #2a4a8a;
-    --green: #34c759;
-    --red: #ff453a;
-    --orange: #ff9f0a;
-    --yellow: #ffd60a;
+    --primary: #18664c;
+    --primary-dark: #125239;
+    --bg: #f8f9fa;
+    --surface: #ffffff;
+    --border: #e8ecf0;
+    --text: #333333;
+    --text-secondary: #666666;
+    --text-muted: #888888;
+    --accent: #18664c;
+    --success-bg: #eaf6ee;
+    --success-text: #1a6b35;
+    --warning-bg: #fff3e0;
+    --warning-text: #e65100;
+    --info-bg: #e3f2fd;
+    --info-text: #1565c0;
+    --danger-bg: #fde8e8;
+    --danger-text: #c62828;
+    --shadow: 0 4px 12px rgba(0,0,0,0.08);
+    --shadow-hover: 0 8px 24px rgba(27,79,114,0.12);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
-  a { color: var(--accent); text-decoration: none; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  a { color: var(--primary); text-decoration: none; }
   a:hover { text-decoration: underline; }
 
-  /* Layout */
-  .app { display: flex; height: 100vh; }
-  .sidebar { width: 240px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
-  .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); }
-  .sidebar-header h1 { font-size: 14px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--accent); }
-  .sidebar-header p { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
-  .nav { flex: 1; padding: 12px; }
-  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); transition: all 0.15s; }
-  .nav-item:hover { background: var(--surface2); color: var(--text); }
-  .nav-item.active { background: var(--accent-dim); color: var(--text); }
-  .nav-icon { width: 18px; text-align: center; }
+  /* Header */
+  .header { background: var(--primary); display: flex; align-items: center; padding: 0 24px; height: 56px; position: sticky; top: 0; z-index: 200; }
+  .header-brand { display: flex; align-items: center; gap: 14px; }
+  .header-logo { font-size: 18px; font-weight: 700; color: #fff; letter-spacing: 0.3px; white-space: nowrap; }
+  .header-logo span { opacity: 0.7; font-weight: 400; }
+  .header-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.35); margin: 0 8px; }
+  .header-title { font-size: 15px; font-weight: 500; color: rgba(255,255,255,0.9); white-space: nowrap; }
+  .header-nav { display: flex; align-items: center; margin-left: auto; gap: 0; }
+  .header-nav a { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.8); padding: 16px 16px; transition: all 0.2s; border-bottom: 2px solid transparent; cursor: pointer; text-decoration: none; }
+  .header-nav a:hover { color: #fff; text-decoration: none; }
+  .header-nav a.active { color: #fff; border-bottom-color: #fff; }
 
-  .main { flex: 1; overflow-y: auto; }
-  .page { display: none; padding: 32px; max-width: 1200px; margin: 0 auto; }
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+
+  /* Hero */
+  .hero { text-align: center; margin-bottom: 36px; }
+  .hero h2 { font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .hero p { font-size: 15px; color: var(--text-secondary); }
+
+  /* Pages */
+  .page { display: none; }
   .page.active { display: block; }
 
-  /* Dashboard */
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
-  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
-  .stat-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
-  .stat-card .value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+  /* Stats grid */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; transition: all 0.2s; }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+  .stat-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; color: var(--text-muted); }
+  .stat-card .value { font-size: 28px; font-weight: 700; color: var(--primary); margin-top: 4px; }
   .stat-card .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
-  .section-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-  .section-title .badge { font-size: 11px; background: var(--accent-dim); color: var(--accent); padding: 2px 8px; border-radius: 10px; }
+  /* Section titles */
+  .section-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: var(--text); }
+  .section-title .badge { font-size: 11px; background: var(--success-bg); color: var(--success-text); padding: 2px 10px; border-radius: 10px; font-weight: 600; }
+
+  /* Card grid */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; margin-bottom: 32px; }
 
   /* Signal cards */
-  .signals-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 32px; }
-  .signal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; cursor: pointer; transition: border-color 0.15s; }
-  .signal-card:hover { border-color: var(--accent); }
-  .signal-card .signal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .signal-card .signal-name { font-size: 13px; font-weight: 600; }
-  .signal-card .signal-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
-  .signal-badge.up { background: rgba(255, 69, 58, 0.15); color: var(--red); }
-  .signal-badge.down { background: rgba(52, 199, 89, 0.15); color: var(--green); }
-  .signal-badge.expanding { background: rgba(52, 199, 89, 0.15); color: var(--green); }
-  .signal-badge.tightening { background: rgba(255, 159, 10, 0.15); color: var(--orange); }
-  .signal-badge.weakening { background: rgba(255, 69, 58, 0.15); color: var(--red); }
-  .signal-badge.stable { background: rgba(79, 143, 247, 0.15); color: var(--accent); }
-  .signal-badge.mixed { background: rgba(255, 214, 10, 0.15); color: var(--yellow); }
-  .signal-card .signal-detail { font-size: 12px; color: var(--text-muted); }
+  .signal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; cursor: pointer; transition: all 0.2s; }
+  .signal-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); border-color: var(--primary); }
+  .signal-header { display: flex; justify-content: space-between; align-items: center; }
+  .signal-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .signal-badge { font-size: 11px; padding: 3px 10px; border-radius: 10px; font-weight: 600; }
+  .signal-badge.up { background: var(--danger-bg); color: var(--danger-text); }
+  .signal-badge.down { background: var(--success-bg); color: var(--success-text); }
+  .signal-badge.expanding { background: var(--success-bg); color: var(--success-text); }
+  .signal-badge.tightening { background: var(--warning-bg); color: var(--warning-text); }
+  .signal-badge.weakening { background: var(--danger-bg); color: var(--danger-text); }
+  .signal-badge.stable { background: var(--info-bg); color: var(--info-text); }
+  .signal-badge.mixed { background: var(--warning-bg); color: var(--warning-text); }
 
   /* Article list */
-  .article-list { display: flex; flex-direction: column; gap: 8px; }
-  .article-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; cursor: pointer; transition: border-color 0.15s; }
-  .article-item:hover { border-color: var(--accent); }
-  .article-meta { display: flex; gap: 12px; align-items: center; margin-bottom: 6px; font-size: 11px; color: var(--text-muted); }
-  .article-meta .date { color: var(--accent); }
-  .article-meta .cat { background: var(--surface2); padding: 1px 6px; border-radius: 4px; }
-  .article-title { font-size: 14px; font-weight: 600; }
-  .article-companies { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  .article-list { display: flex; flex-direction: column; gap: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .article-item { padding: 16px 24px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.15s; }
+  .article-item:last-child { border-bottom: none; }
+  .article-item:hover { background: #f0f7f3; }
+  .article-meta { display: flex; gap: 12px; align-items: center; margin-bottom: 4px; font-size: 12px; color: var(--text-muted); }
+  .article-meta .date { color: var(--primary); font-weight: 600; min-width: 90px; }
+  .article-meta .cat { background: var(--bg); padding: 1px 8px; border-radius: 4px; font-size: 11px; }
+  .article-title { font-size: 15px; font-weight: 600; color: var(--text); }
+  .article-companies { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
 
-  /* Detail view */
-  .detail-overlay { display: none; position: fixed; top: 0; left: 240px; right: 0; bottom: 0; background: var(--bg); z-index: 100; overflow-y: auto; padding: 32px; }
-  .detail-overlay.open { display: block; }
-  .detail-back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); cursor: pointer; margin-bottom: 20px; }
-  .detail-back:hover { color: var(--text); }
-  .detail-header { margin-bottom: 24px; }
-  .detail-header h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
-  .detail-meta-grid { display: flex; flex-wrap: wrap; gap: 16px; font-size: 12px; color: var(--text-muted); }
-  .detail-content { font-size: 14px; line-height: 1.8; }
-  .detail-content h1, .detail-content h2, .detail-content h3 { margin-top: 24px; margin-bottom: 8px; }
-  .detail-content h1 { font-size: 20px; }
-  .detail-content h2 { font-size: 16px; }
-  .detail-content h3 { font-size: 14px; }
-  .detail-content table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
-  .detail-content th, .detail-content td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
-  .detail-content th { background: var(--surface2); font-weight: 600; }
-  .detail-content ul, .detail-content ol { padding-left: 20px; }
-  .detail-content li { margin-bottom: 4px; }
+  /* Company grid */
+  .company-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .company-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; cursor: pointer; transition: all 0.2s; }
+  .company-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); border-color: var(--primary); }
+  .company-card .ticker { font-size: 11px; color: var(--primary); font-weight: 700; letter-spacing: 0.5px; }
+  .company-card .name { font-size: 15px; font-weight: 600; margin-top: 4px; color: var(--text); }
+  .company-card .sector { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 
   /* Search */
   .search-bar { display: flex; gap: 12px; margin-bottom: 24px; }
-  .search-input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; color: var(--text); font-size: 14px; outline: none; }
-  .search-input:focus { border-color: var(--accent); }
+  .search-input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; color: var(--text); font-size: 14px; outline: none; }
+  .search-input:focus { border-color: var(--primary); }
   .search-input::placeholder { color: var(--text-muted); }
-  .filter-select { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-size: 13px; outline: none; }
+  .filter-select { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; color: var(--text); font-size: 13px; outline: none; }
+  .filter-select:focus { border-color: var(--primary); }
 
-  /* Companies grid */
-  .company-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
-  .company-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; cursor: pointer; transition: border-color 0.15s; }
-  .company-card:hover { border-color: var(--accent); }
-  .company-card .ticker { font-size: 11px; color: var(--accent); font-weight: 600; }
-  .company-card .name { font-size: 14px; font-weight: 600; margin-top: 2px; }
-  .company-card .sector { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  /* Detail overlay */
+  .detail-overlay { display: none; position: fixed; top: 56px; left: 0; right: 0; bottom: 0; background: var(--bg); z-index: 100; overflow-y: auto; }
+  .detail-overlay.open { display: block; }
+  .detail-inner { max-width: 860px; margin: 0 auto; padding: 32px 24px; }
+  .detail-back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); cursor: pointer; margin-bottom: 20px; padding: 8px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; transition: all 0.2s; }
+  .detail-back:hover { color: var(--primary); border-color: var(--primary); }
+  .detail-header { margin-bottom: 24px; }
+  .detail-header h2 { font-size: 24px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .detail-meta-grid { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--text-muted); }
+  .detail-meta-grid a { color: var(--primary); font-weight: 500; }
+  .detail-content { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 32px; font-size: 15px; line-height: 1.8; color: var(--text); }
+  .detail-content h1, .detail-content h2, .detail-content h3 { margin-top: 24px; margin-bottom: 8px; color: var(--text); }
+  .detail-content h1 { font-size: 20px; }
+  .detail-content h2 { font-size: 17px; }
+  .detail-content h3 { font-size: 15px; }
+  .detail-content table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  .detail-content th, .detail-content td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+  .detail-content th { background: var(--bg); font-weight: 600; }
+  .detail-content ul, .detail-content ol { padding-left: 20px; }
+  .detail-content li { margin-bottom: 4px; }
+  .detail-content a { color: var(--primary); }
+  .detail-content strong { color: var(--text); }
 
   /* Chat */
-  .chat-container { display: flex; flex-direction: column; height: calc(100vh - 64px); }
+  .chat-container { display: flex; flex-direction: column; height: calc(100vh - 56px - 64px); }
   .chat-messages { flex: 1; overflow-y: auto; padding-bottom: 16px; }
   .chat-msg { max-width: 85%; margin-bottom: 16px; }
   .chat-msg.user { margin-left: auto; }
   .chat-msg.assistant { margin-right: auto; }
-  .chat-bubble { padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.7; }
-  .chat-msg.user .chat-bubble { background: var(--accent-dim); color: var(--text); border-bottom-right-radius: 4px; }
-  .chat-msg.assistant .chat-bubble { background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+  .chat-bubble { padding: 14px 18px; border-radius: 12px; font-size: 14px; line-height: 1.7; }
+  .chat-msg.user .chat-bubble { background: var(--primary); color: #fff; border-bottom-right-radius: 4px; }
+  .chat-msg.assistant .chat-bubble { background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 4px; color: var(--text); }
   .chat-bubble p { margin-bottom: 8px; }
   .chat-bubble p:last-child { margin-bottom: 0; }
-  .chat-bubble strong { color: var(--accent); }
-  .chat-bubble code { background: var(--surface2); padding: 1px 4px; border-radius: 3px; font-size: 12px; }
+  .chat-bubble strong { color: var(--primary); }
+  .chat-msg.user .chat-bubble strong { color: #fff; }
+  .chat-bubble code { background: var(--bg); padding: 1px 4px; border-radius: 3px; font-size: 12px; }
   .chat-bubble table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 12px; }
   .chat-bubble th, .chat-bubble td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
-  .chat-bubble th { background: var(--surface2); }
+  .chat-bubble th { background: var(--bg); }
   .chat-sources { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
-  .chat-sources summary { font-size: 11px; color: var(--text-muted); cursor: pointer; }
+  .chat-sources summary { font-size: 12px; color: var(--text-muted); cursor: pointer; }
   .chat-sources .source-list { padding: 8px 0 0 0; list-style: none; }
-  .chat-sources .source-list li { font-size: 11px; color: var(--text-muted); padding: 3px 0; }
-  .chat-sources .source-list a { color: var(--accent); }
+  .chat-sources .source-list li { font-size: 12px; color: var(--text-muted); padding: 3px 0; }
+  .chat-sources .source-list a { color: var(--primary); }
 
   /* Search result cards in chat */
   .search-results { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
-  .search-result-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; cursor: pointer; transition: border-color 0.15s; }
-  .search-result-card:hover { border-color: var(--accent); }
+  .search-result-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.15s; }
+  .search-result-card:hover { border-color: var(--primary); background: #f0f7f3; }
   .search-result-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-  .search-result-title { font-size: 13px; font-weight: 600; }
-  .search-result-score { font-size: 10px; background: var(--accent-dim); color: var(--accent); padding: 1px 6px; border-radius: 8px; white-space: nowrap; }
+  .search-result-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .search-result-score { font-size: 10px; background: var(--success-bg); color: var(--success-text); padding: 2px 8px; border-radius: 8px; white-space: nowrap; font-weight: 600; }
   .search-result-meta { font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px; flex-wrap: wrap; }
-  .search-result-excerpts { margin-top: 8px; font-size: 12px; color: var(--text-muted); }
+  .search-result-excerpts { margin-top: 8px; font-size: 12px; color: var(--text-secondary); }
   .search-result-excerpts li { margin-bottom: 3px; }
-  .search-result-excerpts mark { background: var(--accent-dim); color: var(--accent); padding: 0 2px; border-radius: 2px; }
+  .search-result-excerpts mark { background: #d4edda; color: var(--success-text); padding: 0 2px; border-radius: 2px; }
   .search-result-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
-  .search-result-tag { font-size: 10px; background: var(--surface); border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px; color: var(--text-muted); }
-  .chat-mode-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 2px 8px; border-radius: 8px; margin-bottom: 8px; }
-  .chat-mode-badge.search { background: rgba(79, 143, 247, 0.15); color: var(--accent); }
-  .chat-mode-badge.ai { background: rgba(52, 199, 89, 0.15); color: var(--green); }
+  .search-result-tag { font-size: 10px; background: var(--bg); border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px; color: var(--text-muted); }
+  .chat-mode-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 3px 10px; border-radius: 8px; margin-bottom: 8px; font-weight: 600; }
+  .chat-mode-badge.search { background: var(--info-bg); color: var(--info-text); }
+  .chat-mode-badge.ai { background: var(--success-bg); color: var(--success-text); }
   .chat-input-row { display: flex; gap: 8px; padding-top: 16px; border-top: 1px solid var(--border); }
-  .chat-input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; color: var(--text); font-size: 14px; outline: none; resize: none; font-family: inherit; }
-  .chat-input:focus { border-color: var(--accent); }
-  .chat-send { background: var(--accent); border: none; border-radius: 10px; padding: 12px 20px; color: white; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-  .chat-send:hover { opacity: 0.9; }
-  .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+  .chat-input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 16px; color: var(--text); font-size: 14px; outline: none; resize: none; font-family: inherit; }
+  .chat-input:focus { border-color: var(--primary); }
+  .chat-send { background: var(--primary); border: none; border-radius: 6px; padding: 12px 32px; color: white; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+  .chat-send:hover { background: var(--primary-dark); }
+  .chat-send:disabled { background: #aaa; cursor: not-allowed; }
   .typing-indicator { display: inline-flex; gap: 4px; padding: 8px 12px; }
   .typing-indicator span { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: typing 1.2s infinite ease-in-out; }
   .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
@@ -162,113 +187,138 @@
 
   /* Welcome */
   .chat-welcome { text-align: center; padding: 60px 20px; }
-  .chat-welcome h2 { font-size: 20px; margin-bottom: 8px; }
-  .chat-welcome p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+  .chat-welcome h2 { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .chat-welcome p { color: var(--text-secondary); font-size: 14px; margin-bottom: 24px; }
   .suggestion-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-  .suggestion-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 8px 16px; font-size: 12px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
-  .suggestion-chip:hover { border-color: var(--accent); color: var(--text); }
+  .suggestion-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 8px 16px; font-size: 12px; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
+  .suggestion-chip:hover { border-color: var(--primary); color: var(--primary); background: #f0f7f3; }
 
   /* Loading */
   .loading { text-align: center; padding: 40px; color: var(--text-muted); }
+
+  /* Footer */
+  .footer { text-align: center; padding: 24px; font-size: 13px; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: 40px; }
+  .footer a { color: var(--primary); }
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="sidebar">
-    <div class="sidebar-header">
-      <h1>Building Materials</h1>
-      <p>Intelligence Platform</p>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-brand">
+    <div class="header-logo">Applied Value</div>
+    <div class="header-divider"></div>
+    <div class="header-title">Building Materials Intelligence</div>
+  </div>
+  <div class="header-nav">
+    <a class="active" data-page="dashboard">Dashboard</a>
+    <a data-page="articles">Articles</a>
+    <a data-page="companies">Companies</a>
+    <a data-page="drivers">Market Drivers</a>
+    <a data-page="concepts">Concepts</a>
+    <a data-page="chat">AI Chat</a>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Dashboard -->
+  <div class="page active" id="page-dashboard">
+    <div class="hero">
+      <h2>Industry Overview</h2>
+      <p>Weekly curated intelligence from trusted sources across Building Materials & Building Products</p>
     </div>
-    <div class="nav">
-      <div class="nav-item active" data-page="dashboard"><span class="nav-icon">&#9632;</span> Dashboard</div>
-      <div class="nav-item" data-page="articles"><span class="nav-icon">&#9998;</span> Articles</div>
-      <div class="nav-item" data-page="companies"><span class="nav-icon">&#9881;</span> Companies</div>
-      <div class="nav-item" data-page="drivers"><span class="nav-icon">&#9650;</span> Market Drivers</div>
-      <div class="nav-item" data-page="concepts"><span class="nav-icon">&#9830;</span> Concepts</div>
-      <div class="nav-item" data-page="chat"><span class="nav-icon">&#9993;</span> AI Chat</div>
+    <div class="stats-grid" id="stats-grid"></div>
+    <div class="section-title">Market Health Drivers</div>
+    <div class="card-grid" id="signals-grid"></div>
+    <div class="section-title">Latest Articles <span class="badge" id="article-count-badge"></span></div>
+    <div class="article-list" id="latest-articles"></div>
+  </div>
+
+  <!-- Articles -->
+  <div class="page" id="page-articles">
+    <div class="hero">
+      <h2>Knowledge Base Articles</h2>
+      <p>Search and filter across all tracked articles</p>
+    </div>
+    <div class="search-bar">
+      <input class="search-input" id="article-search" placeholder="Search articles..." />
+      <select class="filter-select" id="article-category-filter"><option value="">All Categories</option></select>
+      <select class="filter-select" id="article-company-filter"><option value="">All Companies</option></select>
+    </div>
+    <div class="article-list" id="all-articles"></div>
+  </div>
+
+  <!-- Companies -->
+  <div class="page" id="page-companies">
+    <div class="hero">
+      <h2>Company Profiles</h2>
+      <p>35 tracked companies across 8 segments</p>
+    </div>
+    <div class="company-grid" id="company-grid"></div>
+  </div>
+
+  <!-- Market Drivers -->
+  <div class="page" id="page-drivers">
+    <div class="hero">
+      <h2>Market Health Drivers</h2>
+      <p>7 key indicators shaping the building materials industry</p>
+    </div>
+    <div class="card-grid" id="drivers-grid"></div>
+  </div>
+
+  <!-- Concepts -->
+  <div class="page" id="page-concepts">
+    <div class="hero">
+      <h2>Key Concepts &amp; Analysis</h2>
+      <p>Deep-dive analysis pages on critical industry topics</p>
+    </div>
+    <div class="article-list" id="concepts-list"></div>
+  </div>
+
+  <!-- Chat -->
+  <div class="page" id="page-chat">
+    <div class="chat-container">
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-welcome">
+          <h2>Ask the Knowledge Base</h2>
+          <p id="chat-mode-desc">Search across articles, company profiles, and market analysis. Results include source citations and relevant excerpts.</p>
+          <div class="suggestion-chips">
+            <div class="suggestion-chip" onclick="askSuggestion(this)">What are current steel tariff rates and their impact?</div>
+            <div class="suggestion-chip" onclick="askSuggestion(this)">Summarize CRH's M&A strategy and recent acquisitions</div>
+            <div class="suggestion-chip" onclick="askSuggestion(this)">What is the current state of mortgage rates?</div>
+            <div class="suggestion-chip" onclick="askSuggestion(this)">Which companies are most exposed to tariff risk?</div>
+            <div class="suggestion-chip" onclick="askSuggestion(this)">What is the construction labor shortage outlook?</div>
+            <div class="suggestion-chip" onclick="askSuggestion(this)">Explain the QXO-Kodiak acquisition</div>
+          </div>
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <textarea class="chat-input" id="chat-input" rows="1" placeholder="Ask a question about building materials..."></textarea>
+        <button class="chat-send" id="chat-send" onclick="sendChat()">Send</button>
+      </div>
     </div>
   </div>
 
-  <div class="main">
-    <!-- Dashboard -->
-    <div class="page active" id="page-dashboard">
-      <h2 style="font-size:20px;margin-bottom:24px;">Industry Overview</h2>
-      <div class="stats-grid" id="stats-grid"></div>
-      <div class="section-title">Market Health Drivers</div>
-      <div class="signals-grid" id="signals-grid"></div>
-      <div class="section-title">Latest Articles <span class="badge" id="article-count-badge"></span></div>
-      <div class="article-list" id="latest-articles"></div>
-    </div>
+  <!-- Footer -->
+  <div class="footer">
+    Compiled by Jarvis AI Newsletter Assistant &middot; <a href="#">Applied Value LLC</a>
+  </div>
+</div>
 
-    <!-- Articles -->
-    <div class="page" id="page-articles">
-      <h2 style="font-size:20px;margin-bottom:24px;">Knowledge Base Articles</h2>
-      <div class="search-bar">
-        <input class="search-input" id="article-search" placeholder="Search articles..." />
-        <select class="filter-select" id="article-category-filter"><option value="">All Categories</option></select>
-        <select class="filter-select" id="article-company-filter"><option value="">All Companies</option></select>
-      </div>
-      <div class="article-list" id="all-articles"></div>
-    </div>
-
-    <!-- Companies -->
-    <div class="page" id="page-companies">
-      <h2 style="font-size:20px;margin-bottom:24px;">Company Profiles</h2>
-      <div class="company-grid" id="company-grid"></div>
-    </div>
-
-    <!-- Market Drivers -->
-    <div class="page" id="page-drivers">
-      <h2 style="font-size:20px;margin-bottom:24px;">Market Health Drivers</h2>
-      <div class="signals-grid" id="drivers-grid"></div>
-    </div>
-
-    <!-- Concepts -->
-    <div class="page" id="page-concepts">
-      <h2 style="font-size:20px;margin-bottom:24px;">Key Concepts & Analysis</h2>
-      <div class="article-list" id="concepts-list"></div>
-    </div>
-
-    <!-- Chat -->
-    <div class="page" id="page-chat">
-      <div class="chat-container">
-        <div class="chat-messages" id="chat-messages">
-          <div class="chat-welcome">
-            <h2>Ask the Knowledge Base</h2>
-            <p id="chat-mode-desc">Search across articles, company profiles, and market analysis. Results include source citations and relevant excerpts.</p>
-            <div class="suggestion-chips">
-              <div class="suggestion-chip" onclick="askSuggestion(this)">What are current steel tariff rates and their impact?</div>
-              <div class="suggestion-chip" onclick="askSuggestion(this)">Summarize CRH's M&A strategy and recent acquisitions</div>
-              <div class="suggestion-chip" onclick="askSuggestion(this)">What is the current state of mortgage rates?</div>
-              <div class="suggestion-chip" onclick="askSuggestion(this)">Which companies are most exposed to tariff risk?</div>
-              <div class="suggestion-chip" onclick="askSuggestion(this)">What is the construction labor shortage outlook?</div>
-              <div class="suggestion-chip" onclick="askSuggestion(this)">Explain the QXO-Kodiak acquisition</div>
-            </div>
-          </div>
-        </div>
-        <div class="chat-input-row">
-          <textarea class="chat-input" id="chat-input" rows="1" placeholder="Ask a question about building materials..."></textarea>
-          <button class="chat-send" id="chat-send" onclick="sendChat()">Send</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Detail overlay -->
-    <div class="detail-overlay" id="detail-overlay">
-      <div class="detail-back" onclick="closeDetail()">&larr; Back</div>
-      <div class="detail-header" id="detail-header"></div>
-      <div class="detail-content" id="detail-content"></div>
-    </div>
+<!-- Detail overlay -->
+<div class="detail-overlay" id="detail-overlay">
+  <div class="detail-inner">
+    <div class="detail-back" onclick="closeDetail()">&larr; Back</div>
+    <div class="detail-header" id="detail-header"></div>
+    <div class="detail-content" id="detail-content"></div>
   </div>
 </div>
 
 <script type="module">
 import { marked } from '/marked.esm.js';
 
-// Simple markdown renderer fallback
 function renderMd(md) {
   if (typeof marked !== 'undefined' && marked.parse) return marked.parse(md);
-  // Basic fallback
   return md
     .replace(/^### (.+)$/gm, '<h3>$1</h3>')
     .replace(/^## (.+)$/gm, '<h2>$1</h2>')
@@ -278,13 +328,12 @@ function renderMd(md) {
 }
 window.renderMd = renderMd;
 
-// State
 let chatHistory = [];
 
 // Navigation
-document.querySelectorAll('.nav-item').forEach(item => {
+document.querySelectorAll('.header-nav a').forEach(item => {
   item.addEventListener('click', () => {
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.header-nav a').forEach(n => n.classList.remove('active'));
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     item.classList.add('active');
     document.getElementById('page-' + item.dataset.page).classList.add('active');
@@ -300,7 +349,6 @@ async function loadDashboard() {
     fetch('/api/articles?limit=10').then(r => r.json()),
   ]);
 
-  // Stats
   document.getElementById('stats-grid').innerHTML = `
     <div class="stat-card"><div class="label">Total Articles</div><div class="value">${stats.totalArticles}</div><div class="sub">${stats.dateRange ? stats.dateRange.from + ' to ' + stats.dateRange.to : ''}</div></div>
     <div class="stat-card"><div class="label">Company Profiles</div><div class="value">${stats.companies}</div><div class="sub">${stats.marketDrivers} market drivers, ${stats.concepts} concepts</div></div>
@@ -308,11 +356,6 @@ async function loadDashboard() {
     <div class="stat-card"><div class="label">Companies Tracked</div><div class="value">${Object.keys(stats.companyMentions).length}</div><div class="sub">Most mentioned: ${Object.entries(stats.companyMentions).sort((a,b) => b[1]-a[1]).slice(0,3).map(([c,n]) => c+' ('+n+')').join(', ')}</div></div>
   `;
 
-  // Market driver signals
-  const signalMap = {};
-  for (const d of drivers) {
-    signalMap[d.id] = d;
-  }
   document.getElementById('signals-grid').innerHTML = drivers.map(d => {
     const signal = d.frontmatter.current_signal || '';
     return `<div class="signal-card" onclick="window.openWiki('${d.id}')">
@@ -323,7 +366,6 @@ async function loadDashboard() {
     </div>`;
   }).join('');
 
-  // Latest articles
   document.getElementById('article-count-badge').textContent = stats.totalArticles;
   document.getElementById('latest-articles').innerHTML = articles.map(a => articleCard(a)).join('');
 }
@@ -443,9 +485,8 @@ window.closeDetail = function() {
 };
 
 // Chat
-let chatMode = 'search'; // 'search' or 'ai'
+let chatMode = 'search';
 
-// Check mode on load
 fetch('/api/mode').then(r => r.json()).then(data => {
   chatMode = data.aiEnabled ? 'ai' : 'search';
   const desc = document.getElementById('chat-mode-desc');
@@ -469,9 +510,7 @@ function highlightTerms(text, terms) {
 function renderSearchResults(data) {
   const results = data.results || [];
   if (results.length === 0) return '<p>No matching results found. Try different search terms.</p>';
-
   const answerHtml = renderMd(data.answer);
-
   const cardsHtml = results.map(r => {
     const isArticle = r.type === 'article';
     const onclick = isArticle ? `window.openArticle('${r.id}')` : `window.openWiki('${r.id}')`;
@@ -484,7 +523,6 @@ function renderSearchResults(data) {
     const companies = isArticle && r.companies?.length
       ? `<div class="search-result-tags">${r.companies.map(c => `<span class="search-result-tag">${escHtml(c)}</span>`).join('')}</div>`
       : '';
-
     return `<div class="search-result-card" onclick="${onclick}">
       <div class="search-result-header">
         <span class="search-result-title">${escHtml(r.title)}</span>
@@ -495,9 +533,8 @@ function renderSearchResults(data) {
       ${companies}
     </div>`;
   }).join('');
-
   return `
-    <div class="chat-mode-badge search">&#9906; Smart Search &mdash; ${results.length} results</div>
+    <div class="chat-mode-badge search">Smart Search &mdash; ${results.length} results</div>
     ${answerHtml}
     <div class="search-results">${cardsHtml}</div>
   `;
@@ -514,7 +551,7 @@ function renderAIResponse(data) {
     </details>
   ` : '';
   return `
-    <div class="chat-mode-badge ai">&#9733; AI Synthesis</div>
+    <div class="chat-mode-badge ai">AI Synthesis</div>
     ${answerHtml}${sourcesHtml}
   `;
 }
@@ -530,7 +567,6 @@ window.sendChat = async function() {
   if (welcome) welcome.remove();
 
   const messagesEl = document.getElementById('chat-messages');
-
   messagesEl.innerHTML += `<div class="chat-msg user"><div class="chat-bubble">${escHtml(msg)}</div></div>`;
   messagesEl.innerHTML += `<div class="chat-msg assistant" id="typing"><div class="chat-bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div></div>`;
   messagesEl.scrollTop = messagesEl.scrollHeight;
@@ -545,11 +581,10 @@ window.sendChat = async function() {
       body: JSON.stringify({ message: msg, history: chatHistory }),
     });
     const data = await res.json();
-
     document.getElementById('typing')?.remove();
 
     if (data.error) {
-      messagesEl.innerHTML += `<div class="chat-msg assistant"><div class="chat-bubble" style="color:var(--red)">Error: ${escHtml(data.error)}</div></div>`;
+      messagesEl.innerHTML += `<div class="chat-msg assistant"><div class="chat-bubble" style="color:var(--danger-text)">Error: ${escHtml(data.error)}</div></div>`;
     } else {
       const html = data.mode === 'ai' ? renderAIResponse(data) : renderSearchResults(data);
       messagesEl.innerHTML += `<div class="chat-msg assistant"><div class="chat-bubble">${html}</div></div>`;
@@ -557,7 +592,7 @@ window.sendChat = async function() {
     }
   } catch (err) {
     document.getElementById('typing')?.remove();
-    messagesEl.innerHTML += `<div class="chat-msg assistant"><div class="chat-bubble" style="color:var(--red)">Failed to connect. Is the server running?</div></div>`;
+    messagesEl.innerHTML += `<div class="chat-msg assistant"><div class="chat-bubble" style="color:var(--danger-text)">Failed to connect. Is the server running?</div></div>`;
   }
 
   document.getElementById('chat-send').disabled = false;
@@ -573,7 +608,6 @@ document.getElementById('chat-input').addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); window.sendChat(); }
 });
 
-// Auto-resize chat input
 document.getElementById('chat-input').addEventListener('input', function() {
   this.style.height = 'auto';
   this.style.height = Math.min(this.scrollHeight, 120) + 'px';
