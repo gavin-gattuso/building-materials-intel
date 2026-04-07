@@ -315,6 +315,12 @@
   .ratio-delta { width: 50px; text-align: right; font-size: 11px; font-weight: 600; flex-shrink: 0; }
   .ratio-delta.positive { color: #16664b; }
   .ratio-delta.negative { color: #c62828; }
+  .ratio-row.pending { opacity: 0.55; }
+  .ratio-pending-badge { display: inline-block; font-size: 9px; font-weight: 600; color: #e65100; background: #fff3e0; padding: 1px 6px; border-radius: 8px; margin-left: 4px; vertical-align: middle; letter-spacing: 0.3px; }
+  .ratios-legend { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; font-size: 11px; color: var(--text-muted); }
+  .ratios-legend .leg-item { display: flex; align-items: center; gap: 4px; }
+  .ratios-legend .leg-swatch { width: 10px; height: 10px; border-radius: 2px; }
+  .ratios-legend .leg-pending { opacity: 0.55; border: 1px dashed #e65100; background: #fff3e0; }
   .ratio-avg { display: flex; align-items: center; gap: 8px; padding: 10px 0 4px; margin-top: 4px; border-top: 2px solid var(--border); }
   .ratio-avg .ratio-company { font-weight: 600; color: var(--text-muted); }
   .ratio-avg .ratio-value { font-weight: 700; }
@@ -998,8 +1004,16 @@ function renderRatios() {
   const products = filtered.filter(d => d.category === 'products');
   const metric = RATIO_METRICS.find(m => m.key === activeMetric);
 
+  const unreportedCount = filtered.filter(d => !d.has_reported).length;
   const panel = document.getElementById('ratios-panels');
   panel.innerHTML = `
+    ${unreportedCount > 0 ? `<div style="grid-column:1/-1;text-align:center;margin-bottom:-16px">
+      <div class="ratios-legend">
+        <span class="leg-item"><span class="leg-swatch" style="background:var(--primary)"></span> Reported</span>
+        <span class="leg-item"><span class="leg-swatch leg-pending"></span> Awaiting Earnings</span>
+        <span style="font-size:11px;color:#e65100">${unreportedCount} of ${filtered.length} companies pending</span>
+      </div>
+    </div>` : ''}
     <div class="ratios-panel">
       <h3>Building Materials</h3>
       <div class="panel-sub">${metric.label}, ${period}</div>
@@ -1061,8 +1075,11 @@ function buildRatioChart(companies, metric) {
       barHtml = `<div class="ratio-bar-wrap"><div class="ratio-bar" style="width:${pct}%;background:${color}"></div></div>`;
     }
 
-    return `<div class="ratio-row">
-      <span class="ratio-company" title="${escHtml(c.company)}">${escHtml(c.company)}</span>
+    const pendingCls = c.has_reported === false ? ' pending' : '';
+    const pendingBadge = c.has_reported === false ? '<span class="ratio-pending-badge">PENDING</span>' : '';
+
+    return `<div class="ratio-row${pendingCls}">
+      <span class="ratio-company" title="${escHtml(c.company)}">${escHtml(c.company)}${pendingBadge}</span>
       ${barHtml}
       <span class="ratio-value">${valStr}</span>
       ${deltaHtml}
