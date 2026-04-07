@@ -340,6 +340,42 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.json(pages);
     }
 
+    // /api/av-sections/:slug
+    if (path?.startsWith("av-sections/")) {
+      const slug = path.replace("av-sections/", "");
+      const { data: sections } = await supabase
+        .from("av_report_sections")
+        .select("id, slug, title, description, section_order")
+        .eq("slug", slug);
+      if (!sections?.length) return res.status(404).json({ error: "Not found" });
+      const section = sections[0];
+      const { data: tagged } = await supabase
+        .from("article_av_sections")
+        .select("relevance_score, articles(id, slug, title, date, source, category)")
+        .eq("section_id", section.id)
+        .order("relevance_score", { ascending: false })
+        .limit(50);
+      return res.json({ ...section, articles: tagged || [] });
+    }
+
+    // /api/av-sections
+    if (path === "av-sections") {
+      const { data: sections } = await supabase
+        .from("av_report_sections")
+        .select("id, slug, title, description, section_order")
+        .order("section_order");
+      return res.json(sections || []);
+    }
+
+    // /api/av-coverage
+    if (path === "av-coverage") {
+      const { data } = await supabase
+        .from("av_report_sections")
+        .select("slug, title, section_order, article_av_sections(count)")
+        .order("section_order");
+      return res.json(data || []);
+    }
+
     // /api/chat
     if (path === "chat") {
       if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
