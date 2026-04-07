@@ -8,22 +8,47 @@ import { readdir, readFile } from "fs/promises";
 import { join, basename } from "path";
 import matter from "gray-matter";
 
-const SUPABASE_URL = "https://pmjqymxdaiwfpfglwqux.supabase.co";
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+// Supports both REST API (SUPABASE_SERVICE_ROLE_KEY) and Management API (SUPABASE_ACCESS_TOKEN)
+const PROJECT_REF = "pmjqymxdaiwfpfglwqux";
+const SUPABASE_URL = `https://${PROJECT_REF}.supabase.co`;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+const ACCESS_TOKEN = process.env.SUPABASE_ACCESS_TOKEN || "";
 const KB_DIR = join(import.meta.dir, "..", "knowledge-base", "raw", "articles");
 const dryRun = process.argv.includes("--dry-run");
 
-if (!SUPABASE_KEY) {
-  console.error("Set SUPABASE_SERVICE_ROLE_KEY env var");
+const useManagementAPI = !SUPABASE_KEY && !!ACCESS_TOKEN;
+
+if (!SUPABASE_KEY && !ACCESS_TOKEN) {
+  console.error("Set SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ACCESS_TOKEN env var");
   process.exit(1);
 }
 
-const HEADERS = {
+const HEADERS = SUPABASE_KEY ? {
   apikey: SUPABASE_KEY,
   Authorization: `Bearer ${SUPABASE_KEY}`,
   "Content-Type": "application/json",
   Prefer: "resolution=merge-duplicates",
-};
+} : null;
+
+async function execSQL(sql: string): Promise<any> {
+  const res = await fetch(`https://api.supabase.com/v1/projects/${PROJECT_REF}/database/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${ACCESS_TOKEN}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ query: sql }),
+  });
+  if (!res.ok) throw new Error(`SQL error (${res.status}): ${await res.text()}`);
+  return res.json();
+}
+
+async function queryDB(restPath: string): Promise<any> {
+  if (HEADERS) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${restPath}`, { headers: HEADERS });
+    return res.json();
+  }
+  // Fall back to Management API SQL
+  // Parse the rest path to SQL (simple cases only)
+  throw new Error("Complex REST queries require SUPABASE_SERVICE_ROLE_KEY");
+}
 
 // Section slug → matching rules (keywords in category, tags, content)
 const SECTION_RULES: Record<string, { keywords: string[]; categories: string[]; weight: number }> = {
@@ -142,16 +167,24 @@ function scoreArticleForSection(
 }
 
 async function main() {
-  console.log(`Tagging articles with AV report sections${dryRun ? " (DRY RUN)" : ""}...\n`);
+  console.log(`Tagging articles with AV report sections${dryRun ? " (DRY RUN)" : ""}...`);
+  console.log(`Using ${useManagementAPI ? "Management API" : "REST API"}\n`);
 
   // Get sections from Supabase
-  const sectionsRes = await fetch(`${SUPABASE_URL}/rest/v1/av_report_sections?select=id,slug&order=section_order`, { headers: HEADERS });
-  const sections = (await sectionsRes.json()) as { id: string; slug: string }[];
-  console.log(`Loaded ${sections.length} AV report sections`);
+  let sections: { id: string; slug: string }[];
+  let articles: { id: string; slug: string; title: string; category: string; content: string }[];
 
-  // Get articles from Supabase
-  const articlesRes = await fetch(`${SUPABASE_URL}/rest/v1/articles?select=id,slug,title,category,content&limit=10000`, { headers: HEADERS });
-  const articles = (await articlesRes.json()) as { id: string; slug: string; title: string; category: string; content: string }[];
+  if (useManagementAPI) {
+    sections = await execSQL("SELECT id, slug FROM av_report_sections ORDER BY section_order;") as any;
+    articles = await execSQL("SELECT id, slug, title, category, content FROM articles;") as any;
+  } else {
+    const sectionsRes = await fetch(`${SUPABASE_URL}/rest/v1/av_report_sections?select=id,slug&order=section_order`, { headers: HEADERS! });
+    sections = (await sectionsRes.json()) as any[];
+    const articlesRes = await fetch(`${SUPABASE_URL}/rest/v1/articles?select=id,slug,title,category,content&limit=10000`, { headers: HEADERS! });
+    articles = (await articlesRes.json()) as any[];
+  }
+
+  console.log(`Loaded ${sections.length} AV report sections`);
   console.log(`Loaded ${articles.length} articles from Supabase`);
 
   // Load local articles for tags/companies (not stored in Supabase articles table)
@@ -162,8 +195,8 @@ async function main() {
     const { data: fm } = matter(raw);
     const slug = basename(f, ".md");
     localMeta.set(slug, {
-      tags: Array.isArray(fm.tags) ? fm.tags : [],
-      companies: Array.isArray(fm.companies) ? fm.companies : [],
+      tags: Array.isArray(fm.tags) ? fm.tags.map(String) : [],
+      companies: Array.isArray(fm.companies) ? fm.companies.map(String) : [],
     });
   }
 
@@ -172,6 +205,7 @@ async function main() {
   let tagged = 0;
   let skipped = 0;
   const sectionCounts: Record<string, number> = {};
+  const insertBatch: string[] = [];
 
   for (const article of articles) {
     const meta = localMeta.get(article.slug) || { tags: [], companies: [] };
@@ -190,20 +224,36 @@ async function main() {
       sectionCounts[section.slug] = (sectionCounts[section.slug] || 0) + 1;
 
       if (!dryRun) {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/article_av_sections`, {
-          method: "POST",
-          headers: HEADERS,
-          body: JSON.stringify({
-            article_id: article.id,
-            section_id: section.id,
-            relevance_score: Math.round(score * 100) / 100,
-          }),
-        });
-        if (res.ok) tagged++;
-        else skipped++; // likely duplicate
-      } else {
-        tagged++;
+        if (useManagementAPI) {
+          const roundedScore = Math.round(score * 100) / 100;
+          insertBatch.push(`('${article.id}', '${section.id}', ${roundedScore})`);
+        } else {
+          const res = await fetch(`${SUPABASE_URL}/rest/v1/article_av_sections`, {
+            method: "POST",
+            headers: HEADERS!,
+            body: JSON.stringify({
+              article_id: article.id,
+              section_id: section.id,
+              relevance_score: Math.round(score * 100) / 100,
+            }),
+          });
+          if (res.ok) tagged++;
+          else skipped++;
+        }
       }
+      tagged++;
+    }
+  }
+
+  // Batch insert via Management API
+  if (useManagementAPI && !dryRun && insertBatch.length > 0) {
+    console.log(`\nInserting ${insertBatch.length} tags via SQL...`);
+    // Insert in batches of 100
+    for (let i = 0; i < insertBatch.length; i += 100) {
+      const batch = insertBatch.slice(i, i + 100);
+      const sql = `INSERT INTO article_av_sections (article_id, section_id, relevance_score) VALUES ${batch.join(",\n")} ON CONFLICT (article_id, section_id) DO NOTHING;`;
+      await execSQL(sql);
+      console.log(`  Batch ${Math.min(i + 100, insertBatch.length)}/${insertBatch.length}`);
     }
   }
 
