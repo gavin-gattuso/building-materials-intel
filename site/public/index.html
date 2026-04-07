@@ -64,8 +64,8 @@
 
   /* Stats grid */
   .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 32px; }
-  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 20px 24px; transition: all 0.2s; }
-  .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 20px 24px; transition: all 0.2s; cursor: pointer; }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); border-color: var(--primary); }
   .stat-card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; color: var(--text-muted); }
   .stat-card .value { font-family: var(--font-heading); font-size: 28px; font-weight: 400; color: var(--primary); margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .stat-card .value.text-value { font-size: 18px; white-space: normal; line-height: 1.3; }
@@ -380,14 +380,18 @@ window.renderMd = renderMd;
 let chatHistory = [];
 
 // Navigation
-document.querySelectorAll('.header-nav a').forEach(item => {
-  item.addEventListener('click', () => {
-    document.querySelectorAll('.header-nav a').forEach(n => n.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    item.classList.add('active');
-    document.getElementById('page-' + item.dataset.page).classList.add('active');
-    closeDetail();
+function navigateTo(page) {
+  document.querySelectorAll('.header-nav a').forEach(n => {
+    n.classList.toggle('active', n.dataset.page === page);
   });
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  closeDetail();
+}
+window.navigateTo = navigateTo;
+
+document.querySelectorAll('.header-nav a').forEach(item => {
+  item.addEventListener('click', () => navigateTo(item.dataset.page));
 });
 
 // Load dashboard
@@ -409,10 +413,10 @@ async function loadDashboard() {
   const topCat = Object.entries(stats.byCategory).sort((a,b) => b[1] - a[1])[0];
 
   document.getElementById('stats-grid').innerHTML = `
-    <div class="stat-card"><div class="label">Total Articles</div><div class="value">${stats.totalArticles}</div><div class="sub">${stats.dateRange ? stats.dateRange.from + ' to ' + stats.dateRange.to : ''}</div></div>
-    <div class="stat-card"><div class="label">This Week</div><div class="value">${thisWeekCount}</div><div class="sub">New articles in the last 7 days</div></div>
-    <div class="stat-card"><div class="label">Top Category</div><div class="value text-value">${topCat ? topCat[0] : 'N/A'}</div><div class="sub">${topCat ? topCat[1] + ' articles across ' + Object.keys(stats.byCategory).length + ' categories' : ''}</div></div>
-    <div class="stat-card"><div class="label">Companies Tracked</div><div class="value">${Object.keys(stats.companyMentions).length}</div><div class="sub">${stats.marketDrivers} market drivers, ${stats.concepts} concepts</div></div>
+    <div class="stat-card" onclick="navigateTo('articles')"><div class="label">Total Articles</div><div class="value">${stats.totalArticles}</div><div class="sub">${stats.dateRange ? stats.dateRange.from + ' to ' + stats.dateRange.to : ''}</div></div>
+    <div class="stat-card" onclick="navigateTo('articles')"><div class="label">This Week</div><div class="value">${thisWeekCount}</div><div class="sub">New articles in the last 7 days</div></div>
+    <div class="stat-card" onclick="navigateTo('articles')"><div class="label">Top Category</div><div class="value text-value">${topCat ? topCat[0] : 'N/A'}</div><div class="sub">${topCat ? topCat[1] + ' articles across ' + Object.keys(stats.byCategory).length + ' categories' : ''}</div></div>
+    <div class="stat-card" onclick="navigateTo('companies')"><div class="label">Companies Tracked</div><div class="value">${Object.keys(stats.companyMentions).length}</div><div class="sub">${stats.marketDrivers} market drivers, ${stats.concepts} concepts</div></div>
   `;
 
   document.getElementById('signals-grid').innerHTML = drivers.map(d => {
