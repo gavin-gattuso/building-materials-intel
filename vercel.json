@@ -1,6 +1,11 @@
 {
   "buildCommand": "npm install && npx bun site/build-static.ts",
   "outputDirectory": "site/public",
+  "functions": {
+    "api/**": {
+      "includeFiles": "lib/**"
+    }
+  },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/(.*)", "destination": "/index.html" }
