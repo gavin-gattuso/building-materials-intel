@@ -208,7 +208,7 @@ export async function buildReportDocument(opts: {
 
     // Executive Summary
     heading("EXECUTIVE SUMMARY", 1),
-    ...executiveSummary.split("\n\n").map(p => bodyText(p.trim())).filter(Boolean),
+    ...(executiveSummary || "").split("\n\n").map(p => bodyText(p.trim())).filter(Boolean),
 
     // Section A: Industry News
     heading("SECTION A: INDUSTRY NEWS", 1),

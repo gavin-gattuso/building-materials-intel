@@ -316,6 +316,12 @@
   .ratio-delta.positive { color: #16664b; }
   .ratio-delta.negative { color: #c62828; }
   .ratio-row.pending { opacity: 0.55; }
+  .ratio-flag { font-size: 11px; padding: 4px 8px 4px 10px; margin: 2px 0 6px 140px; background: #fff3e0; border-left: 3px solid #e65100; border-radius: 0 4px 4px 0; line-height: 1.4; }
+  .ratio-flag.surge { background: #e8f5e9; border-left-color: #2e7d32; }
+  .ratio-flag .flag-icon { margin-right: 4px; }
+  .ratio-flag .flag-text { font-weight: 600; }
+  .ratio-flag .flag-citation { margin-top: 2px; font-weight: 400; color: var(--text-secondary); }
+  .ratio-flag .flag-link { color: var(--primary); text-decoration: underline; }
   .ratio-pending-badge { display: inline-block; font-size: 9px; font-weight: 600; color: #e65100; background: #fff3e0; padding: 1px 6px; border-radius: 8px; margin-left: 4px; vertical-align: middle; letter-spacing: 0.3px; }
   .ratios-legend { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; font-size: 11px; color: var(--text-muted); }
   .ratios-legend .leg-item { display: flex; align-items: center; gap: 4px; }
@@ -1081,18 +1087,26 @@ window.generateReport = async function() {
     }
     updateProgress();
 
-    // Fire all synthesis calls in parallel
-    const sectionResults = await Promise.all(
+    // Fire all synthesis calls in parallel (resilient — individual failures don't kill the report)
+    const settled = await Promise.allSettled(
       allSections.map(async (s) => {
-        const result = await fetch('/api/synthesize-section', {
+        const res = await fetch('/api/synthesize-section', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ startDate, endDate, section: s.section, sectionType: s.sectionType }),
-        }).then(r => r.json());
+        });
+        if (!res.ok) {
+          console.error(`Section "${s.section}" failed:`, await res.text());
+          return { ...s, content: `[Error loading ${s.section}]`, articles: [] };
+        }
+        const result = await res.json();
         completed++;
         updateProgress();
         return { ...s, ...result };
       })
+    );
+    const sectionResults = settled.map((r, i) =>
+      r.status === 'fulfilled' ? r.value : { ...allSections[i], content: '', articles: [] }
     );
 
     const newsSections = sectionResults.filter(s => s.sectionType === 'category');
@@ -1144,7 +1158,11 @@ window.generateReport = async function() {
       }),
     });
 
-    if (!docResponse.ok) throw new Error('Failed to build document');
+    if (!docResponse.ok) {
+      const errDetail = await docResponse.text();
+      console.error('Build report failed:', errDetail);
+      throw new Error(`Failed to build document: ${errDetail}`);
+    }
 
     // Download
     const blob = await docResponse.blob();
@@ -1186,6 +1204,7 @@ const SEGMENT_COLORS = {
 };
 
 let ratiosData = [];
+let ratioFlags = {};
 let activeMetric = 'revenue_ltm';
 
 async function loadFinancialRatios() {
@@ -1202,7 +1221,13 @@ async function loadFinancialRatios() {
     const periods = [...new Set(data.map(d => d.period))].sort().reverse();
     const periodSel = document.getElementById('ratios-period');
     periodSel.innerHTML = periods.map(p => `<option value="${p}">${p}</option>`).join('');
-    periodSel.onchange = () => renderRatios();
+    periodSel.onchange = async () => {
+      await loadRatioFlags(periodSel.value);
+      renderRatios();
+    };
+
+    // Load flags for the initial period
+    if (periods.length > 0) await loadRatioFlags(periods[0]);
 
     // Metric buttons
     const btnContainer = document.getElementById('ratios-metric-btns');
@@ -1239,6 +1264,16 @@ async function loadFinancialRatios() {
   } catch {
     document.getElementById('ratios-panels').innerHTML = '<div class="loading">Could not load financial data.</div>';
   }
+}
+
+async function loadRatioFlags(period) {
+  try {
+    const flags = await fetch(`/api/financial-ratio-flags?period=${encodeURIComponent(period)}`).then(r => r.ok ? r.json() : []);
+    ratioFlags = {};
+    for (const f of flags) {
+      ratioFlags[`${f.company}|${f.metric}`] = f;
+    }
+  } catch { ratioFlags = {}; }
 }
 
 function renderRatios() {
@@ -1322,12 +1357,31 @@ function buildRatioChart(companies, metric) {
     const pendingCls = c.has_reported === false ? ' pending' : '';
     const pendingBadge = c.has_reported === false ? '<span class="ratio-pending-badge">PENDING</span>' : '';
 
+    // Check for change flag
+    let flagHtml = '';
+    const flag = ratioFlags[`${c.company}|${metric.key}`];
+    if (flag) {
+      const icon = flag.direction === 'drop' ? '\u26a0' : '\u2191';
+      const verb = flag.direction === 'drop' ? 'dropped' : 'surged';
+      const unitStr = flag.unit === '%' ? '%' : 'pp';
+      let citation = '';
+      if (flag.article) {
+        const linkUrl = flag.article.url || '#';
+        citation = `<div class="flag-citation">See: <a href="${escHtml(linkUrl)}" target="_blank" class="flag-link">${escHtml(flag.article.title)}</a> (${escHtml(flag.article.source)}, ${flag.article.date})</div>`;
+      }
+      flagHtml = `<div class="ratio-flag ${flag.direction}">
+        <span class="flag-icon">${icon}</span>
+        <span class="flag-text">${escHtml(flag.metricLabel)} ${verb} ${Math.abs(flag.value).toFixed(1)}${unitStr}</span>
+        ${citation}
+      </div>`;
+    }
+
     return `<div class="ratio-row${pendingCls}">
       <span class="ratio-company" title="${escHtml(c.company)}">${escHtml(c.company)}${pendingBadge}</span>
       ${barHtml}
       <span class="ratio-value">${valStr}</span>
       ${deltaHtml}
-    </div>`;
+    </div>${flagHtml}`;
   }).join('');
 
   const avgStr = metric.unit === 'BUSD' ? `$${avg.toFixed(1)}` : `${avg.toFixed(1)}%`;

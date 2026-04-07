@@ -248,6 +248,45 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.json(data || []);
     }
 
+    // /api/financial-ratio-flags
+    if (path === "financial-ratio-flags") {
+      try {
+        const period = req.query.period as string | undefined;
+        const THRESHOLDS = [
+          { field: "revenue_growth_yoy", label: "Revenue Growth YoY", threshold: 15, unit: "%" },
+          { field: "cogs_sales_yoy_delta", label: "COGS / Sales", threshold: 2.0, unit: "pp" },
+          { field: "sga_sales_yoy_delta", label: "SG&A / Sales", threshold: 1.5, unit: "pp" },
+          { field: "ebitda_margin_yoy_delta", label: "EBITDA Margin", threshold: 3.0, unit: "pp" },
+        ];
+        let query = supabase.from("financial_ratios").select("*").order("company");
+        if (period) query = query.eq("period", period);
+        const { data: ratios } = await query;
+        const flags: any[] = [];
+        for (const row of (ratios || [])) {
+          for (const t of THRESHOLDS) {
+            const val = (row as any)[t.field];
+            if (val == null || Math.abs(val) < t.threshold) continue;
+            const direction = val < 0 ? "drop" : "surge";
+            const results = (await searchKB(row.company, 10)).filter(r => r.entry.type === "article").map(r => r.entry as any);
+            results.sort((a: any, b: any) => {
+              const catA = (a.category || "").toLowerCase().includes("earning") ? 1 : 0;
+              const catB = (b.category || "").toLowerCase().includes("earning") ? 1 : 0;
+              if (catB !== catA) return catB - catA;
+              return (b.date || "").localeCompare(a.date || "");
+            });
+            const best = results[0];
+            const excerpt = best ? (best.content || "").split("\n").find((l: string) => l.trim().length > 40)?.trim().slice(0, 200) || "" : "";
+            flags.push({
+              company: row.company, ticker: row.ticker, metric: t.field, metricLabel: t.label,
+              value: val, unit: t.unit, direction,
+              article: best ? { title: best.title, source: best.source, date: best.date, url: best.url, excerpt } : null,
+            });
+          }
+        }
+        return res.json(flags);
+      } catch { return res.json([]); }
+    }
+
     // /api/articles
     if (path === "articles") {
       const q = req.query.q as string | undefined;
@@ -379,7 +418,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       if (!process.env.ANTHROPIC_API_KEY) {
-        return res.json({ section, articleCount: articles.length, content: "", articles: [], error: "No API key" });
+        // KB-only fallback: extract data directly from articles
+        const topArticles = articles.slice(0, 5);
+        if (sectionType === "driver") {
+          const dataPoints = topArticles.map((a: any) => a.title).filter(Boolean);
+          const contentParts = topArticles.map((a: any) => {
+            const firstLine = (a.content || "").split("\n").find((l: string) => l.trim().length > 40) || "";
+            return firstLine.trim();
+          }).filter(Boolean);
+          return res.json({
+            section, sectionType, articleCount: articles.length,
+            direction: "Mixed",
+            signal: topArticles[0]?.title || `${section} — ${articles.length} articles found in date range.`,
+            content: contentParts.slice(0, 3).join(" ") || `${articles.length} articles related to ${section} were found between ${startDate} and ${endDate}.`,
+            impact: `Based on ${articles.length} articles covering ${section}.`,
+            dataPoints: dataPoints.slice(0, 5),
+          });
+        } else {
+          const formattedArticles = topArticles.map((a: any) => ({
+            title: a.title || "Untitled",
+            source: a.source || "Unknown",
+            analysis: (a.content || "").split("\n").find((l: string) => l.trim().length > 40)?.trim().slice(0, 300) || "",
+            dataPoints: a.companies || [],
+            url: a.url || "",
+          }));
+          return res.json({
+            section, sectionType, articleCount: articles.length,
+            content: `${articles.length} articles found for ${section} between ${startDate} and ${endDate}. Key sources include ${topArticles.map((a: any) => a.source).filter(Boolean).join(", ") || "various outlets"}.`,
+            articles: formattedArticles,
+          });
+        }
       }
 
       const { default: Anthropic } = await import("@anthropic-ai/sdk");
@@ -414,7 +482,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (req.method !== "POST") return res.status(405).json({ error: "POST required" });
       const { startDate, endDate, sectionSummaries } = req.body;
 
-      if (!process.env.ANTHROPIC_API_KEY) return res.json({ summary: "AI summary unavailable — no API key configured." });
+      if (!process.env.ANTHROPIC_API_KEY) {
+        const categories = (sectionSummaries || []).filter((s: any) => s.sectionType === "category");
+        const driversList = (sectionSummaries || []).filter((s: any) => s.sectionType === "driver");
+        const totalArticles = categories.reduce((sum: number, s: any) => {
+          const match = (s.content || "").match(/(\d+) articles/);
+          return sum + (match ? parseInt(match[1]) : 0);
+        }, 0);
+        const driverSignals = driversList.map((d: any) => `${d.section}: ${d.direction || "Mixed"}`).join("; ");
+        const summary = `Building Materials Intelligence Report for ${startDate} to ${endDate}.\n\nThis report covers ${totalArticles} articles across ${categories.length} news categories and ${driversList.length} market health drivers sourced from the knowledge base.\n\nMarket Driver Signals: ${driverSignals || "See individual driver sections for details."}\n\nNote: Set ANTHROPIC_API_KEY to enable AI-powered analysis and synthesis for richer executive summaries.`;
+        return res.json({ summary });
+      }
 
       const { default: Anthropic } = await import("@anthropic-ai/sdk");
       const anthropic = new Anthropic();
