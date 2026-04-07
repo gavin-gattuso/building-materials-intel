@@ -18,10 +18,18 @@ A remote scheduled trigger (`building-materials-daily-review`, ID: `trig_015uykD
 
 ## Website / Intelligence Platform
 - Run with: `bun run site` (http://localhost:3000)
+- Deployed: Vercel (auto-deploys from `main` branch)
 - Files: `site/server.ts`, `site/kb.ts`, `site/public/index.html`
-- Features: Dashboard, Articles search, Company profiles, Market Drivers, Concepts, AI Chat
+- Features: Dashboard, Articles search, Company profiles, Market Drivers, Concepts, Financial Ratios, Reports, AI Chat
 - Chat mode: Smart Search (no API key needed). Set ANTHROPIC_API_KEY env var to enable AI synthesis mode.
 - Auto-refreshes KB data every 60 seconds
+
+## Report Generation
+- Custom intelligence reports generated as .docx via `/api/build-report` (POST)
+- Formatting matches Applied Value YTD 2025 PDF style (green brand colors, Arial font, color-coded trend indicators)
+- `api/build-report.ts` -- Dedicated Vercel serverless function (isolated from main API to avoid `docx` library bloating other endpoints)
+- `lib/docx-formatting.ts` -- Shared formatting utilities (brand colors, heading styles, trend table, title block)
+- Important: ESM imports in `api/` must use `.js` extensions for Vercel Node.js runtime compatibility
 
 ## Knowledge Base Structure
 - `knowledge-base/raw/articles/` -- 353+ markdown articles with YAML frontmatter (date, source, url, category, companies, tags)
