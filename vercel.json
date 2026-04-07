@@ -1,11 +1,6 @@
 {
   "buildCommand": "npm install",
   "outputDirectory": "site/public",
-  "functions": {
-    "api/**/*.ts": {
-      "includeFiles": "knowledge-base/**"
-    }
-  },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }

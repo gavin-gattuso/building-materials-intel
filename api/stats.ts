@@ -1,8 +1,13 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { loadKB, getStats } from "./kb-loader";
+import { getStats } from "./kb-loader";
 
-export default function handler(_req: VercelRequest, res: VercelResponse) {
-  loadKB();
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.json(getStats());
+export default async function handler(_req: VercelRequest, res: VercelResponse) {
+  try {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    const stats = await getStats();
+    res.json(stats);
+  } catch (err: any) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.status(500).json({ error: err.message });
+  }
 }
