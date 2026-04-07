@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
+import { buildReportDocument } from "../lib/docx-formatting";
 
 const supabase = createClient(
   (process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co").trim(),
@@ -517,7 +518,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (req.method !== "POST") return res.status(405).json({ error: "POST required" });
       const { startDate, endDate, executiveSummary, sections, drivers } = req.body;
 
-      const { buildReportDocument } = await import("../lib/docx-formatting");
       const buffer = await buildReportDocument({ startDate, endDate, executiveSummary, sections: sections || [], drivers: drivers || [] });
 
       const filename = `Building_Materials_Report_${startDate}_to_${endDate}.docx`;
