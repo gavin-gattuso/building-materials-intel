@@ -1,5 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
+import { expandTerms, extractExcerpts, scoreEntry } from "../lib/search.js";
+import { buildSmartSearchResponse, buildSearchContext, buildSourceList, SYSTEM_PROMPT_PREFIX } from "../lib/chat.js";
 
 const supabase = createClient(
   (process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co").trim(),
@@ -137,48 +139,7 @@ async function getStats() {
 }
 
 // ---------- Search ----------
-
-const SYNONYMS: Record<string, string[]> = {
-  "tariff": ["tariffs", "tariff", "duties", "trade policy"],
-  "steel": ["steel", "metals", "iron", "nucor", "arcelormittal"],
-  "lumber": ["lumber", "wood", "timber", "softwood"],
-  "cement": ["cement", "concrete", "aggregates", "ready-mix", "crh", "cemex", "holcim"],
-  "rates": ["rates", "interest", "mortgage", "fed", "federal reserve"],
-  "labor": ["labor", "workforce", "workers", "employment", "hiring"],
-  "housing": ["housing", "residential", "homes", "homebuilder", "starts", "permits"],
-  "m&a": ["m&a", "acquisition", "merger", "deal", "acquired", "takeover"],
-  "earnings": ["earnings", "revenue", "profit", "ebitda", "results", "quarterly"],
-  "hvac": ["hvac", "carrier", "daikin", "trane", "johnson controls"],
-  "insulation": ["insulation", "glass", "owens corning", "saint-gobain", "roofing"],
-};
-
-function expandTerms(terms: string[]): string[] {
-  const expanded = new Set(terms);
-  for (const term of terms) {
-    for (const [, synonyms] of Object.entries(SYNONYMS)) {
-      if (synonyms.some(s => s.includes(term) || term.includes(s))) {
-        for (const s of synonyms) expanded.add(s);
-      }
-    }
-  }
-  return [...expanded];
-}
-
-function extractExcerpts(text: string, terms: string[], max = 3): string[] {
-  const lines = text.split("\n").filter(l => l.trim() && !l.startsWith("---") && !l.startsWith("#"));
-  const scored: { line: string; score: number }[] = [];
-  for (const line of lines) {
-    const lower = line.toLowerCase();
-    let s = 0;
-    for (const t of terms) { if (lower.includes(t)) s++; }
-    if (s > 0) {
-      const clean = line.replace(/^[-*]\s+/, "").replace(/\*\*/g, "").replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").trim();
-      if (clean.length > 20) scored.push({ line: clean, score: s });
-    }
-  }
-  scored.sort((a, b) => b.score - a.score);
-  return scored.slice(0, max).map(e => e.line);
-}
+// Synonyms, expandTerms, extractExcerpts, scoreEntry imported from lib/search.ts
 
 // PostgreSQL full-text search for articles (uses tsvector + GIN index)
 async function searchArticlesFTS(query: string, limit: number) {
@@ -196,29 +157,7 @@ async function searchArticlesFTS(query: string, limit: number) {
   return articles;
 }
 
-function scoreEntry(entry: any, terms: string[], rawTerms: string[]) {
-  const matched = new Set<string>();
-  let s = 0;
-  const title = (entry.title || entry.name || "").toLowerCase();
-  const content = (entry.content || "").toLowerCase();
-  const meta = entry.type === "article" ? `${entry.category} ${(entry.companies || []).join(" ")} ${entry.source}`.toLowerCase() : "";
-
-  for (const term of terms) {
-    if (title.includes(term)) { s += 30; matched.add(term); }
-    if (meta.includes(term)) { s += 20; matched.add(term); }
-    if (content.includes(term)) { s += 10; matched.add(term); s += Math.min(5, content.split(term).length - 1) * 2; }
-  }
-  for (const term of rawTerms) {
-    if (title.includes(term)) s += 15;
-    if (content.includes(term)) s += 5;
-  }
-  if (entry.type === "article" && entry.date) {
-    const days = (Date.now() - new Date(entry.date).getTime()) / 86400000;
-    if (days < 7) s += 10; else if (days < 30) s += 5;
-  }
-  if (entry.type !== "article") s += 5;
-  return { score: s, matchedTerms: [...matched] };
-}
+// scoreEntry imported from lib/search.ts
 
 async function searchKB(query: string, limit = 20) {
   const rawTerms = query.toLowerCase().split(/\s+/).filter(t => t.length > 2);
@@ -300,16 +239,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // /api/stats
     if (path === "stats") {
+      res.setHeader("Cache-Control", "public, max-age=60, s-maxage=120");
       return res.json(await getStats());
     }
 
     // /api/mode
     if (path === "mode") {
+      res.setHeader("Cache-Control", "public, max-age=300");
       return res.json({ aiEnabled: !!process.env.ANTHROPIC_API_KEY });
     }
 
     // /api/weekly-summary
     if (path === "weekly-summary") {
+      res.setHeader("Cache-Control", "public, max-age=300, s-maxage=600");
       const { data } = await supabase
         .from("weekly_summaries")
         .select("*")
@@ -320,6 +262,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // /api/financial-ratios
     if (path === "financial-ratios") {
+      res.setHeader("Cache-Control", "public, max-age=120, s-maxage=300");
       const period = req.query.period as string | undefined;
       let query = supabase.from("financial_ratios").select("*").order("company");
       if (period) query = query.eq("period", period);
@@ -407,6 +350,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // /api/wiki
     if (path === "wiki" || path === "") {
+      res.setHeader("Cache-Control", "public, max-age=120, s-maxage=300");
       const type = req.query.type as string | undefined;
       const pages: any[] = [];
 
@@ -470,11 +414,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (process.env.ANTHROPIC_API_KEY) {
         const { default: Anthropic } = await import("@anthropic-ai/sdk");
         const anthropic = new Anthropic();
-        const context = results.map((r: any, i: number) => {
-          const e = r.entry;
-          if (e.type === "article") return `[SOURCE ${i + 1}] ${e.title}\nDate: ${e.date} | Source: ${e.source} | Category: ${e.category}\n${e.content}`;
-          return `[SOURCE ${i + 1}] Wiki: ${e.title || e.name} (${e.type})\n${e.content}`;
-        }).join("\n\n---\n\n");
+        const context = buildSearchContext(results);
 
         const msgs: any[] = [];
         if (history) for (const h of history.slice(-6)) msgs.push({ role: h.role, content: h.content });
@@ -482,40 +422,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const response = await anthropic.messages.create({
           model: "claude-sonnet-4-6", max_tokens: 2048,
-          system: `You are an AI research assistant for the Building Materials & Building Products industry knowledge base.\nRULES:\n1. Answer ONLY from KB content below. If not in KB, say so.\n2. ALWAYS cite sources as [Source N].\n3. Be specific and data-driven.\n\nKNOWLEDGE BASE:\n${context}`,
+          system: `${SYSTEM_PROMPT_PREFIX}\n\nKNOWLEDGE BASE CONTENT:\n${context}`,
           messages: msgs,
         });
 
         const text = response.content[0].type === "text" ? response.content[0].text : "";
-        const sources = results.map((r: any, i: number) => {
-          const e = r.entry;
-          return { index: i + 1, id: e.slug, title: e.title || e.name, type: e.type, ...(e.type === "article" ? { date: e.date, source: e.source, url: e.url } : {}) };
-        });
-        return res.json({ mode: "ai", answer: text, sources });
+        return res.json({ mode: "ai", answer: text, sources: buildSourceList(results) });
       } else {
-        // Smart search mode
-        const wikiResults = results.filter((r: any) => r.entry.type !== "article");
-        const articleResults = results.filter((r: any) => r.entry.type === "article");
-        const sections: string[] = [];
-
-        for (const r of wikiResults.slice(0, 3)) {
-          const w = r.entry as any;
-          const lines = (w.content || "").split("\n").filter((l: string) => l.trim() && !l.startsWith("#") && !l.startsWith("---"));
-          const summary = lines.slice(0, 4).join(" ");
-          if (summary.length > 50) sections.push(`**${w.title || w.name}** (${w.type})\n${summary}`);
-        }
-        for (const r of articleResults.slice(0, 5)) {
-          const a = r.entry as any;
-          const ex = r.excerpts.length > 0 ? r.excerpts.map((e: string) => `  - ${e}`).join("\n") : "";
-          sections.push(`**${a.title}** (${a.source}, ${a.date})\n${ex}`);
-        }
-
-        const formatted = results.slice(0, 15).map((r: any) => {
-          const e = r.entry;
-          return { id: e.slug, title: e.title || e.name, type: e.type, score: r.score, excerpts: r.excerpts, matchedTerms: r.matchedTerms,
-            ...(e.type === "article" ? { date: e.date, source: e.source, url: e.url, category: e.category, companies: e.companies } : { wikiType: e.type }) };
-        });
-        return res.json({ mode: "search", answer: sections.join("\n\n"), results: formatted });
+        return res.json(buildSmartSearchResponse(results, message));
       }
     }
 

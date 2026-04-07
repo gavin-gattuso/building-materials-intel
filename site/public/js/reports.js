@@ -1,0 +1,230 @@
+import { escHtml } from './utils.js';
+
+const NEWS_CATEGORIES = [
+  'M&A and Corporate Strategy',
+  'Pricing & Cost Trends',
+  'Tariffs & Trade Policy',
+  'Company Earnings & Performance',
+  'Demand & Construction Activity',
+  'Sustainability & Innovation',
+];
+const MARKET_DRIVERS = [
+  'Interest & Mortgage Rates',
+  'Labor Dynamics',
+  'Material & Energy Costs',
+  'Demand Visibility',
+  'Government Infrastructure Spending',
+  'Credit Availability & Lending Standards',
+  'GDP Growth & Consumer Confidence',
+];
+
+export async function loadReportDownloads() {
+  try {
+    const reports = await fetch('/reports.json').then(r => r.json());
+    const el = document.getElementById('report-downloads');
+    if (!Array.isArray(reports) || reports.length === 0) {
+      el.innerHTML = '<div class="loading">No published reports available yet.</div>';
+      return;
+    }
+    el.innerHTML = reports.map(r => {
+      const sizeMB = (r.size / (1024 * 1024)).toFixed(1);
+      const date = new Date(r.modified).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+      return `<a class="report-card" href="/reports/${encodeURIComponent(r.filename)}" target="_blank">
+        <div class="report-card-icon">PDF</div>
+        <div class="report-card-info">
+          <div class="report-card-title">${escHtml(r.name)}</div>
+          <div class="report-card-meta">${sizeMB} MB &middot; ${date}</div>
+        </div>
+      </a>`;
+    }).join('');
+  } catch {
+    document.getElementById('report-downloads').innerHTML = '<div class="loading">Could not load reports.</div>';
+  }
+}
+
+export async function loadReports() {
+  try {
+    const sections = await fetch('/api/av-sections').then(r => r.json());
+    if (!Array.isArray(sections) || sections.length === 0) {
+      document.getElementById('coverage-grid').innerHTML = '<div class="loading">No report sections configured. Run migrate-av-reports-schema.ts first.</div>';
+      return;
+    }
+    const coverage = await fetch('/api/av-coverage').then(r => r.json()).catch(() => []);
+    const countMap = {};
+    if (Array.isArray(coverage)) {
+      for (const s of coverage) {
+        const count = s.article_av_sections?.[0]?.count || 0;
+        countMap[s.slug] = count;
+      }
+    }
+    const maxCount = Math.max(1, ...Object.values(countMap));
+
+    document.getElementById('coverage-grid').innerHTML = sections.map(s => {
+      const count = countMap[s.slug] || 0;
+      const pct = Math.round((count / maxCount) * 100);
+      return `<div class="coverage-card" onclick="window.openReportSection('${s.slug}')">
+        <div style="flex:1">
+          <div class="coverage-title">${s.section_order}. ${escHtml(s.title)}</div>
+          <div class="coverage-bar"><div class="coverage-bar-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="coverage-count">${count}</div>
+      </div>`;
+    }).join('');
+  } catch {
+    document.getElementById('coverage-grid').innerHTML = '<div class="loading">Report sections unavailable (Supabase not configured).</div>';
+  }
+}
+
+export async function openReportSection(slug) {
+  try {
+    const data = await fetch('/api/av-sections/' + slug).then(r => r.json());
+    document.getElementById('coverage-grid').style.display = 'none';
+    const detail = document.getElementById('report-section-detail');
+    detail.style.display = 'block';
+    document.getElementById('report-section-title').textContent = data.title;
+    document.getElementById('report-section-desc').textContent = data.description || '';
+    const articles = data.articles || [];
+    document.getElementById('report-section-articles').innerHTML = articles.length
+      ? articles.map(t => {
+          const a = t.articles;
+          if (!a) return '';
+          const score = Math.round((t.relevance_score || 0) * 100);
+          return `<div class="article-item" onclick="window.openArticle('${a.slug}')">
+            <div class="article-meta">
+              <span class="date">${a.date || ''}</span>
+              <span class="cat">${a.category || ''}</span>
+              <span>${a.source || ''}</span>
+              <span style="margin-left:auto;font-size:11px;color:var(--primary)">${score}% match</span>
+            </div>
+            <div class="article-title">${escHtml(a.title || '')}</div>
+          </div>`;
+        }).join('')
+      : '<div class="loading">No articles tagged for this section yet. Run tag-articles-with-av-sections.ts to populate.</div>';
+  } catch (err) {
+    console.error('Failed to load report section:', err);
+  }
+}
+
+export function initReportGenerator() {
+  const today = new Date().toISOString().slice(0, 10);
+  const sixMonthsAgo = new Date(Date.now() - 180 * 86400000).toISOString().slice(0, 10);
+  document.getElementById('rg-start').value = sixMonthsAgo;
+  document.getElementById('rg-end').value = today;
+
+  window.generateReport = generateReport;
+  window.openReportSection = openReportSection;
+}
+
+async function generateReport() {
+  const startDate = document.getElementById('rg-start').value;
+  const endDate = document.getElementById('rg-end').value;
+  if (!startDate || !endDate) return alert('Please select both start and end dates.');
+
+  const btn = document.getElementById('rg-btn');
+  const progress = document.getElementById('rg-progress');
+  btn.disabled = true;
+  progress.style.display = 'block';
+
+  function setStep(steps) {
+    progress.innerHTML = steps.map(s =>
+      `<div class="rg-step ${s.status}">${s.label}</div>`
+    ).join('');
+  }
+
+  try {
+    setStep([{ label: 'Checking articles in date range...', status: 'active' }]);
+    await fetch('/api/articles?limit=1&q=*').then(r => r.json());
+
+    const allSections = [
+      ...NEWS_CATEGORIES.map(s => ({ section: s, sectionType: 'category' })),
+      ...MARKET_DRIVERS.map(s => ({ section: s, sectionType: 'driver' })),
+    ];
+    let completed = 0;
+
+    function updateProgress() {
+      const steps = allSections.map((s, i) => ({
+        label: `${s.section}`,
+        status: i < completed ? 'done' : i === completed ? 'active' : '',
+      }));
+      steps.push({ label: 'Writing executive summary...', status: completed >= allSections.length ? 'active' : '' });
+      steps.push({ label: 'Building Word document...', status: completed >= allSections.length + 1 ? 'active' : '' });
+      setStep(steps);
+    }
+    updateProgress();
+
+    const settled = await Promise.allSettled(
+      allSections.map(async (s) => {
+        const res = await fetch('/api/synthesize-section', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ startDate, endDate, section: s.section, sectionType: s.sectionType }),
+        });
+        if (!res.ok) {
+          console.error(`Section "${s.section}" failed:`, await res.text());
+          return { ...s, content: `[Error loading ${s.section}]`, articles: [] };
+        }
+        const result = await res.json();
+        completed++;
+        updateProgress();
+        return { ...s, ...result };
+      })
+    );
+    const sectionResults = settled.map((r, i) =>
+      r.status === 'fulfilled' ? r.value : { ...allSections[i], content: '', articles: [] }
+    );
+
+    const newsSections = sectionResults.filter(s => s.sectionType === 'category');
+    const driverSections = sectionResults.filter(s => s.sectionType === 'driver');
+
+    completed = allSections.length;
+    updateProgress();
+    const execResult = await fetch('/api/executive-summary', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ startDate, endDate, sectionSummaries: sectionResults }),
+    }).then(r => r.json());
+
+    completed = allSections.length + 1;
+    updateProgress();
+
+    const sections = newsSections.map(s => ({
+      category: s.section,
+      content: s.content || '',
+      articles: (s.articles || []).map(a => ({
+        title: a.title || '', source: a.source || '',
+        analysis: a.analysis || '', dataPoints: a.dataPoints || [], url: a.url || '',
+      })),
+    }));
+
+    const drivers = driverSections.map(s => ({
+      driver: s.section, direction: s.direction || 'Mixed',
+      signal: s.signal || '', content: s.content || '',
+      impact: s.impact || '', dataPoints: s.dataPoints || [],
+    }));
+
+    const docResponse = await fetch('/api/build-report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ startDate, endDate, executiveSummary: execResult.summary || '', sections, drivers }),
+    });
+
+    if (!docResponse.ok) {
+      const errDetail = await docResponse.text();
+      throw new Error(`Failed to build document: ${errDetail}`);
+    }
+
+    const blob = await docResponse.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Building_Materials_Report_${startDate}_to_${endDate}.docx`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    setStep([{ label: 'Report downloaded successfully!', status: 'done' }]);
+  } catch (err) {
+    progress.innerHTML = `<div class="rg-step" style="color:var(--danger-text)">Error: ${escHtml(err.message)}</div>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
