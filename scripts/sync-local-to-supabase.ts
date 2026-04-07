@@ -9,7 +9,7 @@ import { join, basename } from "path";
 import matter from "gray-matter";
 
 const SUPABASE_URL = "https://pmjqymxdaiwfpfglwqux.supabase.co";
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtanF5bXhkYWl3ZnBmZ2x3cXV4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTUxMDQ5NywiZXhwIjoyMDkxMDg2NDk3fQ.tN5uLhlUGVzSBunwNpHHyiV53XPxT2FmI6orae2WTFU";
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const KB = join(import.meta.dir, "..", "knowledge-base");
 const HEADERS = {
   "apikey": SUPABASE_KEY,
