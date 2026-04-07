@@ -356,7 +356,8 @@
   .weekly-ai-summary .was-body { font-size: 13px; line-height: 1.7; color: var(--text-secondary); }
   .weekly-ai-summary .was-body p { margin-bottom: 8px; }
   .weekly-ai-summary .was-themes { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-  .weekly-ai-summary .was-theme { font-size: 11px; padding: 3px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; color: var(--text-muted); }
+  .weekly-ai-summary .was-theme { font-size: 11px; padding: 3px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; color: var(--text-muted); cursor: pointer; transition: all 0.2s; text-decoration: none; }
+  .weekly-ai-summary .was-theme:hover { background: var(--primary); color: #fff; border-color: var(--primary); text-decoration: none; }
   .ratios-period-select { display: flex; justify-content: center; margin-bottom: 16px; }
   .ratios-period-select select { font-family: var(--font-body); font-size: 13px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
   @media (max-width: 768px) {
@@ -608,7 +609,7 @@ async function loadDashboard() {
         <span class="was-badge">${weeklySummary.article_count} articles analyzed</span>
       </div>
       <div class="was-body">${summaryHtml}</div>
-      ${themes.length ? '<div class="was-themes">' + themes.map(t => `<span class="was-theme">${escHtml(t)}</span>`).join('') + '</div>' : ''}
+      ${themes.length ? '<div class="was-themes">' + themes.map(t => `<a class="was-theme" onclick="window.searchArticlesByTheme('${escHtml(t.replace(/'/g, "\\\\'"))}')">${escHtml(t)}</a>`).join('') + '</div>' : ''}
     </div>`;
   } else {
     sumContainer.innerHTML = '';
@@ -1002,6 +1003,15 @@ window.openReportSection = async function(slug) {
   } catch (err) {
     console.error('Failed to load report section:', err);
   }
+};
+
+// Theme search — navigate to articles filtered by theme keyword
+window.searchArticlesByTheme = function(theme) {
+  // Extract core search terms from theme (remove common filler words)
+  const searchTerm = theme.replace(/&/g, '').replace(/\s+/g, ' ').trim();
+  navigateTo('articles');
+  document.getElementById('article-search').value = searchTerm;
+  loadArticles(searchTerm);
 };
 
 // Report Generator
