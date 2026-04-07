@@ -325,6 +325,9 @@
   .ratio-avg .ratio-company { font-weight: 600; color: var(--text-muted); }
   .ratio-avg .ratio-value { font-weight: 700; }
   .ratios-source { text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 24px; }
+  .ratios-key { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-bottom: 20px; padding: 10px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+  .ratios-key .key-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-secondary); white-space: nowrap; }
+  .ratios-key .key-swatch { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
   .ratios-period-select { display: flex; justify-content: center; margin-bottom: 16px; }
   .ratios-period-select select { font-family: var(--font-body); font-size: 13px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
   @media (max-width: 768px) {
@@ -436,6 +439,7 @@
       <select id="ratios-period"></select>
     </div>
     <div class="ratios-controls" id="ratios-metric-btns"></div>
+    <div class="ratios-key" id="ratios-key"></div>
     <div class="ratios-panels" id="ratios-panels">
       <div class="loading">Loading financial data...</div>
     </div>
@@ -990,6 +994,23 @@ async function loadFinancialRatios() {
         renderRatios();
       };
     });
+
+    // Segment color key
+    const SEGMENT_LABELS = {
+      'Cement, Aggregates and Ready-mix Concrete': 'Cement & Aggregates',
+      'Glass': 'Glass',
+      'Lumber and Wood': 'Lumber & Wood',
+      'Steel': 'Steel',
+      'Bricks and Masonry': 'Bricks & Masonry',
+      'Building Envelope, Roofing, Siding, Flooring and Insulation': 'Bldg Envelope & Roofing',
+      'Doors and Windows': 'Doors & Windows',
+      'Piping': 'Piping',
+      'Kitchen and Bath': 'Kitchen & Bath',
+      'HVAC-R, Fire and Security': 'HVAC-R & Security',
+    };
+    document.getElementById('ratios-key').innerHTML = Object.entries(SEGMENT_COLORS)
+      .map(([seg, color]) => `<span class="key-item"><span class="key-swatch" style="background:${color}"></span>${SEGMENT_LABELS[seg] || seg}</span>`)
+      .join('');
 
     renderRatios();
   } catch {
