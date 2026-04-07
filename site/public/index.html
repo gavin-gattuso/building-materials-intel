@@ -67,7 +67,8 @@
   .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 20px 24px; transition: all 0.2s; }
   .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
   .stat-card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; color: var(--text-muted); }
-  .stat-card .value { font-family: var(--font-heading); font-size: 28px; font-weight: 400; color: var(--primary); margin-top: 4px; }
+  .stat-card .value { font-family: var(--font-heading); font-size: 28px; font-weight: 400; color: var(--primary); margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .stat-card .value.text-value { font-size: 18px; white-space: normal; line-height: 1.3; }
   .stat-card .sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
 
   /* Section titles */
@@ -391,17 +392,27 @@ document.querySelectorAll('.header-nav a').forEach(item => {
 
 // Load dashboard
 async function loadDashboard() {
-  const [stats, drivers, articles] = await Promise.all([
+  const [stats, drivers, articles, allArticles] = await Promise.all([
     fetch('/api/stats').then(r => r.json()),
     fetch('/api/wiki?type=market-driver').then(r => r.json()),
     fetch('/api/articles?limit=10').then(r => r.json()),
+    fetch('/api/articles?limit=500').then(r => r.json()),
   ]);
+
+  // Calculate this week's articles
+  const now = new Date();
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const weekStr = weekAgo.toISOString().slice(0, 10);
+  const thisWeekCount = allArticles.filter(a => a.date >= weekStr).length;
+
+  // Top category
+  const topCat = Object.entries(stats.byCategory).sort((a,b) => b[1] - a[1])[0];
 
   document.getElementById('stats-grid').innerHTML = `
     <div class="stat-card"><div class="label">Total Articles</div><div class="value">${stats.totalArticles}</div><div class="sub">${stats.dateRange ? stats.dateRange.from + ' to ' + stats.dateRange.to : ''}</div></div>
-    <div class="stat-card"><div class="label">Company Profiles</div><div class="value">${stats.companies}</div><div class="sub">${stats.marketDrivers} market drivers, ${stats.concepts} concepts</div></div>
-    <div class="stat-card"><div class="label">Categories</div><div class="value">${Object.keys(stats.byCategory).length}</div><div class="sub">Across ${Object.keys(stats.byMonth).length} months</div></div>
-    <div class="stat-card"><div class="label">Companies Tracked</div><div class="value">${Object.keys(stats.companyMentions).length}</div><div class="sub">Most mentioned: ${Object.entries(stats.companyMentions).sort((a,b) => b[1]-a[1]).slice(0,3).map(([c,n]) => c+' ('+n+')').join(', ')}</div></div>
+    <div class="stat-card"><div class="label">This Week</div><div class="value">${thisWeekCount}</div><div class="sub">New articles in the last 7 days</div></div>
+    <div class="stat-card"><div class="label">Top Category</div><div class="value text-value">${topCat ? topCat[0] : 'N/A'}</div><div class="sub">${topCat ? topCat[1] + ' articles across ' + Object.keys(stats.byCategory).length + ' categories' : ''}</div></div>
+    <div class="stat-card"><div class="label">Companies Tracked</div><div class="value">${Object.keys(stats.companyMentions).length}</div><div class="sub">${stats.marketDrivers} market drivers, ${stats.concepts} concepts</div></div>
   `;
 
   document.getElementById('signals-grid').innerHTML = drivers.map(d => {
