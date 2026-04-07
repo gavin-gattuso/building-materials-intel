@@ -1,11 +1,22 @@
 // Extract markdown article blocks from agent output (JSON conversation format) and write to KB
 import { readFile, writeFile, readdir } from "fs/promises";
 import { join } from "path";
+import { createHash } from "crypto";
 
 const outputFile = process.argv[2];
 if (!outputFile) {
-  console.error("Usage: bun run scripts/extract-articles.ts <output-file>");
+  console.error("Usage: bun run scripts/extract-articles.ts <output-file> [--no-date-filter]");
   process.exit(1);
+}
+
+// Date filtering: only ingest articles published today unless --no-date-filter is passed
+const noDateFilter = process.argv.includes("--no-date-filter");
+const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+if (!noDateFilter) {
+  console.log(`Date filter active: only ingesting articles dated ${today}`);
+  console.log(`  Pass --no-date-filter to skip this check\n`);
+} else {
+  console.log(`Date filter DISABLED: ingesting all articles regardless of date\n`);
 }
 
 const KB_DIR = join(import.meta.dir, "..", "knowledge-base", "raw", "articles");
@@ -94,16 +105,40 @@ while ((match = codeBlockRegex.exec(fullText)) !== null) {
 
 console.log(`Found ${articles.length} articles`);
 
-// Deduplicate by filename
+// Deduplicate by filename AND content hash
 const seen = new Map<string, string>();
+const seenHashes = new Set<string>();
+
+// Build content hashes for existing articles to detect cross-file duplicates
+for (const existingFile of existing) {
+  try {
+    const raw = await readFile(join(KB_DIR, existingFile), "utf-8");
+    const titleMatch = raw.match(/^#\s+(.+)$/m);
+    const title = titleMatch ? titleMatch[1] : existingFile;
+    const hash = createHash("md5").update(title + raw.slice(0, 500)).digest("hex");
+    seenHashes.add(hash);
+  } catch { /* skip unreadable */ }
+}
+
 for (const a of articles) {
+  const titleMatch = a.content.match(/^#\s+(.+)$/m);
+  const title = titleMatch ? titleMatch[1] : a.filename;
+  const hash = createHash("md5").update(title + a.content.slice(0, 500)).digest("hex");
+
+  if (seenHashes.has(hash)) {
+    console.log(`  SKIP (dup content hash): ${a.filename}`);
+    continue;
+  }
+
   if (!seen.has(a.filename) || a.content.length > (seen.get(a.filename)?.length || 0)) {
     seen.set(a.filename, a.content);
+    seenHashes.add(hash);
   }
 }
 
 let written = 0;
 let skipped = 0;
+let dateFiltered = 0;
 for (const [filename, content] of seen) {
   if (existing.has(filename)) {
     console.log(`  SKIP (exists): ${filename}`);
@@ -115,9 +150,31 @@ for (const [filename, content] of seen) {
     console.log(`  SKIP (invalid): ${filename}`);
     continue;
   }
+
+  // Date filtering: only ingest articles from today
+  if (!noDateFilter) {
+    const dateMatch = content.match(/^date:\s*(\d{4}-\d{2}-\d{2})/m);
+    const articleDate = dateMatch ? dateMatch[1] : null;
+
+    if (!articleDate) {
+      // No date found at all — extract title for warning
+      const titleMatch = content.match(/^#\s+(.+)$/m);
+      const title = titleMatch ? titleMatch[1] : filename;
+      console.log(`  ⚠ No publishedDate found for: ${title} — skipping (no fallback date)`);
+      dateFiltered++;
+      continue;
+    }
+
+    if (articleDate !== today) {
+      console.log(`  SKIP (date ${articleDate} ≠ today ${today}): ${filename}`);
+      dateFiltered++;
+      continue;
+    }
+  }
+
   await writeFile(join(KB_DIR, filename), content + "\n");
   console.log(`  WROTE: ${filename}`);
   written++;
 }
 
-console.log(`\nDone: ${written} written, ${skipped} skipped (already exist), ${seen.size} total unique`);
+console.log(`\nDone: ${written} written, ${skipped} skipped (already exist), ${dateFiltered} filtered by date, ${seen.size} total unique`);

@@ -1,12 +1,14 @@
 /**
  * Sync local KB articles to Supabase that are missing from the database.
  * Uses the same REST API approach as the nightly trigger.
+ * Includes multi-layer dedup: slug, URL, and content_hash (MD5 of title + first 500 chars).
  *
  * Usage: bun run scripts/sync-local-to-supabase.ts
  */
 import { readdir, readFile } from "fs/promises";
 import { join, basename } from "path";
 import matter from "gray-matter";
+import { createHash } from "crypto";
 
 const SUPABASE_URL = "https://pmjqymxdaiwfpfglwqux.supabase.co";
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -18,12 +20,33 @@ const HEADERS = {
   "Prefer": "resolution=merge-duplicates",
 };
 
+/** Compute content hash: MD5 of title + first 500 chars of content body */
+function computeContentHash(title: string, content: string): string {
+  return createHash("md5").update(title + content.slice(0, 500)).digest("hex");
+}
+
 async function getSupabaseSlugs(): Promise<Set<string>> {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/articles?select=slug&limit=10000`, {
     headers: HEADERS,
   });
   const data = await res.json() as { slug: string }[];
   return new Set(data.map(r => r.slug));
+}
+
+async function getSupabaseUrls(): Promise<Set<string>> {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/articles?select=url&url=not.is.null&url=not.eq.&limit=10000`, {
+    headers: HEADERS,
+  });
+  const data = await res.json() as { url: string }[];
+  return new Set(data.map(r => r.url));
+}
+
+async function getSupabaseHashes(): Promise<Set<string>> {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/articles?select=content_hash&content_hash=not.is.null&limit=10000`, {
+    headers: HEADERS,
+  });
+  const data = await res.json() as { content_hash: string }[];
+  return new Set(data.map(r => r.content_hash));
 }
 
 async function getCompanyMap(): Promise<Record<string, string>> {
@@ -38,7 +61,7 @@ async function getCompanyMap(): Promise<Record<string, string>> {
 
 async function upsertArticle(article: {
   slug: string; title: string; date: string; source: string;
-  url: string; category: string; content: string;
+  url: string; category: string; content: string; content_hash: string;
 }) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/articles`, {
     method: "POST",
@@ -68,11 +91,15 @@ async function linkArticleCompany(articleId: string, companyId: string) {
 }
 
 async function main() {
-  console.log("Syncing local KB → Supabase...\n");
+  console.log("Syncing local KB → Supabase (with multi-layer dedup)...\n");
 
-  // Get existing slugs in Supabase
-  const existingSlugs = await getSupabaseSlugs();
-  console.log(`Supabase has ${existingSlugs.size} articles`);
+  // Get existing dedup keys from Supabase
+  const [existingSlugs, existingUrls, existingHashes] = await Promise.all([
+    getSupabaseSlugs(),
+    getSupabaseUrls(),
+    getSupabaseHashes(),
+  ]);
+  console.log(`Supabase has ${existingSlugs.size} articles, ${existingUrls.size} unique URLs, ${existingHashes.size} content hashes`);
 
   // Get company name→id map
   const companyMap = await getCompanyMap();
@@ -83,13 +110,17 @@ async function main() {
   console.log(`Local KB has ${files.length} articles\n`);
 
   let synced = 0;
-  let skipped = 0;
+  let skippedSlug = 0;
+  let skippedUrl = 0;
+  let skippedHash = 0;
   let errors = 0;
 
   for (const file of files) {
     const slug = basename(file, ".md");
+
+    // Layer 1: slug dedup
     if (existingSlugs.has(slug)) {
-      skipped++;
+      skippedSlug++;
       continue;
     }
 
@@ -98,16 +129,38 @@ async function main() {
       const { data: fm, content } = matter(raw);
       const title = content.split("\n").find(l => l.startsWith("# "))?.replace(/^#\s+/, "") || slug;
       const date = fm.date instanceof Date ? fm.date.toISOString().slice(0, 10) : String(fm.date || "").slice(0, 10);
+      const url = String(fm.url || "");
+
+      // Layer 2: URL dedup
+      if (url && existingUrls.has(url)) {
+        console.log(`  SKIP (dup URL): ${slug} → ${url}`);
+        skippedUrl++;
+        continue;
+      }
+
+      // Layer 3: content hash dedup
+      const contentHash = computeContentHash(title, content);
+      if (existingHashes.has(contentHash)) {
+        console.log(`  SKIP (dup content hash): ${slug}`);
+        skippedHash++;
+        continue;
+      }
 
       await upsertArticle({
         slug,
         title,
         date,
         source: String(fm.source || ""),
-        url: String(fm.url || ""),
+        url,
         category: String(fm.category || ""),
         content,
+        content_hash: contentHash,
       });
+
+      // Track for further dedup within this run
+      existingSlugs.add(slug);
+      if (url) existingUrls.add(url);
+      existingHashes.add(contentHash);
 
       // Link to companies
       const companies: string[] = Array.isArray(fm.companies) ? fm.companies : [];
@@ -131,7 +184,7 @@ async function main() {
     }
   }
 
-  console.log(`\nDone: ${synced} synced, ${skipped} already existed, ${errors} errors`);
+  console.log(`\nDone: ${synced} synced, ${skippedSlug} dup slug, ${skippedUrl} dup URL, ${skippedHash} dup content, ${errors} errors`);
 
   // Verify final count
   const finalSlugs = await getSupabaseSlugs();

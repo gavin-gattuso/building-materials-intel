@@ -3,6 +3,15 @@ import { readFile } from "fs/promises";
 import { join } from "path";
 import { loadKB, getArticles, getWikiPages, searchKB, getStats, type SearchResult } from "./kb";
 
+// Supabase config for AV report section queries
+const SUPABASE_URL = process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co";
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+const SB_HEADERS = SUPABASE_KEY ? {
+  apikey: SUPABASE_KEY,
+  Authorization: `Bearer ${SUPABASE_KEY}`,
+  "Content-Type": "application/json",
+} : null;
+
 const PORT = Number(process.env.PORT) || 3000;
 const PUBLIC = join(import.meta.dir, "public");
 
@@ -210,6 +219,36 @@ serve({
           console.error("Chat error:", err);
           return Response.json({ error: err.message || "Chat failed" }, { status: 500, headers });
         }
+      }
+
+      // --- AV Report Section endpoints ---
+
+      if (url.pathname === "/api/av-sections" && SB_HEADERS) {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/av_report_sections?select=id,slug,title,description,section_order&order=section_order`, { headers: SB_HEADERS });
+        const sections = await res.json();
+        return Response.json(sections, { headers });
+      }
+
+      if (url.pathname.startsWith("/api/av-sections/") && SB_HEADERS) {
+        const slug = url.pathname.replace("/api/av-sections/", "");
+        // Get section info
+        const secRes = await fetch(`${SUPABASE_URL}/rest/v1/av_report_sections?select=id,slug,title,description,section_order&slug=eq.${slug}`, { headers: SB_HEADERS });
+        const sections = await secRes.json() as any[];
+        if (!sections.length) return Response.json({ error: "Not found" }, { status: 404, headers });
+        const section = sections[0];
+
+        // Get articles tagged to this section
+        const tagRes = await fetch(`${SUPABASE_URL}/rest/v1/article_av_sections?select=relevance_score,articles(id,slug,title,date,source,category)&section_id=eq.${section.id}&order=relevance_score.desc&limit=50`, { headers: SB_HEADERS });
+        const tagged = await tagRes.json();
+
+        return Response.json({ ...section, articles: tagged }, { headers });
+      }
+
+      if (url.pathname === "/api/av-coverage" && SB_HEADERS) {
+        // Coverage summary: how many articles per section
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/av_report_sections?select=slug,title,section_order,article_av_sections(count)&order=section_order`, { headers: SB_HEADERS });
+        const data = await res.json();
+        return Response.json(data, { headers });
       }
 
       if (req.method === "OPTIONS") {
