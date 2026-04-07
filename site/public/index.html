@@ -346,6 +346,17 @@
   .rg-progress .rg-step.done::before { content: "\2713"; }
   .rg-progress .rg-step.active::before { content: ""; display: inline-block; width: 14px; height: 14px; border: 2px solid var(--primary); border-top-color: transparent; border-radius: 50%; animation: rg-spin 0.8s linear infinite; }
   @keyframes rg-spin { to { transform: rotate(360deg); } }
+
+  /* Weekly AI Summary */
+  .weekly-ai-summary { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: 8px; padding: 20px 24px; margin-bottom: 20px; }
+  .weekly-ai-summary .was-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .weekly-ai-summary .was-title { font-family: var(--font-heading); font-size: 15px; font-weight: 600; color: var(--primary-dark); }
+  .weekly-ai-summary .was-date { font-size: 12px; color: var(--text-muted); }
+  .weekly-ai-summary .was-badge { font-size: 10px; font-weight: 600; background: var(--success-bg); color: var(--success-text); padding: 2px 8px; border-radius: 10px; }
+  .weekly-ai-summary .was-body { font-size: 13px; line-height: 1.7; color: var(--text-secondary); }
+  .weekly-ai-summary .was-body p { margin-bottom: 8px; }
+  .weekly-ai-summary .was-themes { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .weekly-ai-summary .was-theme { font-size: 11px; padding: 3px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; color: var(--text-muted); }
   .ratios-period-select { display: flex; justify-content: center; margin-bottom: 16px; }
   .ratios-period-select select { font-family: var(--font-body); font-size: 13px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
   @media (max-width: 768px) {
@@ -384,6 +395,7 @@
     </div>
     <div class="stats-grid stats-grid-2" id="stats-grid"></div>
     <div class="weekly-update" id="weekly-update">
+      <div id="weekly-ai-summary-container"></div>
       <div class="section-title">Weekly Update</div>
       <div class="weekly-columns">
         <div class="weekly-panel">
@@ -570,7 +582,7 @@ document.querySelectorAll('.header-nav a').forEach(item => {
 
 // Load dashboard
 async function loadDashboard() {
-  const [stats, articles, allArticles, earningsCalendar] = await Promise.all([
+  const [stats, articles, allArticles, earningsCalendar, weeklySummary] = await Promise.all([
     fetch('/api/stats').then(r => r.json()),
     fetch('/api/articles?limit=10').then(r => r.json()),
     fetch('/api/articles?limit=500').then(r => r.json()),
@@ -578,7 +590,29 @@ async function loadDashboard() {
       const today = new Date().toISOString().slice(0, 10);
       return all.filter(e => e.date >= today).slice(0, 10);
     }),
+    fetch('/weekly-summary.json').then(r => { if (!r.ok) throw new Error(); return r.json(); })
+      .catch(() => fetch('/api/weekly-summary').then(r => r.json()).catch(() => null)),
   ]);
+
+  // Render weekly AI summary if available
+  const sumContainer = document.getElementById('weekly-ai-summary-container');
+  if (weeklySummary && weeklySummary.summary) {
+    const wStart = new Date(weeklySummary.week_start + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const wEnd = new Date(weeklySummary.week_end + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const themes = (weeklySummary.themes || []);
+    const summaryHtml = weeklySummary.summary.split('\n\n').map(p => `<p>${escHtml(p.trim())}</p>`).join('');
+    sumContainer.innerHTML = `<div class="weekly-ai-summary">
+      <div class="was-header">
+        <span class="was-title">AI Weekly Digest</span>
+        <span class="was-date">${wStart} — ${wEnd}</span>
+        <span class="was-badge">${weeklySummary.article_count} articles analyzed</span>
+      </div>
+      <div class="was-body">${summaryHtml}</div>
+      ${themes.length ? '<div class="was-themes">' + themes.map(t => `<span class="was-theme">${escHtml(t)}</span>`).join('') + '</div>' : ''}
+    </div>`;
+  } else {
+    sumContainer.innerHTML = '';
+  }
 
   // Calculate this week's articles
   const now = new Date();

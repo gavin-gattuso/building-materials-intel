@@ -163,6 +163,13 @@ serve({
         return Response.json({ aiEnabled }, { headers });
       }
 
+      if (url.pathname === "/api/weekly-summary") {
+        if (!SB_HEADERS) return Response.json(null, { headers });
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/weekly_summaries?select=*&order=week_end.desc&limit=1`, { headers: SB_HEADERS });
+        const data = await res.json();
+        return Response.json(data?.[0] || null, { headers });
+      }
+
       if (url.pathname === "/api/financial-ratios") {
         if (!SB_HEADERS) return Response.json([], { headers });
         const period = url.searchParams.get("period");

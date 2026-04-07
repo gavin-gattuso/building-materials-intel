@@ -45,5 +45,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 site/public/earnings-calendar.json
 site/public/reports.json
 site/public/financial-ratios.json
+site/public/weekly-summary.json
 
 .vercel

@@ -229,6 +229,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.json({ aiEnabled: !!process.env.ANTHROPIC_API_KEY });
     }
 
+    // /api/weekly-summary
+    if (path === "weekly-summary") {
+      const { data } = await supabase
+        .from("weekly_summaries")
+        .select("*")
+        .order("week_end", { ascending: false })
+        .limit(1);
+      return res.json(data?.[0] || null);
+    }
+
     // /api/financial-ratios
     if (path === "financial-ratios") {
       const period = req.query.period as string | undefined;

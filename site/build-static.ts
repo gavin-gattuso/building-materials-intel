@@ -99,4 +99,23 @@ if (SB_KEY) {
   writeFileSync(join(PUBLIC, "financial-ratios.json"), "[]");
 }
 
+// --- 4. Weekly summary from Supabase ---
+if (SB_KEY) {
+  try {
+    const res = await fetch(
+      `${SB_URL}/rest/v1/weekly_summaries?select=*&order=week_end.desc&limit=1`,
+      { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } }
+    );
+    const summaries = await res.json();
+    const latest = summaries?.[0] || null;
+    writeFileSync(join(PUBLIC, "weekly-summary.json"), JSON.stringify(latest, null, 2));
+    console.log(`Generated weekly-summary.json (${latest ? latest.week_start + ' to ' + latest.week_end : 'empty'})`);
+  } catch (e) {
+    console.log("Failed to fetch weekly summary from Supabase:", e);
+    writeFileSync(join(PUBLIC, "weekly-summary.json"), "null");
+  }
+} else {
+  writeFileSync(join(PUBLIC, "weekly-summary.json"), "null");
+}
+
 console.log("Static build complete.");
