@@ -409,8 +409,10 @@ async function loadDashboard() {
   const weekStr = weekAgo.toISOString().slice(0, 10);
   const thisWeekCount = allArticles.filter(a => a.date >= weekStr).length;
 
-  // Top category
-  const topCat = Object.entries(stats.byCategory).sort((a,b) => b[1] - a[1])[0];
+  // Top category (exclude Earnings)
+  const topCat = Object.entries(stats.byCategory)
+    .filter(([cat]) => cat.toLowerCase() !== 'earnings')
+    .sort((a,b) => b[1] - a[1])[0];
 
   document.getElementById('stats-grid').innerHTML = `
     <div class="stat-card" onclick="navigateTo('articles')"><div class="label">Total Articles</div><div class="value">${stats.totalArticles}</div><div class="sub">${stats.dateRange ? stats.dateRange.from + ' to ' + stats.dateRange.to : ''}</div></div>
