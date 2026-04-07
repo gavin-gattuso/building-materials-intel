@@ -180,57 +180,109 @@ function extractExcerpts(text: string, terms: string[], max = 3): string[] {
   return scored.slice(0, max).map(e => e.line);
 }
 
+// PostgreSQL full-text search for articles (uses tsvector + GIN index)
+async function searchArticlesFTS(query: string, limit: number) {
+  const tsQuery = query.split(/\s+/).filter(t => t.length > 2).map(t => t.replace(/[^a-zA-Z0-9]/g, '')).filter(Boolean).join(" & ");
+  if (!tsQuery) return [];
+
+  const { data: articles, error } = await supabase
+    .rpc("search_articles", { search_query: tsQuery, result_limit: limit })
+    .select("*");
+
+  // Fallback to ilike search if RPC not available (pre-migration)
+  if (error || !articles) {
+    return null; // signal to use in-memory fallback
+  }
+  return articles;
+}
+
+function scoreEntry(entry: any, terms: string[], rawTerms: string[]) {
+  const matched = new Set<string>();
+  let s = 0;
+  const title = (entry.title || entry.name || "").toLowerCase();
+  const content = (entry.content || "").toLowerCase();
+  const meta = entry.type === "article" ? `${entry.category} ${(entry.companies || []).join(" ")} ${entry.source}`.toLowerCase() : "";
+
+  for (const term of terms) {
+    if (title.includes(term)) { s += 30; matched.add(term); }
+    if (meta.includes(term)) { s += 20; matched.add(term); }
+    if (content.includes(term)) { s += 10; matched.add(term); s += Math.min(5, content.split(term).length - 1) * 2; }
+  }
+  for (const term of rawTerms) {
+    if (title.includes(term)) s += 15;
+    if (content.includes(term)) s += 5;
+  }
+  if (entry.type === "article" && entry.date) {
+    const days = (Date.now() - new Date(entry.date).getTime()) / 86400000;
+    if (days < 7) s += 10; else if (days < 30) s += 5;
+  }
+  if (entry.type !== "article") s += 5;
+  return { score: s, matchedTerms: [...matched] };
+}
+
 async function searchKB(query: string, limit = 20) {
   const rawTerms = query.toLowerCase().split(/\s+/).filter(t => t.length > 2);
-  const [articles, companies, drivers, concepts] = await Promise.all([
-    getArticles(500), getCompanies(), getMarketDrivers(), getConcepts(),
-  ]);
 
   if (rawTerms.length === 0) {
-    return articles.slice(0, limit).map(a => ({ entry: a, score: 1, excerpts: [] as string[], matchedTerms: [] as string[] }));
+    const articles = await getArticlesMeta(limit);
+    return articles.map(a => ({ entry: a, score: 1, excerpts: [] as string[], matchedTerms: [] as string[] }));
   }
 
   const terms = expandTerms(rawTerms);
 
-  function score(entry: any) {
-    const matched = new Set<string>();
-    let s = 0;
-    const title = (entry.title || entry.name || "").toLowerCase();
-    const content = (entry.content || "").toLowerCase();
-    const meta = entry.type === "article" ? `${entry.category} ${(entry.companies || []).join(" ")} ${entry.source}`.toLowerCase() : "";
+  // Try PostgreSQL FTS for articles first (fast, indexed)
+  const ftsResults = await searchArticlesFTS(query, limit * 2);
 
-    for (const term of terms) {
-      if (title.includes(term)) { s += 30; matched.add(term); }
-      if (meta.includes(term)) { s += 20; matched.add(term); }
-      if (content.includes(term)) { s += 10; matched.add(term); s += Math.min(5, content.split(term).length - 1) * 2; }
+  let articleResults: any[];
+  if (ftsResults) {
+    // FTS succeeded — enrich with company data and score
+    const articleIds = ftsResults.map((a: any) => a.id);
+    const { data: junctions } = articleIds.length > 0
+      ? await supabase.from("article_companies").select("article_id, companies(name)").in("article_id", articleIds)
+      : { data: [] };
+    const companyMap: Record<string, string[]> = {};
+    if (junctions) {
+      for (const j of junctions as any[]) {
+        const name = j.companies?.name;
+        if (name) {
+          if (!companyMap[j.article_id]) companyMap[j.article_id] = [];
+          companyMap[j.article_id].push(name);
+        }
+      }
     }
-    for (const term of rawTerms) {
-      if (title.includes(term)) s += 15;
-      if (content.includes(term)) s += 5;
+    articleResults = ftsResults.map((a: any) => {
+      const entry = { ...a, companies: companyMap[a.id] || [], type: "article" as const };
+      const r = scoreEntry(entry, terms, rawTerms);
+      // Boost FTS rank into score
+      const ftsBoost = (a.rank || 0) * 50;
+      return { entry, score: r.score + ftsBoost, excerpts: extractExcerpts(a.content || "", rawTerms), matchedTerms: r.matchedTerms };
+    });
+  } else {
+    // Fallback: in-memory search (pre-migration or RPC error)
+    const articles = await getArticles(500);
+    articleResults = [];
+    for (const a of articles) {
+      const r = scoreEntry(a, terms, rawTerms);
+      if (r.score > 0) articleResults.push({ entry: a, score: r.score, excerpts: extractExcerpts(a.content, rawTerms), matchedTerms: r.matchedTerms });
     }
-    if (entry.type === "article" && entry.date) {
-      const days = (Date.now() - new Date(entry.date).getTime()) / 86400000;
-      if (days < 7) s += 10; else if (days < 30) s += 5;
-    }
-    if (entry.type !== "article") s += 5;
-    return { score: s, matchedTerms: [...matched] };
   }
 
-  const results: any[] = [];
-  for (const a of articles) {
-    const r = score(a);
-    if (r.score > 0) results.push({ entry: a, score: r.score, excerpts: extractExcerpts(a.content, rawTerms), matchedTerms: r.matchedTerms });
-  }
+  // Wiki pages are small enough for in-memory search
+  const [companies, drivers, concepts] = await Promise.all([
+    getCompanies(), getMarketDrivers(), getConcepts(),
+  ]);
+  const wikiResults: any[] = [];
   const wiki = [
     ...companies.map(c => ({ ...c, title: c.name })),
     ...drivers,
     ...concepts,
   ];
   for (const w of wiki) {
-    const r = score(w);
-    if (r.score > 0) results.push({ entry: w, score: r.score, excerpts: extractExcerpts(w.content, rawTerms), matchedTerms: r.matchedTerms });
+    const r = scoreEntry(w, terms, rawTerms);
+    if (r.score > 0) wikiResults.push({ entry: w, score: r.score, excerpts: extractExcerpts(w.content, rawTerms), matchedTerms: r.matchedTerms });
   }
 
+  const results = [...articleResults, ...wikiResults];
   results.sort((a: any, b: any) => b.score - a.score);
   return results.slice(0, limit);
 }
