@@ -101,6 +101,14 @@
   .weekly-panel-title { font-family: var(--font-heading); font-size: 15px; font-weight: 500; color: var(--text); }
   .weekly-panel .article-list { border: none; border-radius: 0; max-height: 400px; overflow-y: auto; }
   .weekly-empty { padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px; }
+  .earnings-cal-item { display: flex; align-items: center; gap: 12px; padding: 12px 24px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.15s; }
+  .earnings-cal-item:last-child { border-bottom: none; }
+  .earnings-cal-item:hover { background: var(--bg-alt); }
+  .earnings-cal-company { font-size: 14px; font-weight: 500; color: var(--text); flex: 1; }
+  .earnings-cal-ticker { font-size: 11px; font-weight: 700; color: var(--primary); letter-spacing: 0.5px; }
+  .earnings-cal-date { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
+  .earnings-cal-quarter { font-size: 11px; background: var(--bg); padding: 2px 8px; border-radius: 4px; color: var(--text-muted); white-space: nowrap; }
+  .earnings-cal-est { font-size: 10px; background: var(--warning-bg); color: var(--warning-text); padding: 1px 6px; border-radius: 4px; font-weight: 600; }
 
   /* Report downloads */
   .report-downloads { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
@@ -331,7 +339,7 @@
           <div class="article-list" id="week-articles"></div>
         </div>
         <div class="weekly-panel">
-          <div class="weekly-panel-header">
+          <div class="weekly-panel-header" id="earnings-panel-header">
             <span class="weekly-panel-title">Earnings &amp; Financials</span>
             <span class="badge" id="earnings-count-badge"></span>
           </div>
@@ -490,10 +498,11 @@ document.querySelectorAll('.header-nav a').forEach(item => {
 
 // Load dashboard
 async function loadDashboard() {
-  const [stats, articles, allArticles] = await Promise.all([
+  const [stats, articles, allArticles, earningsCalendar] = await Promise.all([
     fetch('/api/stats').then(r => r.json()),
     fetch('/api/articles?limit=10').then(r => r.json()),
     fetch('/api/articles?limit=500').then(r => r.json()),
+    fetch('/api/earnings-calendar?limit=10').then(r => r.json()),
   ]);
 
   // Calculate this week's articles
@@ -515,10 +524,30 @@ async function loadDashboard() {
     ? thisWeekArticles.map(a => articleCard(a)).join('')
     : '<div class="weekly-empty">No new articles this week</div>';
 
-  document.getElementById('earnings-count-badge').textContent = earningsArticles.length;
-  document.getElementById('earnings-articles').innerHTML = earningsArticles.length
-    ? earningsArticles.map(a => articleCard(a)).join('')
-    : '<div class="weekly-empty">No earnings articles this week</div>';
+  const earningsPanel = document.getElementById('earnings-articles');
+  const earningsTitle = document.querySelector('#earnings-panel-header .weekly-panel-title');
+  const earningsBadge = document.getElementById('earnings-count-badge');
+
+  if (earningsArticles.length > 0) {
+    earningsTitle.textContent = 'Earnings & Financials';
+    earningsBadge.textContent = earningsArticles.length;
+    earningsPanel.innerHTML = earningsArticles.map(a => articleCard(a)).join('');
+  } else {
+    earningsTitle.textContent = 'Upcoming Earnings';
+    earningsBadge.textContent = earningsCalendar.length;
+    earningsPanel.innerHTML = earningsCalendar.length
+      ? earningsCalendar.map(e => {
+          const d = new Date(e.date + 'T00:00:00');
+          const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          return `<div class="earnings-cal-item" onclick="window.openCompanyByTicker('${e.ticker}')">
+            <span class="earnings-cal-company">${escHtml(e.company)} <span class="earnings-cal-ticker">${e.ticker}</span></span>
+            <span class="earnings-cal-quarter">${e.quarter}</span>
+            <span class="earnings-cal-date">${dateStr}</span>
+            ${e.estimated ? '<span class="earnings-cal-est">Est.</span>' : ''}
+          </div>`;
+        }).join('')
+      : '<div class="weekly-empty">No upcoming earnings dates</div>';
+  }
 
   // Latest articles
   document.getElementById('article-count-badge').textContent = stats.totalArticles;
@@ -658,6 +687,15 @@ window.openWiki = async function(id) {
   document.getElementById('detail-header').innerHTML = `<h2>${escHtml(page.title)}</h2>`;
   document.getElementById('detail-content').innerHTML = renderMd(page.content);
   document.getElementById('detail-overlay').classList.add('open');
+};
+
+window.openCompanyByTicker = async function(ticker) {
+  const companies = await fetch('/api/wiki?type=company').then(r => r.json());
+  const match = companies.find(c => c.frontmatter.ticker === ticker);
+  if (match) {
+    navigateTo('companies');
+    window.openWiki(match.id);
+  }
 };
 
 window.closeDetail = function() {

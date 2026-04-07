@@ -2,6 +2,7 @@ import { serve } from "bun";
 import { readFile } from "fs/promises";
 import { join } from "path";
 import { loadKB, getArticles, getWikiPages, searchKB, getStats, type SearchResult } from "./kb";
+import { getUpcomingEarnings } from "./earnings-calendar";
 
 // Supabase config for AV report section queries
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co";
@@ -160,6 +161,11 @@ serve({
 
       if (url.pathname === "/api/mode") {
         return Response.json({ aiEnabled }, { headers });
+      }
+
+      if (url.pathname === "/api/earnings-calendar") {
+        const limit = Number(url.searchParams.get("limit")) || 10;
+        return Response.json(getUpcomingEarnings(limit), { headers });
       }
 
       if (url.pathname === "/api/articles") {
