@@ -38,15 +38,15 @@
   a:hover { text-decoration: underline; }
 
   /* Header */
-  .header { background: #ffffff; display: flex; align-items: center; padding: 0 32px; height: 64px; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid var(--border); flex-wrap: nowrap; overflow: hidden; }
-  .header-brand { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+  .header { background: #ffffff; display: flex; align-items: center; padding: 0 24px; height: 48px; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid var(--border); flex-wrap: nowrap; overflow: hidden; }
+  .header-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
   .header-logo { display: flex; align-items: center; white-space: nowrap; }
-  .header-logo img { height: 28px; width: auto; }
+  .header-logo img { height: 22px; width: auto; }
   .header-logo span { opacity: 0.7; font-weight: 400; }
-  .header-divider { width: 1px; height: 28px; background: var(--border); margin: 0 8px; }
-  .header-title { font-family: var(--font-heading); font-size: 16px; font-weight: 400; color: var(--primary); white-space: nowrap; }
-  .header-nav { display: flex; align-items: center; margin-left: auto; gap: 0; overflow-x: auto; flex-shrink: 1; min-width: 0; }
-  .header-nav a { font-family: var(--font-body); font-size: 14px; font-weight: 500; color: var(--text-secondary); padding: 20px 18px; transition: all 0.2s; border-bottom: 2px solid transparent; cursor: pointer; text-decoration: none; letter-spacing: 0.3px; white-space: nowrap; flex-shrink: 0; }
+  .header-divider { width: 1px; height: 22px; background: var(--border); margin: 0 6px; }
+  .header-title { font-family: var(--font-heading); font-size: 13px; font-weight: 400; color: var(--primary); white-space: nowrap; }
+  .header-nav { display: flex; align-items: center; margin-left: auto; gap: 0; flex-shrink: 1; min-width: 0; overflow: hidden; }
+  .header-nav a { font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--text-secondary); padding: 14px 12px; transition: all 0.2s; border-bottom: 2px solid transparent; cursor: pointer; text-decoration: none; letter-spacing: 0.2px; white-space: nowrap; flex-shrink: 0; }
   .header-nav a:hover { color: var(--primary); text-decoration: none; }
   .header-nav a.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
 
@@ -267,11 +267,10 @@
 
   /* Mobile responsive breakpoints */
   @media (max-width: 768px) {
-    .header { padding: 0 16px; height: 56px; }
-    .header-brand { gap: 8px; }
-    .header-title { font-size: 14px; }
-    .header-nav { gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .header-nav a { padding: 16px 12px; font-size: 13px; white-space: nowrap; min-height: 44px; display: inline-flex; align-items: center; }
+    .header { padding: 0 12px; height: 44px; }
+    .header-brand { gap: 6px; }
+    .header-title { font-size: 12px; }
+    .header-nav a { padding: 12px 8px; font-size: 12px; }
     .container { padding: 20px 16px; }
     .hero h2 { font-size: 22px; }
     .stats-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
@@ -292,7 +291,7 @@
   }
 
   @media (max-width: 480px) {
-    .header-nav a { padding: 14px 10px; font-size: 12px; }
+    .header-nav a { padding: 10px 6px; font-size: 11px; }
     .stats-grid { grid-template-columns: 1fr 1fr; }
     .stat-card .value { font-size: 24px; }
     .hero h2 { font-size: 20px; }
