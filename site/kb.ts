@@ -23,7 +23,7 @@ export interface WikiPage {
   path: string;
   content: string;
   frontmatter: Record<string, unknown>;
-  type: "company" | "market-driver" | "concept";
+  type: "company" | "market-driver" | "concept" | "foundational";
 }
 
 export type KBEntry = Article | WikiPage;
@@ -80,6 +80,7 @@ export async function loadKB(force = false) {
     { dir: join(KB_ROOT, "wiki", "companies"), type: "company" },
     { dir: join(KB_ROOT, "wiki", "market-drivers"), type: "market-driver" },
     { dir: join(KB_ROOT, "wiki", "concepts"), type: "concept" },
+    { dir: join(KB_ROOT, "wiki", "foundational"), type: "foundational" },
   ];
   for (const { dir, type } of wikiDirs) {
     const pages = await readMarkdownDir(dir);
@@ -87,7 +88,7 @@ export async function loadKB(force = false) {
       wikiPages.push({
         id: filename.replace(/\.md$/, ""),
         title: String(frontmatter.title || content.split("\n").find(l => l.startsWith("# "))?.replace(/^#\s+/, "") || filename),
-        path: `wiki/${type === "company" ? "companies" : type === "market-driver" ? "market-drivers" : "concepts"}/${filename}`,
+        path: `wiki/${type === "company" ? "companies" : type === "market-driver" ? "market-drivers" : type === "foundational" ? "foundational" : "concepts"}/${filename}`,
         content,
         frontmatter,
         type,
@@ -115,6 +116,12 @@ const SYNONYMS: Record<string, string[]> = {
   "plumbing": ["plumbing", "drainage", "fixtures", "masco", "fortune brands", "geberit", "advanced drainage"],
   "doors": ["doors", "windows", "assa abloy", "jeld-wen", "lixil", "sanwa"],
   "insulation": ["insulation", "glass", "owens corning", "saint-gobain", "agc", "fiberglass", "roofing"],
+  "cycle": ["cycle", "cycles", "cyclical", "boom", "bust", "downturn", "recovery", "recession", "historical"],
+  "supply chain": ["supply chain", "value chain", "distribution", "logistics", "channel"],
+  "consolidation": ["consolidation", "roll-up", "rollup", "platform", "private equity"],
+  "regulation": ["regulation", "code", "building code", "compliance", "epa", "osha", "ibc"],
+  "technology": ["technology", "innovation", "prefab", "modular", "offsite", "bim", "digitalization", "3d printing"],
+  "sustainability": ["sustainability", "decarbonization", "embodied carbon", "green", "epd", "leed", "net zero"],
 };
 
 function expandTerms(terms: string[]): string[] {
@@ -247,6 +254,7 @@ export function getStats() {
     companies: wikiPages.filter(w => w.type === "company").length,
     marketDrivers: wikiPages.filter(w => w.type === "market-driver").length,
     concepts: wikiPages.filter(w => w.type === "concept").length,
+    foundational: wikiPages.filter(w => w.type === "foundational").length,
     byCategory,
     byMonth,
     companyMentions,

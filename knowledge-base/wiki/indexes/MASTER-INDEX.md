@@ -43,6 +43,18 @@ This file is the LLM's entry point for navigating the knowledge base. Before ans
 | [Credit & Lending](../market-drivers/credit-lending.md) | Stable (unchanged standards, stronger demand) | 2026-04-06 |
 | [GDP & Consumer Confidence](../market-drivers/gdp-consumer-confidence.md) | Mixed (CCI 91.8, GDP 2.2-2.8%) | 2026-04-06 |
 
+### Foundational Knowledge (25 articles)
+Evergreen reference articles encoding 20+ years of industry expertise. See [FOUNDATIONAL-INDEX.md](FOUNDATIONAL-INDEX.md) for full listing.
+
+| Category | Articles | Topics |
+|----------|----------|--------|
+| Industry Cycles & Macro History | 5 | Housing cycles, commercial cycles, materials pricing, recession playbook, interest rate dynamics |
+| Industry Structure & Supply Chain | 5 | Value chain, distribution channels, cement/concrete, lumber, steel |
+| M&A & Consolidation History | 4 | Consolidation waves, private equity, homebuilder impact, international players |
+| Regulatory & Policy History | 4 | Building codes, trade policy, environmental regulation, infrastructure policy |
+| Technology & Structural Trends | 4 | Offsite construction, digitalization, sustainability/decarbonization, labor shortage |
+| Regional & Segment Dynamics | 3 | Regional dynamics, residential vs commercial, repair & remodel |
+
 ## Raw Articles
 94 articles ingested spanning 2026-01-01 to 2026-04-06. See `raw/articles/` for full text.
 
@@ -57,6 +69,7 @@ This file is the LLM's entry point for navigating the knowledge base. Before ans
 ## Statistics
 - Total raw articles: 94
 - Total wiki concept articles: 6
+- Total foundational articles: 25
 - Total company profiles: 11
 - Total market driver pages: 7
 - Date range covered: 2026-01-01 to 2026-04-06
