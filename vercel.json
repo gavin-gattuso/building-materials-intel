@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm install",
+  "buildCommand": "npm install && npx bun site/build-static.ts",
   "outputDirectory": "site/public",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" },

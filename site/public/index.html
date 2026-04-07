@@ -502,7 +502,10 @@ async function loadDashboard() {
     fetch('/api/stats').then(r => r.json()),
     fetch('/api/articles?limit=10').then(r => r.json()),
     fetch('/api/articles?limit=500').then(r => r.json()),
-    fetch('/api/earnings-calendar?limit=10').then(r => r.json()),
+    fetch('/earnings-calendar.json').then(r => r.json()).then(all => {
+      const today = new Date().toISOString().slice(0, 10);
+      return all.filter(e => e.date >= today).slice(0, 10);
+    }),
   ]);
 
   // Calculate this week's articles
@@ -834,7 +837,7 @@ document.getElementById('chat-input').addEventListener('input', function() {
 // AV Reports page
 async function loadReportDownloads() {
   try {
-    const reports = await fetch('/api/reports').then(r => r.json());
+    const reports = await fetch('/reports.json').then(r => r.json());
     const el = document.getElementById('report-downloads');
     if (!Array.isArray(reports) || reports.length === 0) {
       el.innerHTML = '<div class="loading">No published reports available yet.</div>';

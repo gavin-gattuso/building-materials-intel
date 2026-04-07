@@ -41,4 +41,8 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # Planning
 .planning
 
+# Generated static data (built at deploy time)
+site/public/earnings-calendar.json
+site/public/reports.json
+
 .vercel
