@@ -34,6 +34,7 @@ export function escHtml(s) {
 }
 
 export function navigateTo(page) {
+  if (page === 'drivers' || page === 'concepts') page = 'drivers-concepts';
   document.querySelectorAll('.header-nav a').forEach(n => {
     n.classList.toggle('active', n.dataset.page === page);
   });

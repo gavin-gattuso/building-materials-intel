@@ -1,4 +1,25 @@
 import { escHtml, renderMd, closeDetail } from './utils.js';
+import { isFavorite, renderFavoritesSection } from './favorites.js';
+
+export function renderCompanyCards(containerId, companies, segmentMap) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = companies.map(c => {
+    const ticker = c.frontmatter.ticker || '';
+    const seg = segmentMap[ticker] || '';
+    const fav = isFavorite(c.id);
+    return `<div class="company-card" data-company-id="${c.id}" data-ticker="${ticker}" data-company-name="${escHtml(c.title)}" tabindex="0" onclick="window.openWiki('${c.id}')">
+      <button class="fav-star${fav ? ' active' : ''}" onclick="event.stopPropagation(); window.toggleFavorite('${c.id}')" aria-label="Toggle favorite">${fav ? '★' : '☆'}</button>
+      <div class="ticker">${ticker}</div>
+      <div class="name">${escHtml(c.title)}</div>
+      ${seg ? '<div class="sector">' + escHtml(seg) + '</div>' : ''}
+    </div>`;
+  }).join('');
+}
+
+// Cache for favorites re-render
+let _companiesCache = [];
+let _segmentMapCache = {};
 
 export async function loadCompanies() {
   const [companies, tracked] = await Promise.all([
@@ -7,14 +28,16 @@ export async function loadCompanies() {
   ]);
   const segmentMap = {};
   for (const t of tracked) segmentMap[t.ticker] = t.segment;
-  document.getElementById('company-grid').innerHTML = companies.map(c => {
-    const seg = segmentMap[c.frontmatter.ticker] || '';
-    return `<div class="company-card" onclick="window.openWiki('${c.id}')">
-      <div class="ticker">${c.frontmatter.ticker || ''}</div>
-      <div class="name">${escHtml(c.title)}</div>
-      ${seg ? '<div class="sector">' + escHtml(seg) + '</div>' : ''}
-    </div>`;
-  }).join('');
+  _companiesCache = companies;
+  _segmentMapCache = segmentMap;
+  renderCompanyCards('company-grid', companies, segmentMap);
+  renderFavoritesSection('companies-favorites', companies, segmentMap);
+
+  // Re-render on favorites change
+  window.addEventListener('favorites-changed', () => {
+    renderCompanyCards('company-grid', _companiesCache, _segmentMapCache);
+    renderFavoritesSection('companies-favorites', _companiesCache, _segmentMapCache);
+  });
 }
 
 export async function loadDrivers() {
