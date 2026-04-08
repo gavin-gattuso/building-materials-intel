@@ -267,8 +267,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const company = req.query.company as string | undefined;
       let query = supabase.from("financial_ratios").select("*").order("company");
       if (period) query = query.eq("period", period);
-      if (company) query = query.eq("company", company);
+      if (company) query = query.ilike("company", `%${company}%`);
       const { data } = await query;
+      if (company && (!data || data.length === 0)) {
+        // Fallback: try matching where the search term contains the DB company name
+        const { data: allData } = await supabase.from("financial_ratios").select("*").order("company");
+        const cl = company.toLowerCase();
+        const filtered = (allData || []).filter((r: any) => cl.includes(r.company.toLowerCase()) || r.company.toLowerCase().includes(cl));
+        if (period) return res.json(filtered.filter((r: any) => r.period === period));
+        return res.json(filtered);
+      }
       return res.json(data || []);
     }
 
@@ -329,7 +337,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         : await getArticlesMeta(limit);
 
       if (category) results = results.filter((a: any) => a.category?.toLowerCase().includes(category.toLowerCase()));
-      if (company) results = results.filter((a: any) => a.companies?.some((c: string) => c.toLowerCase().includes(company.toLowerCase())));
+      if (company) {
+        const cl = company.toLowerCase();
+        results = results.filter((a: any) => a.companies?.some((c: string) => c.toLowerCase().includes(cl) || cl.includes(c.toLowerCase())));
+      }
 
       return res.json(results.slice(0, limit).map(({ content, ...rest }: any) => ({
         ...rest,
