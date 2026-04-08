@@ -54,12 +54,6 @@ export async function loadDashboard() {
     return (now - d) < 7 * 86400000;
   });
 
-  document.getElementById('stats-grid').innerHTML = `
-    <div class="stat-card"><div class="stat-value">${total}</div><div class="stat-label">Total Articles</div></div>
-    <div class="stat-card"><div class="stat-value">${wiki}</div><div class="stat-label">Wiki Pages</div></div>
-    <div class="stat-card"><div class="stat-value">${Object.keys(stats.byCategory || {}).length}</div><div class="stat-label">Categories</div></div>
-    <div class="stat-card"><div class="stat-value">${Object.keys(stats.companyMentions || {}).length}</div><div class="stat-label">Companies Tracked</div></div>
-  `;
   document.getElementById('week-articles').innerHTML = thisWeekArticles.length
     ? thisWeekArticles.slice(0, 5).map(a => articleCard(a)).join('')
     : '<div class="weekly-empty">No articles this week</div>';
