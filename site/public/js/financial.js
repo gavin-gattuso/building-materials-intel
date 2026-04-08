@@ -1,4 +1,5 @@
 import { escHtml } from './utils.js';
+import { SEGMENT_COLORS, SEGMENT_LABELS } from './segments.js';
 
 const RATIO_METRICS = [
   { key: 'revenue_ltm', label: 'Revenue (LTM BUSD)', unit: 'BUSD', hasDelta: false },
@@ -7,32 +8,6 @@ const RATIO_METRICS = [
   { key: 'sga_sales_pct', label: 'SG&A / Sales', unit: '%', hasDelta: true, deltaKey: 'sga_sales_yoy_delta' },
   { key: 'ebitda_margin_pct', label: 'EBITDA Margin', unit: '%', hasDelta: true, deltaKey: 'ebitda_margin_yoy_delta' },
 ];
-
-const SEGMENT_COLORS = {
-  'Cement, Aggregates and Ready-mix Concrete': '#1a5c3a',
-  'Glass': '#2d8a5e',
-  'Lumber and Wood': '#8cc63f',
-  'Steel': '#9e9e9e',
-  'Bricks and Masonry': '#6d9e6d',
-  'Building Envelope, Roofing, Siding, Flooring and Insulation': '#0d4f5c',
-  'Doors and Windows': '#1a7a8a',
-  'Piping': '#4db6ac',
-  'Kitchen and Bath': '#80cbc4',
-  'HVAC-R, Fire and Security': '#26a69a',
-};
-
-const SEGMENT_LABELS = {
-  'Cement, Aggregates and Ready-mix Concrete': 'Cement & Aggregates',
-  'Glass': 'Glass',
-  'Lumber and Wood': 'Lumber & Wood',
-  'Steel': 'Steel',
-  'Bricks and Masonry': 'Bricks & Masonry',
-  'Building Envelope, Roofing, Siding, Flooring and Insulation': 'Bldg Envelope & Roofing',
-  'Doors and Windows': 'Doors & Windows',
-  'Piping': 'Piping',
-  'Kitchen and Bath': 'Kitchen & Bath',
-  'HVAC-R, Fire and Security': 'HVAC-R & Security',
-};
 
 let ratiosData = [];
 let ratioFlags = {};

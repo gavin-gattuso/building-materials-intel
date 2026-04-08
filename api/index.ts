@@ -367,7 +367,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
       if (!type || type === "concept") {
         const concepts = await getConcepts();
-        pages.push(...concepts.map(c => ({ id: c.slug, title: c.title, type: "concept", frontmatter: {} })));
+        pages.push(...concepts.map(c => {
+          let summary = '';
+          if (c.content) {
+            const overviewMatch = c.content.match(/## Overview\s*\n([\s\S]*?)(?=\n## |\n$)/);
+            const text = (overviewMatch ? overviewMatch[1] : c.content).replace(/^#+\s.*/gm, '').trim();
+            summary = text.split(/(?<=[.!?])\s+/).slice(0, 2).join(' ').slice(0, 250);
+          }
+          return { id: c.slug, title: c.title, type: "concept", frontmatter: { summary } };
+        }));
       }
       return res.json(pages);
     }
@@ -548,6 +556,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       const summary = response.content[0].type === "text" ? response.content[0].text : "";
       return res.json({ summary });
+    }
+
+    // /api/tracked-companies
+    if (path === "tracked-companies") {
+      res.setHeader("Cache-Control", "public, max-age=300, s-maxage=600");
+      const { TRACKED_COMPANIES } = await import("../lib/constants.js");
+      return res.json(TRACKED_COMPANIES);
     }
 
     return res.status(404).json({ error: "Not found" });

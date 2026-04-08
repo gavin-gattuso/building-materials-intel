@@ -1,13 +1,20 @@
 import { escHtml, renderMd, closeDetail } from './utils.js';
 
 export async function loadCompanies() {
-  const companies = await fetch('/api/wiki?type=company').then(r => r.json());
-  document.getElementById('company-grid').innerHTML = companies.map(c => `
-    <div class="company-card" onclick="window.openWiki('${c.id}')">
+  const [companies, tracked] = await Promise.all([
+    fetch('/api/wiki?type=company').then(r => r.json()),
+    fetch('/api/tracked-companies').then(r => r.json()).catch(() => []),
+  ]);
+  const segmentMap = {};
+  for (const t of tracked) segmentMap[t.ticker] = t.segment;
+  document.getElementById('company-grid').innerHTML = companies.map(c => {
+    const seg = segmentMap[c.frontmatter.ticker] || '';
+    return `<div class="company-card" onclick="window.openWiki('${c.id}')">
       <div class="ticker">${c.frontmatter.ticker || ''}</div>
       <div class="name">${escHtml(c.title)}</div>
-    </div>
-  `).join('');
+      ${seg ? '<div class="sector">' + escHtml(seg) + '</div>' : ''}
+    </div>`;
+  }).join('');
 }
 
 export async function loadDrivers() {
@@ -25,6 +32,7 @@ export async function loadConcepts() {
   document.getElementById('concepts-list').innerHTML = concepts.map(c => `
     <div class="article-item" onclick="window.openWiki('${c.id}')">
       <div class="article-title">${escHtml(c.title)}</div>
+      ${c.frontmatter.summary ? '<div class="article-summary">' + escHtml(c.frontmatter.summary) + '</div>' : ''}
     </div>
   `).join('');
 }

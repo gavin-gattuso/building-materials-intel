@@ -1,4 +1,5 @@
 import { escHtml } from './utils.js';
+import { SEGMENT_COLORS, SEGMENT_LABELS } from './segments.js';
 
 function articleCard(a) {
   const sourceLink = a.url
@@ -17,7 +18,7 @@ function articleCard(a) {
 }
 
 export async function loadDashboard() {
-  const [stats, articles, allArticles, earningsCalendar, weeklySummary] = await Promise.all([
+  const [stats, articles, allArticles, earningsCalendar, weeklySummary, drivers, concepts, financialRatios] = await Promise.all([
     fetch('/api/stats').then(r => r.json()).catch(() => ({ total: 0, byCategory: {}, companyMentions: {}, thisWeek: 0 })),
     fetch('/api/articles?limit=10').then(r => r.json()).catch(() => []),
     fetch('/api/articles?limit=500').then(r => r.json()).catch(() => []),
@@ -27,6 +28,10 @@ export async function loadDashboard() {
     }).catch(() => []),
     fetch('/weekly-summary.json').then(r => { if (!r.ok) throw new Error(); return r.json(); })
       .catch(() => fetch('/api/weekly-summary').then(r => r.json()).catch(() => null)),
+    fetch('/api/wiki?type=market-driver').then(r => r.json()).catch(() => []),
+    fetch('/api/wiki?type=concept').then(r => r.json()).catch(() => []),
+    fetch('/financial-ratios.json').then(r => { if (!r.ok) throw new Error(); return r.json(); })
+      .catch(() => fetch('/api/financial-ratios').then(r => r.json()).catch(() => [])),
   ]);
 
   // Render weekly AI summary if available
@@ -43,6 +48,65 @@ export async function loadDashboard() {
     </div>`;
   } else {
     sumContainer.innerHTML = '';
+  }
+
+  // Market Drivers overview
+  const driversEl = document.getElementById('dashboard-drivers');
+  if (driversEl && drivers.length) {
+    const signalArrow = (s) => {
+      s = (s || '').toLowerCase();
+      if (['up','worsening'].includes(s)) return '↑';
+      if (['down','easing','improving','expanding'].includes(s)) return '↓';
+      if (s === 'stable') return '→';
+      if (['tightening','constrained'].includes(s)) return '↗';
+      if (s === 'weakening') return '↘';
+      return '↕';
+    };
+    driversEl.innerHTML = drivers.map(d => {
+      const signal = (d.frontmatter.current_signal || '').toLowerCase();
+      return `<div class="driver-overview-item" onclick="window.openWiki('${d.id}')">
+        <div class="driver-overview-arrow ${signal}">${signalArrow(signal)}</div>
+        <div class="driver-overview-name">${escHtml(d.title)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Featured Concept (rotate by day of week)
+  const conceptEl = document.getElementById('dashboard-concept');
+  if (conceptEl && concepts.length) {
+    const idx = new Date().getDay() % concepts.length;
+    const c = concepts[idx];
+    conceptEl.innerHTML = `<div class="featured-concept" onclick="window.openWiki('${c.id}')">
+      <span class="featured-concept-badge">Featured Concept</span>
+      <span class="featured-concept-title">${escHtml(c.title)}</span>
+    </div>`;
+  }
+
+  // Revenue by Segment
+  const revenueEl = document.getElementById('dashboard-revenue');
+  if (revenueEl) {
+    const validRatios = financialRatios.filter(r => r.revenue_ltm != null);
+    if (validRatios.length) {
+      // Get latest period
+      const periods = [...new Set(validRatios.map(r => r.period))].sort().reverse();
+      const latest = validRatios.filter(r => r.period === periods[0]);
+      // Group by segment
+      const bySegment = {};
+      for (const r of latest) {
+        if (!bySegment[r.segment]) bySegment[r.segment] = 0;
+        bySegment[r.segment] += r.revenue_ltm;
+      }
+      const sorted = Object.entries(bySegment).sort((a, b) => b[1] - a[1]);
+      revenueEl.innerHTML = sorted.map(([seg, rev]) => `
+        <div class="revenue-seg-item">
+          <div class="revenue-seg-dot" style="background:${SEGMENT_COLORS[seg] || '#888'}"></div>
+          <div class="revenue-seg-name">${SEGMENT_LABELS[seg] || seg}</div>
+          <div class="revenue-seg-value">$${rev.toFixed(1)}B</div>
+        </div>
+      `).join('');
+    } else {
+      revenueEl.innerHTML = '<div class="weekly-empty">No financial data available</div>';
+    }
   }
 
   // Stats
