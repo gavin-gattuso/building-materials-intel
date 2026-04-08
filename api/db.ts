@@ -9,8 +9,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-db-key, Prefer");
   if (req.method === "OPTIONS") return res.status(200).end();
 
-  const authHeader = req.headers["x-db-key"];
-  if (!authHeader || authHeader !== process.env.BRIEFING_API_KEY) {
+  // Auth: accept either BRIEFING_API_KEY or the Supabase service role key
+  const authHeader = req.headers["x-db-key"] as string;
+  const validKeys = [process.env.BRIEFING_API_KEY, SUPABASE_KEY].filter(Boolean);
+  if (!authHeader || !validKeys.includes(authHeader)) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
