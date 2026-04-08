@@ -298,6 +298,22 @@
   .footer a:hover { color: #fff; }
   .footer a { color: var(--primary); }
 
+  /* Feedback */
+  .feedback-btn { position: fixed; bottom: 24px; right: 24px; background: var(--primary); color: #fff; border: none; padding: 10px 18px; border-radius: 24px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,0.2); z-index: 90; transition: transform 0.15s, box-shadow 0.15s; }
+  .feedback-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.25); }
+  .feedback-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: center; justify-content: center; }
+  .feedback-overlay.open { display: flex; }
+  .feedback-modal { background: var(--surface); border-radius: 8px; padding: 28px; width: 90%; max-width: 440px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+  .feedback-modal h3 { margin: 0 0 4px; font-family: var(--font-heading); font-size: 18px; }
+  .feedback-modal p { margin: 0 0 16px; font-size: 13px; color: var(--text-secondary); }
+  .feedback-modal textarea { width: 100%; min-height: 120px; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-family: inherit; font-size: 14px; resize: vertical; box-sizing: border-box; }
+  .feedback-modal textarea:focus { outline: none; border-color: var(--primary); }
+  .feedback-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
+  .feedback-modal-actions button { padding: 8px 18px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  .feedback-modal-actions button.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .feedback-modal-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .feedback-success { color: var(--success-text); font-size: 13px; font-weight: 500; margin-top: 10px; }
+
   /* Focus indicators for keyboard navigation */
   a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible,
   .signal-card:focus-visible, .article-item:focus-visible, .company-card:focus-visible, .suggestion-chip:focus-visible {
@@ -595,6 +611,21 @@
   </div>
 </div>
 
+<!-- Feedback -->
+<button class="feedback-btn" onclick="document.getElementById('feedback-overlay').classList.add('open')">Send Feedback</button>
+<div class="feedback-overlay" id="feedback-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="feedback-modal">
+    <h3>Send Feedback</h3>
+    <p>Help us improve this platform. Your feedback goes directly to the Applied Value team.</p>
+    <textarea id="feedback-text" placeholder="What's on your mind? Suggestions, bugs, feature requests..."></textarea>
+    <div id="feedback-status"></div>
+    <div class="feedback-modal-actions">
+      <button onclick="document.getElementById('feedback-overlay').classList.remove('open')">Cancel</button>
+      <button class="primary" id="feedback-submit" onclick="submitFeedback()">Submit</button>
+    </div>
+  </div>
+</div>
+
 <!-- Detail overlay -->
 <div class="detail-overlay" id="detail-overlay">
   <div class="detail-inner">
@@ -652,6 +683,27 @@ window.searchArticlesByTheme = function(theme) {
   navigateTo('articles');
   document.getElementById('article-search').value = searchTerm;
   loadArticles(searchTerm);
+};
+
+// Feedback
+window.submitFeedback = async function() {
+  const text = document.getElementById('feedback-text').value.trim();
+  if (!text) return;
+  const btn = document.getElementById('feedback-submit');
+  const status = document.getElementById('feedback-status');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  try {
+    const res = await fetch('/api/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text }) });
+    if (!res.ok) throw new Error();
+    status.innerHTML = '<div class="feedback-success">Thank you! Your feedback has been received.</div>';
+    document.getElementById('feedback-text').value = '';
+    setTimeout(() => { document.getElementById('feedback-overlay').classList.remove('open'); status.innerHTML = ''; }, 2000);
+  } catch {
+    status.innerHTML = '<div style="color:var(--danger-text);font-size:13px;margin-top:10px">Failed to send. Please try again.</div>';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Submit';
 };
 
 // Initialize modules

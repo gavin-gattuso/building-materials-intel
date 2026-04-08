@@ -558,6 +558,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.json({ summary });
     }
 
+    // /api/feedback
+    if (path === "feedback") {
+      if (req.method !== "POST") return res.status(405).json({ error: "POST required" });
+      const { message } = req.body;
+      if (!message || typeof message !== "string" || message.trim().length === 0) return res.status(400).json({ error: "Message required" });
+      await supabase.from("feedback").insert({ message: message.trim(), created_at: new Date().toISOString() });
+      return res.json({ ok: true });
+    }
+
     // /api/tracked-companies
     if (path === "tracked-companies") {
       res.setHeader("Cache-Control", "public, max-age=300, s-maxage=600");
