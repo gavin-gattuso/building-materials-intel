@@ -4,6 +4,7 @@
   "rewrites": [
     { "source": "/api/build-report", "destination": "/api/build-report" },
     { "source": "/api/send-briefing", "destination": "/api/send-briefing" },
+    { "source": "/api/db", "destination": "/api/db" },
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
