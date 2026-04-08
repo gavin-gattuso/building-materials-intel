@@ -471,7 +471,7 @@
     <div class="header-title">Building Materials Intelligence</div>
   </div>
   <div class="header-nav">
-    <a class="active" data-page="dashboard">Dashboard</a>
+    <a class="active" data-page="home">Home</a>
     <a data-page="articles">Articles</a>
     <a data-page="companies">Companies</a>
     <a data-page="drivers-concepts">Drivers &amp; Concepts</a>
@@ -482,55 +482,39 @@
 </div>
 
 <div class="container">
-  <!-- Landing Page -->
-  <div class="page" id="page-landing">
+  <!-- Home -->
+  <div class="page active" id="page-home">
     <div class="hero">
       <h2>Building Materials Intelligence</h2>
-      <p>Companies, market drivers, concepts, and financials at a glance</p>
+      <p>Quick highlights across companies, markets, and financials</p>
     </div>
-    <div class="section-title">Companies <span class="badge" id="landing-company-count"></span></div>
-    <div id="landing-favorites"></div>
-    <div class="company-grid" id="landing-company-grid"></div>
-    <div class="section-title" style="margin-top:32px">Market Drivers &amp; Concepts</div>
-    <div class="drivers-overview" id="landing-drivers"></div>
-    <div class="article-list" id="landing-concepts" style="margin-top:16px"></div>
-    <div class="section-title" style="margin-top:32px">Financial Snapshot</div>
-    <div class="revenue-overview" id="landing-financials"></div>
-  </div>
-
-  <!-- Dashboard -->
-  <div class="page active" id="page-dashboard">
-    <div class="hero">
-      <h2>Industry Overview</h2>
-      <p>Weekly curated intelligence from trusted sources across Building Materials & Building Products</p>
-    </div>
-    <div class="weekly-update" id="weekly-update">
-      <div id="weekly-ai-summary-container"></div>
-      <div class="section-title">Market Drivers</div>
-      <div class="drivers-overview" id="dashboard-drivers"></div>
-      <div id="dashboard-concept"></div>
-      <div class="section-title">Revenue by Segment</div>
-      <div class="revenue-overview" id="dashboard-revenue"></div>
-      <div class="section-title">Weekly Update</div>
-      <div class="weekly-columns">
-        <div class="weekly-panel">
-          <div class="weekly-panel-header">
-            <span class="weekly-panel-title">New This Week</span>
-            <span class="badge" id="week-count-badge"></span>
-          </div>
-          <div class="article-list" id="week-articles"></div>
+    <div id="home-ai-summary"></div>
+    <div class="section-title">Market Drivers</div>
+    <div class="drivers-overview" id="home-drivers"></div>
+    <div class="section-title">Companies <span class="badge" id="home-company-count"></span></div>
+    <div id="home-favorites"></div>
+    <div class="company-grid" id="home-company-grid"></div>
+    <div class="section-title">Earnings &amp; Articles</div>
+    <div class="weekly-columns">
+      <div class="weekly-panel">
+        <div class="weekly-panel-header">
+          <span class="weekly-panel-title">Earnings Calendar</span>
+          <span class="badge" id="home-earnings-count"></span>
         </div>
-        <div class="weekly-panel">
-          <div class="weekly-panel-header" id="earnings-panel-header">
-            <span class="weekly-panel-title">Earnings Calendar</span>
-            <span class="badge" id="earnings-count-badge"></span>
-          </div>
-          <div id="upcoming-earnings"></div>
+        <div id="home-earnings"></div>
+      </div>
+      <div class="weekly-panel">
+        <div class="weekly-panel-header">
+          <span class="weekly-panel-title">This Week</span>
+          <span class="badge" id="home-week-count"></span>
         </div>
+        <div class="article-list" id="home-week-articles"></div>
       </div>
     </div>
-    <div class="section-title">Latest Articles <span class="badge" id="article-count-badge"></span></div>
-    <div class="article-list" id="latest-articles"></div>
+    <div class="section-title" style="margin-top:24px">Revenue by Segment</div>
+    <div class="revenue-overview" id="home-revenue"></div>
+    <div class="section-title" style="margin-top:24px">Key Concepts</div>
+    <div class="article-list" id="home-concepts"></div>
   </div>
 
   <!-- Articles -->
@@ -683,12 +667,12 @@
 
 <script type="module">
 import { navigateTo, closeDetail, renderMd } from './js/utils.js';
-import { loadDashboard, loadArticles, loadArticleFilters } from './js/dashboard.js';
+import { loadArticles, loadArticleFilters, articleCard } from './js/dashboard.js';
 import { loadCompanies, loadDrivers, loadConcepts, openArticle, openWiki, openCompanyByTicker } from './js/wiki.js';
 import { initChat } from './js/chat.js';
 import { loadReportDownloads, loadReports, initReportGenerator } from './js/reports.js';
 import { loadFinancialRatios } from './js/financial.js';
-import { loadLanding } from './js/landing.js';
+import { loadHome } from './js/landing.js';
 import { toggleFavorite } from './js/favorites.js';
 import { initCompanyPopup } from './js/company-popup.js';
 
@@ -701,9 +685,9 @@ window.openWiki = openWiki;
 window.openCompanyByTicker = openCompanyByTicker;
 window.toggleFavorite = toggleFavorite;
 
-// Brand header click → landing page
-document.querySelector('.header-title').addEventListener('click', () => navigateTo('landing'));
-document.querySelector('.header-logo').addEventListener('click', () => navigateTo('landing'));
+// Brand header click → home
+document.querySelector('.header-title').addEventListener('click', () => navigateTo('home'));
+document.querySelector('.header-logo').addEventListener('click', () => navigateTo('home'));
 
 // Navigation
 document.querySelectorAll('.header-nav a').forEach(item => {
@@ -779,8 +763,7 @@ fetch('/financial-ratios.json').then(r => r.ok ? r.json() : fetch('/api/financia
   .catch(() => initCompanyPopup([]));
 
 // Load all pages
-loadLanding();
-loadDashboard();
+loadHome();
 loadArticles();
 loadArticleFilters();
 loadCompanies();
