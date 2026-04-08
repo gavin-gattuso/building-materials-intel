@@ -95,7 +95,6 @@
   /* Weekly Update layout */
   .stats-grid.stats-grid-2 { grid-template-columns: repeat(2, 1fr); max-width: 500px; }
   .weekly-update { margin-bottom: 32px; }
-  .weekly-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .weekly-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
   .weekly-panel-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid var(--border); }
   .weekly-panel-title { font-family: var(--font-heading); font-size: 15px; font-weight: 500; color: var(--text); }
@@ -127,13 +126,6 @@
   .featured-concept:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
   .featured-concept-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--primary); background: var(--bg-alt); padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
   .featured-concept-title { font-size: 14px; font-weight: 500; color: var(--text); }
-
-  /* Dashboard: Revenue by Segment */
-  .revenue-overview { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-bottom: 24px; }
-  .revenue-seg-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; }
-  .revenue-seg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .revenue-seg-name { font-size: 12px; color: var(--text-secondary); flex: 1; }
-  .revenue-seg-value { font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; }
 
   /* Report downloads */
   .report-downloads { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
@@ -483,7 +475,7 @@
   <div class="header-nav">
     <a class="active" data-page="home">Home</a>
     <a data-page="articles">Articles</a>
-    <a data-page="companies">Companies &amp; Financials</a>
+    <a data-page="companies">Company Financials</a>
     <a data-page="drivers-concepts">Drivers &amp; Concepts</a>
     <a data-page="reports">Reports</a>
     <a data-page="chat">AI Chat</a>
@@ -501,32 +493,13 @@
     <div class="section-title">Market Drivers</div>
     <div class="section-source">Source: Applied Value analysis of industry data</div>
     <div class="drivers-overview" id="home-drivers"></div>
-    <div class="section-title">Companies <span class="badge" id="home-company-count"></span></div>
+    <div class="section-title">Favorites</div>
     <div id="home-favorites"></div>
-    <div class="company-grid" id="home-company-grid"></div>
-    <div class="section-title">Earnings &amp; Articles</div>
-    <div class="section-source">Sources: Company IR announcements, 9-tier approved source whitelist</div>
-    <div class="weekly-columns">
-      <div class="weekly-panel">
-        <div class="weekly-panel-header">
-          <span class="weekly-panel-title">Earnings Calendar</span>
-          <span class="badge" id="home-earnings-count"></span>
-        </div>
-        <div id="home-earnings"></div>
-      </div>
-      <div class="weekly-panel">
-        <div class="weekly-panel-header">
-          <span class="weekly-panel-title">This Week</span>
-          <span class="badge" id="home-week-count"></span>
-        </div>
-        <div class="article-list" id="home-week-articles"></div>
-      </div>
+    <div class="section-title">Earnings Calendar <span class="badge" id="home-earnings-count"></span></div>
+    <div class="section-source">Source: Company IR announcements</div>
+    <div class="weekly-panel">
+      <div id="home-earnings"></div>
     </div>
-    <div class="section-title" style="margin-top:24px">Revenue by Segment</div>
-    <div class="section-source">Source: Yahoo Finance</div>
-    <div class="revenue-overview" id="home-revenue"></div>
-    <div class="section-title" style="margin-top:24px">Key Concepts</div>
-    <div class="article-list" id="home-concepts"></div>
   </div>
 
   <!-- Articles -->
@@ -543,31 +516,21 @@
     <div class="article-list" id="all-articles"></div>
   </div>
 
-  <!-- Companies -->
+  <!-- Company Financials -->
   <div class="page" id="page-companies">
     <div class="hero">
-      <h2>Companies &amp; Financials</h2>
+      <h2>Company Financials</h2>
       <p>39 tracked companies across 8 segments &mdash; click any company for in-depth analysis</p>
     </div>
-    <div class="dc-tabs" id="cf-tabs">
-      <button class="dc-tab active" data-cftab="profiles">Company Profiles</button>
-      <button class="dc-tab" data-cftab="ratios">Financial Ratios</button>
+    <div class="ratios-period-select">
+      <select id="ratios-period"></select>
     </div>
-    <div class="dc-panel" id="cf-profiles">
-      <div id="companies-favorites"></div>
-      <div class="company-grid" id="company-grid"></div>
+    <div class="ratios-controls" id="ratios-metric-btns"></div>
+    <div class="ratios-key" id="ratios-key"></div>
+    <div class="ratios-panels" id="ratios-panels">
+      <div class="loading">Loading financial data...</div>
     </div>
-    <div class="dc-panel" id="cf-ratios" style="display:none">
-      <div class="ratios-period-select">
-        <select id="ratios-period"></select>
-      </div>
-      <div class="ratios-controls" id="ratios-metric-btns"></div>
-      <div class="ratios-key" id="ratios-key"></div>
-      <div class="ratios-panels" id="ratios-panels">
-        <div class="loading">Loading financial data...</div>
-      </div>
-      <div class="detail-source">Source: Yahoo Finance, Applied Value analysis</div>
-    </div>
+    <div class="detail-source">Source: Yahoo Finance, Applied Value analysis</div>
   </div>
 
   <!-- Market Drivers -->
@@ -680,7 +643,7 @@
 <script type="module">
 import { navigateTo, closeDetail, renderMd } from './js/utils.js';
 import { loadArticles, loadArticleFilters, articleCard } from './js/dashboard.js';
-import { loadCompanies, loadDrivers, loadConcepts, openArticle, openWiki, openCompanyByTicker, openCompanyByName } from './js/wiki.js';
+import { loadDrivers, loadConcepts, openArticle, openWiki, openCompanyByTicker, openCompanyByName } from './js/wiki.js';
 import { initChat } from './js/chat.js';
 import { loadReportDownloads, loadReports, initReportGenerator } from './js/reports.js';
 import { loadFinancialRatios } from './js/financial.js';
@@ -766,20 +729,8 @@ document.querySelectorAll('#page-drivers-concepts .dc-tab').forEach(tab => {
   });
 });
 
-// Companies & Financials tab switching
-let ratiosLoaded = false;
-document.querySelectorAll('#cf-tabs .dc-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('#cf-tabs .dc-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('#page-companies > .dc-panel').forEach(p => p.style.display = 'none');
-    tab.classList.add('active');
-    document.getElementById('cf-' + tab.dataset.cftab).style.display = 'block';
-    if (tab.dataset.cftab === 'ratios' && !ratiosLoaded) {
-      ratiosLoaded = true;
-      loadFinancialRatios();
-    }
-  });
-});
+// Load financial ratios on page init
+loadFinancialRatios();
 
 // Initialize modules
 initChat();
@@ -795,7 +746,6 @@ fetch('/financial-ratios.json').then(r => r.ok ? r.json() : Promise.reject())
 loadHome();
 loadArticles();
 loadArticleFilters();
-loadCompanies();
 loadDrivers();
 loadConcepts();
 loadReportDownloads();
