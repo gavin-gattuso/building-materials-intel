@@ -264,8 +264,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (path === "financial-ratios") {
       res.setHeader("Cache-Control", "public, max-age=120, s-maxage=300");
       const period = req.query.period as string | undefined;
+      const company = req.query.company as string | undefined;
       let query = supabase.from("financial_ratios").select("*").order("company");
       if (period) query = query.eq("period", period);
+      if (company) query = query.eq("company", company);
       const { data } = await query;
       return res.json(data || []);
     }

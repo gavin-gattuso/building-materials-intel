@@ -36,6 +36,7 @@ export function escHtml(s) {
 export function navigateTo(page) {
   if (page === 'drivers' || page === 'concepts') page = 'drivers-concepts';
   if (page === 'dashboard' || page === 'landing') page = 'home';
+  if (page === 'ratios') page = 'companies';
   document.querySelectorAll('.header-nav a').forEach(n => {
     n.classList.toggle('active', n.dataset.page === page);
   });

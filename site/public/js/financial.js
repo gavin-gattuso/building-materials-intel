@@ -123,7 +123,7 @@ function buildRatioChart(companies, metric) {
     const pendingCls = c.has_reported === false ? ' pending' : '';
     const pendingBadge = c.has_reported === false ? '<span class="ratio-pending-badge">PENDING</span>' : '';
 
-    return `<div class="ratio-row${pendingCls}">
+    return `<div class="ratio-row${pendingCls}" style="cursor:pointer" onclick="window.openCompanyByName('${escHtml(c.company.replace(/'/g, "\\'"))}')">
       <span class="ratio-company" title="${escHtml(c.company)}">${escHtml(c.company)}${pendingBadge}</span>
       ${barHtml}
       <span class="ratio-value">${valStr}</span>
