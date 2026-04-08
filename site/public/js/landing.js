@@ -34,7 +34,7 @@ export async function loadHome() {
     sumEl.innerHTML = `<div class="weekly-ai-summary">
       <div class="was-header"><span class="was-badge">AI Weekly Digest</span><span class="was-range">${wStart} &ndash; ${wEnd}</span></div>
       ${summaryHtml}
-      ${themes.length ? '<div class="was-themes">' + themes.map(t => `<a class="was-theme" onclick="window.searchArticlesByTheme('${escHtml(t.replace(/'/g, "\\\\'"))}')">${escHtml(t)}</a>`).join('') + '</div>' : ''}
+      ${themes.length ? '<div class="was-themes">' + themes.map(t => `<a class="was-theme" onclick="window.searchArticlesByTheme('${escHtml(t.replace(/'/g, "\\\\'"))}')" title="Search articles about ${escHtml(t)}">${escHtml(t)}</a>`).join('') + '</div>' : ''}
     </div>`;
   }
 
@@ -43,7 +43,7 @@ export async function loadHome() {
   if (driversEl && drivers.length) {
     driversEl.innerHTML = drivers.map(d => {
       const signal = (d.frontmatter.current_signal || '').toLowerCase();
-      return `<div class="driver-overview-item" onclick="window.openWiki('${d.id}')">
+      return `<div class="driver-overview-item" onclick="window.openWiki('${d.id}')" title="${escHtml(d.title)} — currently ${d.frontmatter.current_signal || 'N/A'} · Click for full analysis">
         <div class="driver-overview-arrow ${signal}">${signalArrow(signal)}</div>
         <div class="driver-overview-name">${escHtml(d.title)}</div>
       </div>`;
@@ -66,7 +66,7 @@ export async function loadHome() {
       ? earningsCalendar.map(e => {
           const d = new Date(e.date + 'T00:00:00');
           const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-          return `<div class="earnings-cal-item" onclick="window.openCompanyByTicker('${e.ticker}')">
+          return `<div class="earnings-cal-item" onclick="window.openCompanyByTicker('${e.ticker}')" title="View ${escHtml(e.company)} (${e.ticker}) profile · ${e.quarter} earnings ${e.estimated ? '(estimated)' : ''} ${dateStr}">
             <span class="earnings-cal-company">${escHtml(e.company)} <span class="earnings-cal-ticker">${e.ticker}</span></span>
             <span class="earnings-cal-quarter">${e.quarter}</span>
             <span class="earnings-cal-date">${dateStr}</span>

@@ -4,7 +4,7 @@ export function articleCard(a) {
   const sourceLink = a.url
     ? `<a href="${a.url}" target="_blank" rel="noopener" class="article-source-link" onclick="event.stopPropagation()">${a.source} &rarr;</a>`
     : `<span>${a.source}</span>`;
-  return `<div class="article-item" onclick="window.openArticle('${a.id || a.slug}')">
+  return `<div class="article-item" onclick="window.openArticle('${a.id || a.slug}')" title="${escHtml(a.title)} · ${a.source || ''} ${a.date || ''} · Click to read full article">
     <div class="article-meta">
       <span class="date">${a.date}</span>
       <span class="cat">${a.category}</span>

@@ -58,7 +58,7 @@ export function renderFavoritesSection(containerId, allCompanies, segmentMap) {
   const collapsed = isCollapsed();
   el.innerHTML = `
     <div class="favorites-section">
-      <div class="favorites-header" onclick="window._toggleFavCollapse('${containerId}')">
+      <div class="favorites-header" onclick="window._toggleFavCollapse('${containerId}')" title="Click to ${collapsed ? 'expand' : 'collapse'} favorites">
         <span class="collapse-icon">${collapsed ? '▸' : '▾'}</span>
         <span>Favorites</span>
         <span class="badge">${favCompanies.length}</span>
@@ -67,8 +67,8 @@ export function renderFavoritesSection(containerId, allCompanies, segmentMap) {
         ${favCompanies.map(c => {
           const ticker = c.frontmatter.ticker || '';
           const seg = segmentMap[ticker] || '';
-          return `<div class="company-card" data-company-id="${c.id}" data-ticker="${ticker}" data-company-name="${escHtml(c.title)}" tabindex="0" onclick="window.openWiki('${c.id}')">
-            <button class="fav-star active" onclick="event.stopPropagation(); window.toggleFavorite('${c.id}')" aria-label="Remove from favorites">★</button>
+          return `<div class="company-card" data-company-id="${c.id}" data-ticker="${ticker}" data-company-name="${escHtml(c.title)}" tabindex="0" onclick="window.openWiki('${c.id}')" title="View ${escHtml(c.title)} profile, financials & recent articles">
+            <button class="fav-star active" onclick="event.stopPropagation(); window.toggleFavorite('${c.id}')" aria-label="Remove from favorites" title="Remove from favorites">★</button>
             <div class="ticker">${ticker}</div>
             <div class="name">${escHtml(c.title)}</div>
             ${seg ? '<div class="sector">' + escHtml(seg) + '</div>' : ''}

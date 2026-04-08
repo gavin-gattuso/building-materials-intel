@@ -29,7 +29,7 @@ export async function loadReportDownloads() {
     el.innerHTML = reports.map(r => {
       const sizeMB = (r.size / (1024 * 1024)).toFixed(1);
       const date = new Date(r.modified).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-      return `<a class="report-card" href="/reports/${encodeURIComponent(r.filename)}" target="_blank">
+      return `<a class="report-card" href="/reports/${encodeURIComponent(r.filename)}" target="_blank" title="Download ${escHtml(r.name)} (${sizeMB} MB PDF)">
         <div class="report-card-icon">PDF</div>
         <div class="report-card-info">
           <div class="report-card-title">${escHtml(r.name)}</div>
@@ -62,7 +62,7 @@ export async function loadReports() {
     document.getElementById('coverage-grid').innerHTML = sections.map(s => {
       const count = countMap[s.slug] || 0;
       const pct = Math.round((count / maxCount) * 100);
-      return `<div class="coverage-card" onclick="window.openReportSection('${s.slug}')">
+      return `<div class="coverage-card" onclick="window.openReportSection('${s.slug}')" title="${escHtml(s.title)} — ${count} tagged articles · Click to view">
         <div style="flex:1">
           <div class="coverage-title">${s.section_order}. ${escHtml(s.title)}</div>
           <div class="coverage-bar"><div class="coverage-bar-fill" style="width:${pct}%"></div></div>
@@ -89,7 +89,7 @@ export async function openReportSection(slug) {
           const a = t.articles;
           if (!a) return '';
           const score = Math.round((t.relevance_score || 0) * 100);
-          return `<div class="article-item" onclick="window.openArticle('${a.slug}')">
+          return `<div class="article-item" onclick="window.openArticle('${a.slug}')" title="${escHtml(a.title || '')} · ${a.source || ''} · ${score}% relevance · Click to read">
             <div class="article-meta">
               <span class="date">${a.date || ''}</span>
               <span class="cat">${a.category || ''}</span>

@@ -19,7 +19,7 @@ function renderSearchResults(data) {
     const companies = isArticle && r.companies?.length
       ? `<div class="search-result-tags">${r.companies.map(c => `<span class="search-result-tag">${escHtml(c)}</span>`).join('')}</div>`
       : '';
-    return `<div class="search-result-card" onclick="${onclick}">
+    return `<div class="search-result-card" onclick="${onclick}" title="${escHtml(r.title)} · ${r.score} pts · Click to view full ${isArticle ? 'article' : 'page'}">
       <div class="search-result-header">
         <span class="search-result-title">${escHtml(r.title)}</span>
         <span class="search-result-score">${r.score} pts</span>

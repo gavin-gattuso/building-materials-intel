@@ -123,8 +123,8 @@ function buildRatioChart(companies, metric) {
     const pendingCls = c.has_reported === false ? ' pending' : '';
     const pendingBadge = c.has_reported === false ? '<span class="ratio-pending-badge">PENDING</span>' : '';
 
-    return `<div class="ratio-row${pendingCls}" style="cursor:pointer" onclick="window.openCompanyByName('${escHtml(c.company.replace(/'/g, "\\'"))}')">
-      <span class="ratio-company" title="${escHtml(c.company)}">${escHtml(c.company)}${pendingBadge}</span>
+    return `<div class="ratio-row${pendingCls}" style="cursor:pointer" onclick="window.openCompanyByName('${escHtml(c.company.replace(/'/g, "\\'"))}')" title="View ${escHtml(c.company)} profile, financials & recent articles">
+      <span class="ratio-company">${escHtml(c.company)}${pendingBadge}</span>
       ${barHtml}
       <span class="ratio-value">${valStr}</span>
       ${deltaHtml}
@@ -195,7 +195,7 @@ export async function loadFinancialRatios() {
 
     const btnContainer = document.getElementById('ratios-metric-btns');
     btnContainer.innerHTML = RATIO_METRICS.map(m =>
-      `<button data-metric="${m.key}" class="${m.key === activeMetric ? 'active' : ''}">${m.label}</button>`
+      `<button data-metric="${m.key}" class="${m.key === activeMetric ? 'active' : ''}" title="Compare all companies by ${m.label}">${m.label}</button>`
     ).join('');
     btnContainer.querySelectorAll('button').forEach(btn => {
       btn.onclick = () => {
@@ -210,7 +210,7 @@ export async function loadFinancialRatios() {
 
     const keyEl = document.getElementById('ratios-key');
     keyEl.innerHTML = Object.entries(SEGMENT_COLORS)
-      .map(([seg, color]) => `<span class="key-item" data-segment="${escHtml(seg)}"><span class="key-swatch" style="background:${color}"></span>${SEGMENT_LABELS[seg] || seg}</span>`)
+      .map(([seg, color]) => `<span class="key-item" data-segment="${escHtml(seg)}" title="Click to filter by ${SEGMENT_LABELS[seg] || seg}"><span class="key-swatch" style="background:${color}"></span>${SEGMENT_LABELS[seg] || seg}</span>`)
       .join('');
     keyEl.querySelectorAll('.key-item').forEach(item => {
       item.onclick = () => {

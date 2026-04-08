@@ -8,8 +8,8 @@ export function renderCompanyCards(containerId, companies, segmentMap) {
     const ticker = c.frontmatter.ticker || '';
     const seg = segmentMap[ticker] || '';
     const fav = isFavorite(c.id);
-    return `<div class="company-card" data-company-id="${c.id}" data-ticker="${ticker}" data-company-name="${escHtml(c.title)}" tabindex="0" onclick="window.openWiki('${c.id}')">
-      <button class="fav-star${fav ? ' active' : ''}" onclick="event.stopPropagation(); window.toggleFavorite('${c.id}')" aria-label="Toggle favorite">${fav ? '★' : '☆'}</button>
+    return `<div class="company-card" data-company-id="${c.id}" data-ticker="${ticker}" data-company-name="${escHtml(c.title)}" tabindex="0" onclick="window.openWiki('${c.id}')" title="View ${escHtml(c.title)} profile, financials & recent articles">
+      <button class="fav-star${fav ? ' active' : ''}" onclick="event.stopPropagation(); window.toggleFavorite('${c.id}')" aria-label="Toggle favorite" title="${fav ? 'Remove from favorites' : 'Add to favorites'}">${fav ? '★' : '☆'}</button>
       <div class="ticker">${ticker}</div>
       <div class="name">${escHtml(c.title)}</div>
       ${seg ? '<div class="sector">' + escHtml(seg) + '</div>' : ''}
@@ -43,7 +43,7 @@ export async function loadCompanies() {
 export async function loadDrivers() {
   const drivers = await fetch('/api/wiki?type=market-driver').then(r => r.json());
   document.getElementById('drivers-grid').innerHTML = drivers.map(d => `
-    <div class="driver-card" onclick="window.openWiki('${d.id}')">
+    <div class="driver-card" onclick="window.openWiki('${d.id}')" title="${escHtml(d.title)} — ${d.frontmatter.current_signal || 'N/A'} · Click for full analysis">
       <div class="driver-signal ${(d.frontmatter.current_signal || '').toLowerCase()}">${d.frontmatter.current_signal || ''}</div>
       <div class="name">${escHtml(d.title)}</div>
     </div>
@@ -53,7 +53,7 @@ export async function loadDrivers() {
 export async function loadConcepts() {
   const concepts = await fetch('/api/wiki?type=concept').then(r => r.json());
   document.getElementById('concepts-list').innerHTML = concepts.map(c => `
-    <div class="article-item" onclick="window.openWiki('${c.id}')">
+    <div class="article-item" onclick="window.openWiki('${c.id}')" title="Read full analysis: ${escHtml(c.title)}">
       <div class="article-title">${escHtml(c.title)}</div>
       ${c.frontmatter.summary ? '<div class="article-summary">' + escHtml(c.frontmatter.summary) + '</div>' : ''}
     </div>
@@ -143,7 +143,7 @@ async function openCompanyDetail(page) {
   let articlesHtml = '';
   if (articles.length) {
     const items = articles.map(a => `
-      <div class="article-item" onclick="window.openArticle('${a.id || a.slug}')">
+      <div class="article-item" onclick="window.openArticle('${a.id || a.slug}')" title="${escHtml(a.title)} · ${a.source} · Click to read full article">
         <div class="article-meta">
           <span class="date">${a.date}</span>
           <span class="cat">${a.category}</span>

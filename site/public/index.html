@@ -468,17 +468,17 @@
 <!-- Header -->
 <div class="header">
   <div class="header-brand">
-    <div class="header-logo"><img src="/av-logo.png" alt="Applied Value"></div>
+    <div class="header-logo" title="Go to home dashboard"><img src="/av-logo.png" alt="Applied Value"></div>
     <div class="header-divider"></div>
-    <div class="header-title">Building Materials Intelligence</div>
+    <div class="header-title" title="Go to home dashboard">Building Materials Intelligence</div>
   </div>
   <div class="header-nav">
-    <a class="active" data-page="home">Home</a>
-    <a data-page="articles">Articles</a>
-    <a data-page="companies">Company Financials</a>
-    <a data-page="drivers-concepts">Drivers &amp; Concepts</a>
-    <a data-page="reports">Reports</a>
-    <a data-page="chat">AI Chat</a>
+    <a class="active" data-page="home" title="Dashboard with weekly digest, market signals & favorites">Home</a>
+    <a data-page="articles" title="Search and filter 350+ tracked articles">Articles</a>
+    <a data-page="companies" title="Financial ratios for all 39 tracked companies">Company Financials</a>
+    <a data-page="drivers-concepts" title="7 market health drivers & analytical frameworks">Drivers &amp; Concepts</a>
+    <a data-page="reports" title="Published reports & custom report generator">Reports</a>
+    <a data-page="chat" title="Ask questions across the knowledge base">AI Chat</a>
   </div>
 </div>
 
@@ -540,8 +540,8 @@
       <p>Key indicators and analytical frameworks for the building materials industry</p>
     </div>
     <div class="dc-tabs">
-      <button class="dc-tab active" data-tab="drivers">Market Drivers</button>
-      <button class="dc-tab" data-tab="concepts">Key Concepts</button>
+      <button class="dc-tab active" data-tab="drivers" title="7 market health indicators: rates, labor, costs, demand, infrastructure, credit, GDP">Market Drivers</button>
+      <button class="dc-tab" data-tab="concepts" title="Analytical frameworks and industry concepts">Key Concepts</button>
     </div>
     <div class="dc-panel" id="dc-drivers">
       <div class="card-grid" id="drivers-grid"></div>
@@ -564,7 +564,7 @@
       <div class="rg-row">
         <div><label>Start Date</label><input type="date" id="rg-start"></div>
         <div><label>End Date</label><input type="date" id="rg-end"></div>
-        <button class="rg-btn" id="rg-btn" onclick="window.generateReport()">Generate Report</button>
+        <button class="rg-btn" id="rg-btn" onclick="window.generateReport()" title="Generate an AI-powered Word document covering all sections and market drivers for the selected date range">Generate Report</button>
       </div>
       <div class="rg-progress" id="rg-progress" style="display:none"></div>
     </div>
@@ -578,7 +578,7 @@
       <div class="loading">Loading report sections...</div>
     </div>
     <div id="report-section-detail" style="display:none">
-      <div class="detail-back" onclick="document.getElementById('report-section-detail').style.display='none';document.getElementById('coverage-grid').style.display=''">&larr; Back to sections</div>
+      <div class="detail-back" onclick="document.getElementById('report-section-detail').style.display='none';document.getElementById('coverage-grid').style.display=''" title="Return to report sections overview">&larr; Back to sections</div>
       <h3 id="report-section-title" style="font-family:var(--font-heading);font-size:20px;margin:16px 0 8px"></h3>
       <p id="report-section-desc" style="color:var(--text-muted);margin-bottom:20px;font-size:14px"></p>
       <div class="article-list" id="report-section-articles"></div>
@@ -593,18 +593,18 @@
           <h2>Ask the Knowledge Base</h2>
           <p id="chat-mode-desc">Search across articles, company profiles, and market analysis. Results include source citations and relevant excerpts.</p>
           <div class="suggestion-chips">
-            <div class="suggestion-chip" onclick="askSuggestion(this)">What are current steel tariff rates and their impact?</div>
-            <div class="suggestion-chip" onclick="askSuggestion(this)">Summarize CRH's M&A strategy and recent acquisitions</div>
-            <div class="suggestion-chip" onclick="askSuggestion(this)">What is the current state of mortgage rates?</div>
-            <div class="suggestion-chip" onclick="askSuggestion(this)">Which companies are most exposed to tariff risk?</div>
-            <div class="suggestion-chip" onclick="askSuggestion(this)">What is the construction labor shortage outlook?</div>
-            <div class="suggestion-chip" onclick="askSuggestion(this)">Explain the QXO-Kodiak acquisition</div>
+            <div class="suggestion-chip" onclick="askSuggestion(this)" title="Search for tariff analysis and trade policy articles">What are current steel tariff rates and their impact?</div>
+            <div class="suggestion-chip" onclick="askSuggestion(this)" title="Search for CRH acquisition and corporate strategy coverage">Summarize CRH's M&A strategy and recent acquisitions</div>
+            <div class="suggestion-chip" onclick="askSuggestion(this)" title="Search for interest rate and mortgage market articles">What is the current state of mortgage rates?</div>
+            <div class="suggestion-chip" onclick="askSuggestion(this)" title="Search for tariff exposure analysis across tracked companies">Which companies are most exposed to tariff risk?</div>
+            <div class="suggestion-chip" onclick="askSuggestion(this)" title="Search for labor market and workforce shortage articles">What is the construction labor shortage outlook?</div>
+            <div class="suggestion-chip" onclick="askSuggestion(this)" title="Search for QXO-Kodiak M&A coverage and deal analysis">Explain the QXO-Kodiak acquisition</div>
           </div>
         </div>
       </div>
       <div class="chat-input-row">
         <textarea class="chat-input" id="chat-input" rows="1" placeholder="Ask a question about building materials..."></textarea>
-        <button class="chat-send" id="chat-send" onclick="sendChat()">Send</button>
+        <button class="chat-send" id="chat-send" onclick="sendChat()" title="Send your question to the knowledge base">Send</button>
       </div>
     </div>
   </div>
@@ -616,7 +616,7 @@
 </div>
 
 <!-- Feedback -->
-<button class="feedback-btn" onclick="document.getElementById('feedback-overlay').classList.add('open')">Send Feedback</button>
+<button class="feedback-btn" onclick="document.getElementById('feedback-overlay').classList.add('open')" title="Share suggestions, bugs, or feature requests with the Applied Value team">Send Feedback</button>
 <div class="feedback-overlay" id="feedback-overlay" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="feedback-modal">
     <h3>Send Feedback</h3>
@@ -633,7 +633,7 @@
 <!-- Detail overlay -->
 <div class="detail-overlay" id="detail-overlay">
   <div class="detail-inner">
-    <div class="detail-back" onclick="closeDetail()">&larr; Back</div>
+    <div class="detail-back" onclick="closeDetail()" title="Return to previous view">&larr; Back</div>
     <div class="detail-header" id="detail-header"></div>
     <div class="detail-content" id="detail-content"></div>
   </div>
