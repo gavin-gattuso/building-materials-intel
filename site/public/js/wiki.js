@@ -172,6 +172,9 @@ export async function openCompanyByTicker(ticker) {
 
 export async function openCompanyByName(name) {
   const companies = await fetch('/api/wiki?type=company').then(r => r.json());
-  const match = companies.find(c => c.title === name);
+  const n = name.toLowerCase();
+  const match = companies.find(c => c.title === name)
+    || companies.find(c => c.title.toLowerCase().startsWith(n))
+    || companies.find(c => c.title.toLowerCase().includes(n));
   if (match) openWiki(match.id);
 }
