@@ -36,7 +36,8 @@ export async function loadHome() {
     fetch('/api/wiki?type=market-driver').then(r => r.json()).catch(() => []),
     fetch('/api/wiki?type=concept').then(r => r.json()).catch(() => []),
     fetch('/financial-ratios.json').then(r => { if (!r.ok) throw new Error(); return r.json(); })
-      .catch(() => fetch('/api/financial-ratios').then(r => r.json()).catch(() => [])),
+      .then(d => d && d.length ? d : fetch('/api/financial-ratios').then(r => r.json()))
+      .catch(() => []),
     fetch('/api/articles?limit=200').then(r => r.json()).catch(() => []),
     fetch('/earnings-calendar.json').then(r => r.json()).then(all => {
       const today = new Date().toISOString().slice(0, 10);

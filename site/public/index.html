@@ -758,7 +758,8 @@ initChat();
 initReportGenerator();
 
 // Init company hover popup with financial data
-fetch('/financial-ratios.json').then(r => r.ok ? r.json() : fetch('/api/financial-ratios').then(r2 => r2.json()))
+fetch('/financial-ratios.json').then(r => r.ok ? r.json() : Promise.reject())
+  .then(d => d && d.length ? d : fetch('/api/financial-ratios').then(r => r.json()))
   .then(data => initCompanyPopup(data))
   .catch(() => initCompanyPopup([]));
 

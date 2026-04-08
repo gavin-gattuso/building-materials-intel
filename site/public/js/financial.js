@@ -175,6 +175,7 @@ export async function loadFinancialRatios() {
     let data;
     try {
       data = await fetch('/financial-ratios.json').then(r => { if (!r.ok) throw new Error(); return r.json(); });
+      if (!data || data.length === 0) throw new Error('empty');
     } catch {
       data = await fetch('/api/financial-ratios').then(r => r.json());
     }
