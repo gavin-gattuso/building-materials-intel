@@ -80,17 +80,8 @@ export async function loadDashboard() {
         }).join('')
       : '<div class="weekly-empty">No upcoming earnings dates</div>';
   }
-
-  // Earnings & Financials articles
-  const earningsArticles = allArticles.filter(a => a.category === 'Earnings' || a.category === 'Earnings & Financials');
-  const earningsEl = document.getElementById('earnings-articles');
-  if (earningsEl) {
-    earningsEl.innerHTML = earningsArticles.length
-      ? earningsArticles.slice(0, 5).map(a => articleCard(a)).join('')
-      : '<div class="weekly-empty">No earnings articles yet</div>';
-  }
   const earningsBadge = document.getElementById('earnings-count-badge');
-  if (earningsBadge) earningsBadge.textContent = earningsArticles.length;
+  if (earningsBadge) earningsBadge.textContent = earningsCalendar.length;
 
   // Latest articles
   document.getElementById('article-count-badge').textContent = stats.totalArticles;
