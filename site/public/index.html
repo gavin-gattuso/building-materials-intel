@@ -129,6 +129,9 @@
   .article-meta .cat { background: var(--bg); padding: 2px 8px; border-radius: 4px; font-size: 12px; }
   .article-title { font-size: 15px; font-weight: 500; color: var(--text); }
   .article-companies { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+  .article-summary { font-size: 13px; color: var(--text-muted); margin-top: 6px; line-height: 1.5; }
+  .article-source-link { color: var(--primary); text-decoration: none; font-weight: 500; }
+  .article-source-link:hover { text-decoration: underline; }
 
   /* Company grid */
   .company-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
@@ -446,7 +449,7 @@
   <div class="page" id="page-companies">
     <div class="hero">
       <h2>Company Profiles</h2>
-      <p>35 tracked companies across 8 segments</p>
+      <p>39 tracked companies across 8 segments</p>
     </div>
     <div class="company-grid" id="company-grid"></div>
   </div>
@@ -473,7 +476,7 @@
   <div class="page" id="page-ratios">
     <div class="hero">
       <h2>Financial Ratios</h2>
-      <p>Key financial metrics for 35 building materials and building products companies</p>
+      <p>Key financial metrics for 39 building materials and building products companies</p>
     </div>
     <div class="ratios-period-select">
       <select id="ratios-period"></select>

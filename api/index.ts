@@ -329,7 +329,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (category) results = results.filter((a: any) => a.category?.toLowerCase().includes(category.toLowerCase()));
       if (company) results = results.filter((a: any) => a.companies?.some((c: string) => c.toLowerCase().includes(company.toLowerCase())));
 
-      return res.json(results.slice(0, limit).map(({ content, ...rest }: any) => rest));
+      return res.json(results.slice(0, limit).map(({ content, ...rest }: any) => ({
+        ...rest,
+        summary: content ? content.slice(0, 250).replace(/\s+\S*$/, '') + '...' : '',
+      })));
     }
 
     // /api/article/:slug
