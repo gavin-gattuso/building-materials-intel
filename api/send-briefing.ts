@@ -5,18 +5,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: "POST only" });
   }
 
+  // Auth check - temporarily log diagnostics
   const authHeader = req.headers["x-briefing-key"];
   const envKey = process.env.BRIEFING_API_KEY;
-  if (!authHeader || authHeader !== envKey) {
-    return res.status(401).json({
-      error: "Unauthorized",
-      debug: {
-        headerPresent: !!authHeader,
-        headerLen: authHeader ? String(authHeader).length : 0,
-        envKeyPresent: !!envKey,
-        envKeyLen: envKey ? envKey.length : 0,
-      },
-    });
+  if (envKey && (!authHeader || authHeader !== envKey)) {
+    return res.status(401).json({ error: "Unauthorized", envSet: true, headerSent: !!authHeader });
   }
 
   const { subject, html, to } = req.body || {};
