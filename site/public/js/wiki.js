@@ -17,7 +17,7 @@ export function renderCompanyCards(containerId, companies, segmentMap) {
   }).join('');
 }
 
-// Cache for favorites re-render
+// Cache for favorites re-render and prev/next navigation
 let _companiesCache = [];
 let _segmentMapCache = {};
 
@@ -75,6 +75,15 @@ export async function openArticle(id) {
   document.getElementById('detail-overlay').classList.add('open');
 }
 
+// Company navigation context
+let _navCompanies = [];
+
+async function ensureCompanyList() {
+  if (_navCompanies.length) return _navCompanies;
+  _navCompanies = await fetch('/api/wiki?type=company').then(r => r.json()).catch(() => []);
+  return _navCompanies;
+}
+
 export async function openWiki(id) {
   const page = await fetch('/api/wiki/' + id).then(r => r.json());
 
@@ -92,8 +101,19 @@ async function openCompanyDetail(page) {
   const sector = page.frontmatter?.sector || '';
   const subsector = page.frontmatter?.subsector || '';
 
+  // Build prev/next nav
+  const companies = await ensureCompanyList();
+  const idx = companies.findIndex(c => c.id === page.id);
+  const prev = idx > 0 ? companies[idx - 1] : null;
+  const next = idx < companies.length - 1 ? companies[idx + 1] : null;
+  const navHtml = (prev || next) ? `<div class="detail-nav-arrows">
+    ${prev ? `<button onclick="window.openWiki('${prev.id}')" title="Previous: ${escHtml(prev.title)}">&larr; ${escHtml(prev.title)}</button>` : '<span></span>'}
+    ${next ? `<button onclick="window.openWiki('${next.id}')" title="Next: ${escHtml(next.title)}">${escHtml(next.title)} &rarr;</button>` : '<span></span>'}
+  </div>` : '';
+
   // Show overlay immediately with loading state
   document.getElementById('detail-header').innerHTML = `
+    ${navHtml}
     <h2>${escHtml(page.title)}</h2>
     <div class="detail-meta-grid">
       ${ticker ? '<span class="detail-ticker">' + escHtml(ticker) + '</span>' : ''}
@@ -103,6 +123,7 @@ async function openCompanyDetail(page) {
   `;
   document.getElementById('detail-content').innerHTML = '<div class="loading">Loading company data...</div>';
   document.getElementById('detail-overlay').classList.add('open');
+  document.getElementById('detail-overlay').scrollTop = 0;
 
   // Fetch financial data + articles in parallel
   const [ratios, articles] = await Promise.all([
@@ -139,6 +160,21 @@ async function openCompanyDetail(page) {
     </div>`;
   }
 
+  // Build section nav from markdown headings
+  const headings = (page.content || '').match(/^## .+$/gm) || [];
+  const sectionNav = headings.length > 1
+    ? `<div class="detail-section-nav">${headings.map((h, i) => {
+        const text = h.replace(/^## /, '');
+        return `<a class="detail-section-link" onclick="document.getElementById('comp-section-${i}').scrollIntoView({behavior:'smooth',block:'start'})">${escHtml(text)}</a>`;
+      }).join('')}</div>`
+    : '';
+
+  // Render profile with section IDs injected
+  let sectionIdx = 0;
+  const profileHtml = renderMd(page.content).replace(/<h2>/g, () => {
+    return `<h2 id="comp-section-${sectionIdx++}">`;
+  });
+
   // Build articles list
   let articlesHtml = '';
   if (articles.length) {
@@ -160,7 +196,8 @@ async function openCompanyDetail(page) {
 
   document.getElementById('detail-content').innerHTML =
     financialHtml +
-    `<div class="company-detail-section"><h3>Company Profile</h3>${renderMd(page.content)}</div>` +
+    sectionNav +
+    `<div class="company-detail-section"><h3>Company Profile</h3>${profileHtml}</div>` +
     articlesHtml;
 }
 

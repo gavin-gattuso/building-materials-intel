@@ -23,3 +23,16 @@ export const SEGMENT_LABELS = {
   'Kitchen and Bath': 'Kitchen & Bath',
   'HVAC-R, Fire and Security': 'HVAC-R & Security',
 };
+
+export const SEGMENT_CATEGORY = {
+  'Cement, Aggregates and Ready-mix Concrete': 'materials',
+  'Glass': 'materials',
+  'Lumber and Wood': 'materials',
+  'Steel': 'materials',
+  'Bricks and Masonry': 'materials',
+  'Building Envelope, Roofing, Siding, Flooring and Insulation': 'products',
+  'Doors and Windows': 'products',
+  'Piping': 'products',
+  'Kitchen and Bath': 'products',
+  'HVAC-R, Fire and Security': 'products',
+};

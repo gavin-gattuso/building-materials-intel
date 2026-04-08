@@ -1,5 +1,5 @@
 import { escHtml } from './utils.js';
-import { SEGMENT_COLORS, SEGMENT_LABELS } from './segments.js';
+import { SEGMENT_COLORS, SEGMENT_LABELS, SEGMENT_CATEGORY } from './segments.js';
 
 const RATIO_METRICS = [
   { key: 'revenue_ltm', label: 'Revenue (LTM BUSD)', unit: 'BUSD', hasDelta: false },
@@ -178,7 +178,15 @@ export async function loadFinancialRatios() {
       data = await fetch('/financial-ratios.json').then(r => { if (!r.ok) throw new Error(); return r.json(); });
       if (!data || data.length === 0) throw new Error('empty');
     } catch {
-      data = await fetch('/api/financial-ratios').then(r => r.json());
+      data = await fetch('/api/financial-ratios').then(r => r.json()).catch(() => []);
+      if (!data || data.length === 0) {
+        await new Promise(r => setTimeout(r, 1500));
+        data = await fetch('/api/financial-ratios').then(r => r.json()).catch(() => []);
+      }
+    }
+    if (!data || data.length === 0) {
+      document.getElementById('ratios-panels').innerHTML = '<div class="loading">Financial data is temporarily unavailable. Please refresh in a moment.</div>';
+      return;
     }
     ratiosData = data;
 
@@ -210,9 +218,13 @@ export async function loadFinancialRatios() {
     });
 
     const keyEl = document.getElementById('ratios-key');
-    keyEl.innerHTML = Object.entries(SEGMENT_COLORS)
-      .map(([seg, color]) => `<span class="key-item" data-segment="${escHtml(seg)}" title="Click to filter by ${SEGMENT_LABELS[seg] || seg}"><span class="key-swatch" style="background:${color}"></span>${SEGMENT_LABELS[seg] || seg}</span>`)
-      .join('');
+    const renderKeyItem = ([seg, color]) => `<span class="key-item" data-segment="${escHtml(seg)}" title="Click to filter by ${SEGMENT_LABELS[seg] || seg}"><span class="key-swatch" style="background:${color}"></span>${SEGMENT_LABELS[seg] || seg}</span>`;
+    const materialsSegs = Object.entries(SEGMENT_COLORS).filter(([seg]) => SEGMENT_CATEGORY[seg] === 'materials');
+    const productsSegs = Object.entries(SEGMENT_COLORS).filter(([seg]) => SEGMENT_CATEGORY[seg] === 'products');
+    keyEl.innerHTML = `
+      <div class="key-row"><span class="key-label">Materials</span>${materialsSegs.map(renderKeyItem).join('')}</div>
+      <div class="key-row"><span class="key-label">Products</span>${productsSegs.map(renderKeyItem).join('')}</div>
+    `;
     keyEl.querySelectorAll('.key-item').forEach(item => {
       item.onclick = () => {
         const seg = item.dataset.segment;

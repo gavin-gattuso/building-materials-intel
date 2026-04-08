@@ -80,7 +80,7 @@ try {
 
 // --- 3. Financial ratios from Supabase ---
 const SB_URL = process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co";
-const SB_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+const SB_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || "";
 if (SB_KEY) {
   try {
     const res = await fetch(
