@@ -200,7 +200,7 @@
   .section-source { font-size: 11px; color: var(--text-muted); font-style: italic; margin-top: -16px; margin-bottom: 16px; }
 
   /* Chat */
-  .chat-container { display: flex; flex-direction: column; height: calc(100vh - 56px - 64px); }
+  /* Chat (widget) */
   .chat-messages { flex: 1; overflow-y: auto; padding-bottom: 16px; }
   .chat-msg { max-width: 85%; margin-bottom: 16px; }
   .chat-msg.user { margin-left: auto; }
@@ -330,8 +330,31 @@
   .dc-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
 
   /* Feedback */
-  .feedback-btn { position: fixed; bottom: 24px; right: 24px; background: var(--primary); color: #fff; border: none; padding: 10px 18px; border-radius: 24px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,0.2); z-index: 90; transition: transform 0.15s, box-shadow 0.15s; }
-  .feedback-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.25); }
+  .feedback-btn { position: fixed; bottom: 24px; left: 24px; background: var(--surface); color: var(--text-secondary); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08); z-index: 90; transition: all 0.15s; }
+  .feedback-btn:hover { color: var(--primary); border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+
+  /* Chat FAB */
+  .chat-fab { position: fixed; bottom: 24px; right: 24px; z-index: 300; width: 52px; height: 52px; border-radius: 50%; background: var(--primary); color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 4px 12px rgba(22,102,75,0.3); transition: transform 0.2s, box-shadow 0.2s; }
+  .chat-fab:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(22,102,75,0.4); }
+  .chat-fab.hidden { display: none; }
+
+  /* Chat Widget */
+  .chat-widget { display: none; position: fixed; bottom: 88px; right: 24px; z-index: 300; width: 400px; height: 520px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); flex-direction: column; overflow: hidden; }
+  .chat-widget.open { display: flex; }
+  .chat-widget-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--border); font-family: var(--font-heading); font-size: 15px; font-weight: 500; color: var(--text); flex-shrink: 0; }
+  .chat-widget-close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-muted); padding: 0 4px; line-height: 1; }
+  .chat-widget-close:hover { color: var(--text); }
+  .chat-widget-body { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+  .chat-widget-body .chat-messages { flex: 1; overflow-y: auto; padding: 16px; }
+  .chat-widget-body .chat-input-row { padding: 12px 16px; border-top: 1px solid var(--border); flex-shrink: 0; }
+  .chat-widget-body .chat-input { font-size: 13px; padding: 10px 12px; }
+  .chat-widget-body .chat-send { padding: 10px 20px; font-size: 12px; }
+  .chat-widget-body .suggestion-chips { justify-content: flex-start; gap: 6px; }
+  .chat-widget-body .suggestion-chip { font-size: 11px; padding: 6px 12px; }
+  .chat-widget-body .chat-welcome { padding: 12px 0; text-align: left; }
+  .chat-widget-body .chat-welcome h2 { display: none; }
+  .chat-widget-body .chat-msg { max-width: 95%; }
+  .chat-widget-body .chat-bubble { font-size: 13px; padding: 10px 14px; line-height: 1.6; }
   .feedback-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: center; justify-content: center; }
   .feedback-overlay.open { display: flex; }
   .feedback-modal { background: var(--surface); border-radius: 8px; padding: 28px; width: 90%; max-width: 440px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
@@ -393,8 +416,12 @@
   .ratios-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
   .ratios-panel h3 { font-family: var(--font-heading); font-size: 16px; color: var(--primary-dark); margin-bottom: 4px; }
   .ratios-panel .panel-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
-  .ratio-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
-  .ratio-company { width: 140px; font-size: 12px; font-weight: 500; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ratio-row { display: flex; align-items: center; gap: 8px; padding: 6px 4px; border-bottom: 1px solid #f0f0f0; border-radius: 4px; transition: background 0.15s; }
+  .ratio-row:hover { background: var(--bg-alt); }
+  .ratio-row:hover .ratio-company { color: var(--primary); }
+  .ratio-row .ratio-arrow { opacity: 0; width: 20px; text-align: center; font-size: 13px; color: var(--primary); transition: opacity 0.15s; flex-shrink: 0; }
+  .ratio-row:hover .ratio-arrow { opacity: 1; }
+  .ratio-company { width: 140px; font-size: 12px; font-weight: 500; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 0.15s; }
   .ratio-bar-wrap { flex: 1; height: 20px; background: #f5f5f5; border-radius: 3px; position: relative; overflow: visible; display: flex; align-items: center; }
   .ratio-bar { height: 100%; border-radius: 3px; min-width: 2px; transition: width 0.4s ease; }
   .ratio-bar-negative { position: absolute; right: 0; height: 100%; border-radius: 3px; }
@@ -477,7 +504,6 @@
     <a data-page="companies" title="Financial ratios for all 39 tracked companies">Company Financials</a>
     <a data-page="drivers-concepts" title="7 market health drivers & analytical frameworks">Drivers &amp; Concepts</a>
     <a data-page="reports" title="Published reports & custom report generator">Reports</a>
-    <a data-page="chat" title="Ask questions across the knowledge base">AI Chat</a>
     <a data-page="articles" title="Search and filter 350+ tracked articles">Articles</a>
   </div>
 </div>
@@ -585,30 +611,6 @@
     </div>
   </div>
 
-  <!-- Chat -->
-  <div class="page" id="page-chat">
-    <div class="chat-container">
-      <div class="chat-messages" id="chat-messages">
-        <div class="chat-welcome">
-          <h2>Ask the Knowledge Base</h2>
-          <p id="chat-mode-desc">Search across articles, company profiles, and market analysis. Results include source citations and relevant excerpts.</p>
-          <div class="suggestion-chips">
-            <div class="suggestion-chip" onclick="askSuggestion(this)" title="Search for tariff analysis and trade policy articles">What are current steel tariff rates and their impact?</div>
-            <div class="suggestion-chip" onclick="askSuggestion(this)" title="Search for CRH acquisition and corporate strategy coverage">Summarize CRH's M&A strategy and recent acquisitions</div>
-            <div class="suggestion-chip" onclick="askSuggestion(this)" title="Search for interest rate and mortgage market articles">What is the current state of mortgage rates?</div>
-            <div class="suggestion-chip" onclick="askSuggestion(this)" title="Search for tariff exposure analysis across tracked companies">Which companies are most exposed to tariff risk?</div>
-            <div class="suggestion-chip" onclick="askSuggestion(this)" title="Search for labor market and workforce shortage articles">What is the construction labor shortage outlook?</div>
-            <div class="suggestion-chip" onclick="askSuggestion(this)" title="Search for QXO-Kodiak M&A coverage and deal analysis">Explain the QXO-Kodiak acquisition</div>
-          </div>
-        </div>
-      </div>
-      <div class="chat-input-row">
-        <textarea class="chat-input" id="chat-input" rows="1" placeholder="Ask a question about building materials..."></textarea>
-        <button class="chat-send" id="chat-send" onclick="sendChat()" title="Send your question to the knowledge base">Send</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Footer -->
   <div class="footer">
     Compiled by Jarvis AI Newsletter Assistant &middot; <a href="#">Applied Value LLC</a>
@@ -626,6 +628,33 @@
     <div class="feedback-modal-actions">
       <button onclick="document.getElementById('feedback-overlay').classList.remove('open')">Cancel</button>
       <button class="primary" id="feedback-submit" onclick="submitFeedback()">Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Chat Widget -->
+<button class="chat-fab" id="chat-fab" title="Ask the knowledge base">&#128172;</button>
+<div class="chat-widget" id="chat-widget">
+  <div class="chat-widget-header">
+    <span>Ask the Knowledge Base</span>
+    <button class="chat-widget-close" id="chat-widget-close" title="Close chat">&times;</button>
+  </div>
+  <div class="chat-widget-body">
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-welcome">
+        <p id="chat-mode-desc">Search across articles, company profiles, and market analysis.</p>
+        <div class="suggestion-chips">
+          <div class="suggestion-chip" onclick="askSuggestion(this)" title="Search for tariff analysis and trade policy articles">Steel tariff impact?</div>
+          <div class="suggestion-chip" onclick="askSuggestion(this)" title="Search for CRH acquisition and corporate strategy coverage">CRH M&A strategy</div>
+          <div class="suggestion-chip" onclick="askSuggestion(this)" title="Search for interest rate and mortgage market articles">Mortgage rate outlook</div>
+          <div class="suggestion-chip" onclick="askSuggestion(this)" title="Search for tariff exposure analysis across tracked companies">Tariff exposure by company</div>
+          <div class="suggestion-chip" onclick="askSuggestion(this)" title="Search for labor market and workforce shortage articles">Labor shortage outlook</div>
+        </div>
+      </div>
+    </div>
+    <div class="chat-input-row">
+      <textarea class="chat-input" id="chat-input" rows="1" placeholder="Ask a question..."></textarea>
+      <button class="chat-send" id="chat-send" onclick="sendChat()" title="Send your question to the knowledge base">Send</button>
     </div>
   </div>
 </div>
@@ -670,9 +699,27 @@ document.querySelectorAll('.header-nav a').forEach(item => {
   item.addEventListener('click', () => navigateTo(item.dataset.page));
 });
 
-// Escape key closes detail overlay
+// Escape key closes detail overlay or chat widget
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeDetail();
+  if (e.key === 'Escape') {
+    if (document.getElementById('chat-widget').classList.contains('open')) {
+      document.getElementById('chat-widget').classList.remove('open');
+      document.getElementById('chat-fab').classList.remove('hidden');
+    } else {
+      closeDetail();
+    }
+  }
+});
+
+// Chat widget toggle
+document.getElementById('chat-fab').addEventListener('click', () => {
+  document.getElementById('chat-widget').classList.add('open');
+  document.getElementById('chat-fab').classList.add('hidden');
+  document.getElementById('chat-input').focus();
+});
+document.getElementById('chat-widget-close').addEventListener('click', () => {
+  document.getElementById('chat-widget').classList.remove('open');
+  document.getElementById('chat-fab').classList.remove('hidden');
 });
 
 // Article search with debouncing

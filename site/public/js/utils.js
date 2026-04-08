@@ -37,11 +37,18 @@ export function navigateTo(page) {
   if (page === 'drivers' || page === 'concepts') page = 'drivers-concepts';
   if (page === 'dashboard' || page === 'landing') page = 'home';
   if (page === 'ratios') page = 'companies';
+  if (page === 'chat') {
+    document.getElementById('chat-widget')?.classList.add('open');
+    document.getElementById('chat-fab')?.classList.add('hidden');
+    document.getElementById('chat-input')?.focus();
+    return;
+  }
   document.querySelectorAll('.header-nav a').forEach(n => {
     n.classList.toggle('active', n.dataset.page === page);
   });
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
+  const target = document.getElementById('page-' + page);
+  if (target) target.classList.add('active');
   closeDetail();
 }
 

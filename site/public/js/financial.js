@@ -128,6 +128,7 @@ function buildRatioChart(companies, metric) {
       ${barHtml}
       <span class="ratio-value">${valStr}</span>
       ${deltaHtml}
+      <span class="ratio-arrow">\u2192</span>
     </div>${flagHtml}`;
   }).join('');
 
