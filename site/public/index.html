@@ -240,6 +240,19 @@
   .coverage-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 8px; overflow: hidden; }
   .coverage-bar-fill { height: 100%; background: var(--primary); border-radius: 2px; transition: width 0.5s; }
 
+  /* Market driver cards */
+  .driver-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 20px 24px; cursor: pointer; transition: all 0.2s; }
+  .driver-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); border-color: var(--primary); }
+  .driver-card .name { font-family: var(--font-heading); font-size: 16px; font-weight: 400; margin-top: 8px; color: var(--text); }
+  .driver-signal { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 10px; border-radius: 12px; display: inline-block; }
+  .driver-signal.up, .driver-signal.worsening { background: #fde8e8; color: var(--danger-text); }
+  .driver-signal.down, .driver-signal.easing, .driver-signal.improving { background: #e8f5e9; color: var(--success-text); }
+  .driver-signal.expanding { background: #e8f5e9; color: var(--success-text); }
+  .driver-signal.tightening, .driver-signal.constrained { background: #fff3e0; color: var(--warning-text); }
+  .driver-signal.weakening { background: #fde8e8; color: var(--danger-text); }
+  .driver-signal.stable { background: #e3f2fd; color: var(--info-text); }
+  .driver-signal.mixed, .driver-signal.cautious { background: #fff3e0; color: var(--warning-text); }
+
   /* Arrow-only market driver signals */
   .driver-arrow { font-size: 18px; cursor: pointer; padding: 2px 6px; border-radius: 4px; transition: background 0.15s; }
   .driver-arrow:hover { background: var(--bg); }
