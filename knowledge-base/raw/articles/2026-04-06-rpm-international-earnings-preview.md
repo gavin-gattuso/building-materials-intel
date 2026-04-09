@@ -1,5 +1,5 @@
 ---
-date: 2026-04-05
+date: 2026-04-06
 source: Daily Political
 url: https://www.dailypolitical.com/2026/04/05/rpm-international-rpm-projected-to-post-quarterly-earnings-on-wednesday.html
 category: Earnings & Financials

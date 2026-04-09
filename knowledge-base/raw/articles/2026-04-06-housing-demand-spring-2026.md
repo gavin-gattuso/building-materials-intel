@@ -1,5 +1,5 @@
 ---
-date: 2026-04-01
+date: 2026-04-06
 source: HousingWire / Builder Magazine / NAHB
 url: https://www.housingwire.com/articles/spring-2026-housing-market-hesitation-homebuyer-confidence/
 category: Housing & Demand

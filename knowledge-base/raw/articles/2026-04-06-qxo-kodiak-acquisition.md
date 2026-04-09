@@ -1,5 +1,5 @@
 ---
-date: 2026-04-01
+date: 2026-04-06
 source: QXO Investor Relations
 url: https://investors.qxo.com/news/news-details/2026/QXO-Completes-Acquisition-of-Kodiak-Building-Partners/default.aspx
 category: M&A and Corporate Strategy
