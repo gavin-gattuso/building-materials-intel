@@ -1,5 +1,5 @@
 /**
- * Single source of truth for the 35 tracked companies.
+ * Single source of truth for tracked companies.
  * Import from here instead of duplicating company lists across scripts.
  */
 
@@ -38,8 +38,13 @@ export const TRACKED_COMPANIES: TrackedCompany[] = [
   // Building Products & Distribution
   { company: "Builders FirstSource", ticker: "BLDR", segment: "Building Envelope, Roofing, Siding, Flooring and Insulation", category: "products", country: "US" },
   { company: "Carlisle Companies", ticker: "CSL", segment: "Building Envelope, Roofing, Siding, Flooring and Insulation", category: "products", country: "US" },
+  { company: "Installed Building Products", ticker: "IBP", segment: "Building Envelope, Roofing, Siding, Flooring and Insulation", category: "products", country: "US" },
   { company: "Kingspan", ticker: "KRX.IR", segment: "Building Envelope, Roofing, Siding, Flooring and Insulation", category: "products", country: "IE" },
   { company: "QXO", ticker: "QXO", segment: "Building Envelope, Roofing, Siding, Flooring and Insulation", category: "products", country: "US" },
+  { company: "RPM International", ticker: "RPM", segment: "Building Envelope, Roofing, Siding, Flooring and Insulation", category: "products", country: "US" },
+  // Retail & Distribution
+  { company: "Home Depot", ticker: "HD", segment: "Retail and Distribution", category: "products", country: "US" },
+  { company: "Lowe's", ticker: "LOW", segment: "Retail and Distribution", category: "products", country: "US" },
   // Doors, Windows & Security
   { company: "ASSA ABLOY", ticker: "ASSA-B.ST", segment: "Doors and Windows", category: "products", country: "SE" },
   { company: "JELD-WEN", ticker: "JWEN", segment: "Doors and Windows", category: "products", country: "US" },

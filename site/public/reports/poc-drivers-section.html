@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AV Building Materials Report — Drivers of Market Health (POC)</title>
+<style>
+  @page {
+    size: 11in 8.5in; /* landscape */
+    margin: 0.6in 0.75in;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11pt;
+    color: #1a1a1a;
+    background: #fff;
+    width: 11in;
+    min-height: 8.5in;
+    margin: 0 auto;
+    padding: 0.6in 0.75in;
+    line-height: 1.45;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Header bar */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #215D44;
+    margin-bottom: 20px;
+    font-size: 8.5pt;
+    color: #7B7B7B;
+  }
+  .page-header img { height: 28px; }
+  .page-header .page-num { font-weight: bold; }
+
+  /* Section title */
+  h1 {
+    font-size: 18pt;
+    font-weight: bold;
+    color: #000;
+    margin-bottom: 10px;
+  }
+  .section-intro {
+    font-size: 10.5pt;
+    color: #333;
+    margin-bottom: 18px;
+    max-width: 9in;
+  }
+
+  /* Driver summary table */
+  .driver-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+    font-size: 10pt;
+  }
+  .driver-table thead th {
+    background: #163E2D;
+    color: #fff;
+    font-weight: bold;
+    padding: 8px 12px;
+    text-align: left;
+    text-transform: uppercase;
+    font-size: 9.5pt;
+    letter-spacing: 0.5px;
+  }
+  .driver-table thead th:nth-child(3),
+  .driver-table thead th:nth-child(4) {
+    text-align: center;
+  }
+  .driver-table tbody td {
+    padding: 7px 12px;
+    border-bottom: 1px solid #e0e0e0;
+    vertical-align: middle;
+  }
+  .driver-table tbody tr:last-child td {
+    border-bottom: 2px solid #163E2D;
+  }
+  .driver-name {
+    background: #328D66;
+    color: #fff;
+    font-weight: bold;
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    width: 180px;
+    line-height: 1.35;
+  }
+  .driver-summary {
+    font-size: 10pt;
+    color: #333;
+  }
+  .indicator-type {
+    text-align: center;
+    font-size: 9pt;
+    color: #555;
+    width: 90px;
+  }
+  .trend-cell {
+    text-align: center;
+    font-weight: bold;
+    font-size: 9.5pt;
+    width: 110px;
+  }
+  .trend-negative { background: #F9C3C9; color: #C62828; }
+  .trend-neutral  { background: #FFF3E0; color: #E65100; }
+  .trend-positive { background: #E0F4EB; color: #00B050; }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 16px;
+    font-size: 8.5pt;
+    color: #555;
+    margin-bottom: 24px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+
+  /* Driver deep-dive */
+  .driver-detail {
+    margin-bottom: 22px;
+    page-break-inside: avoid;
+  }
+  .driver-detail h2 {
+    font-size: 13pt;
+    color: #215D44;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+  .driver-detail p {
+    font-size: 10.5pt;
+    margin-bottom: 8px;
+    color: #333;
+  }
+  .impact-label {
+    font-weight: bold;
+    font-style: italic;
+    color: #215D44;
+  }
+  .chart-placeholder {
+    width: 100%;
+    max-width: 8in;
+    height: 220px;
+    background: #f8faf9;
+    border: 1px solid #d4e5dc;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #7B7B7B;
+    font-size: 10pt;
+    margin: 10px 0 16px;
+  }
+
+  /* Two-column layout for driver details */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  /* Footer */
+  .page-footer {
+    margin-top: auto;
+    padding-top: 8px;
+    border-top: 1px solid #215D44;
+    font-size: 8pt;
+    color: #7B7B7B;
+    text-align: center;
+  }
+
+  /* Page break utility */
+  .page-break { page-break-before: always; }
+
+  /* Print overrides */
+  @media print {
+    body { padding: 0; width: auto; }
+    .page-header, .page-footer { position: running(header); }
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div style="display:flex;align-items:center;gap:8px;">
+    <img src="../av-logo.png" alt="AV">
+    <span>Applied Value — Building Materials & Products Market Health 2025 YTD</span>
+  </div>
+  <span class="page-num">6</span>
+</div>
+
+<!-- SECTION TITLE -->
+<h1>Drivers of Market Health</h1>
+<p class="section-intro">
+  A range of macroeconomic and industry-specific forces are shaping the near- and medium-term
+  construction outlook. The table below ranks the most influential drivers by impact, indicating
+  recent trend direction (Positive / Neutral / Negative) and whether each serves as a Leading
+  or Lagging indicator.
+</p>
+
+<!-- DRIVER SUMMARY TABLE -->
+<table class="driver-table">
+  <thead>
+    <tr>
+      <th>Driver</th>
+      <th>Summary</th>
+      <th>Indicator Type</th>
+      <th>Recent Trend</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="driver-name">Interest and<br>Mortgage Rates</td>
+      <td class="driver-summary">Impact financing conditions for residential, commercial, and industrial projects.</td>
+      <td class="indicator-type">Leading</td>
+      <td class="trend-cell trend-negative">Negative</td>
+    </tr>
+    <tr>
+      <td class="driver-name">Labor Dynamics</td>
+      <td class="driver-summary">Tight labor market and rising wages constrain project delivery and pressure margins.</td>
+      <td class="indicator-type">Lagging</td>
+      <td class="trend-cell trend-negative">Negative</td>
+    </tr>
+    <tr>
+      <td class="driver-name">Material and<br>Energy Costs</td>
+      <td class="driver-summary">Eased from pandemic peaks but still key to project profitability.</td>
+      <td class="indicator-type">Leading</td>
+      <td class="trend-cell trend-neutral">Neutral</td>
+    </tr>
+    <tr>
+      <td class="driver-name">Demand Visibility</td>
+      <td class="driver-summary">Building permits and construction backlogs signal future project pipelines.</td>
+      <td class="indicator-type">Leading</td>
+      <td class="trend-cell trend-neutral">Neutral</td>
+    </tr>
+    <tr>
+      <td class="driver-name">Government<br>Infrastructure<br>Spending</td>
+      <td class="driver-summary">Public investment continues to underpin non-residential demand; impact of new administration still being evaluated.</td>
+      <td class="indicator-type">Leading</td>
+      <td class="trend-cell trend-positive">Positive</td>
+    </tr>
+    <tr>
+      <td class="driver-name">Credit Availability<br>and Lending<br>Standards</td>
+      <td class="driver-summary">Bank lending conditions influence project financing, especially for commercial developments.</td>
+      <td class="indicator-type">Leading</td>
+      <td class="trend-cell trend-negative">Negative</td>
+    </tr>
+    <tr>
+      <td class="driver-name">GDP Growth and<br>Consumer<br>Confidence</td>
+      <td class="driver-summary">Broader macroeconomic conditions and sentiment drive overall construction demand.</td>
+      <td class="indicator-type">Lagging</td>
+      <td class="trend-cell trend-negative">Negative</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- LEGEND -->
+<div class="legend">
+  <span style="font-weight:bold;">Key:</span>
+  <div class="legend-item"><span class="legend-swatch" style="background:#E0F4EB;border:1px solid #00B050;"></span> Positive</div>
+  <div class="legend-item"><span class="legend-swatch" style="background:#FFF3E0;border:1px solid #E65100;"></span> Neutral</div>
+  <div class="legend-item"><span class="legend-swatch" style="background:#F9C3C9;border:1px solid #C62828;"></span> Negative</div>
+  <div class="legend-item" style="margin-left:20px;">
+    <span style="font-size:8.5pt;color:#555;">Leading = forward-looking &nbsp;|&nbsp; Lagging = confirms established trend</span>
+  </div>
+</div>
+
+<!-- ================================================================= -->
+<!-- PAGE 2: DRIVER DEEP DIVES -->
+<!-- ================================================================= -->
+<div class="page-break"></div>
+
+<div class="page-header">
+  <div style="display:flex;align-items:center;gap:8px;">
+    <img src="../av-logo.png" alt="AV">
+    <span>Applied Value — Building Materials & Products Market Health 2025 YTD</span>
+  </div>
+  <span class="page-num">7</span>
+</div>
+
+<h1 style="font-size:14pt; margin-bottom:16px;">Recent Trends & Outlook</h1>
+
+<div class="driver-detail">
+  <h2>Interest and Mortgage Rates</h2>
+  <p>
+    The Federal Reserve shifted from tightening to modest easing in 2025, cutting rates twice and
+    lowering the federal funds target to 3.75–4.00% by November. The 30-year fixed mortgage rate
+    averaged 6.7–6.9% for most of the year before easing to 6.2–6.35%. Despite this, borrowing
+    costs remain high, restraining single-family demand and commercial financing. The Fed's dovish
+    tone suggests further gradual cuts ahead, though stimulative effects will materialize slowly
+    and unevenly.
+  </p>
+
+  <!-- Chart: Federal Funds Rate + 30Y Mortgage -->
+  <div class="chart-placeholder">
+    <div style="text-align:center;">
+      <strong>Figure 2:</strong> Federal Funds Effective Rate and 30-Year Fixed Rate Mortgage Average, %<br>
+      <span style="font-size:9pt;color:#999;">[Chart.js or matplotlib rendering would go here]</span>
+    </div>
+  </div>
+
+  <p>
+    <span class="impact-label">Impact on Construction:</span> Elevated borrowing costs suppress
+    new single-family starts and delay commercial project commitments. Refinancing remains
+    unattractive, limiting capital recycling.
+  </p>
+  <p>
+    <span class="impact-label">Implication for Materials &amp; Products:</span> Demand for
+    framing, finishing, and HVAC products softens in residential channels. Infrastructure and
+    institutional projects, less rate-sensitive, provide partial offset.
+  </p>
+</div>
+
+<div class="driver-detail">
+  <h2>Material and Energy Costs</h2>
+  <p>
+    After post-pandemic corrections, material and energy costs stabilized through late 2024 and
+    2025, with the construction materials PPI up only 1.3% YoY. Lumber prices fluctuated between
+    $430–$690 per MBF, settling near $500 as weak demand offset a 35% Canadian tariff. Copper
+    and steel prices plateaued but now face renewed pressure from tariffs raising import duties
+    to 20–25%. Fuel costs stayed steady but remain sensitive to global supply shocks.
+  </p>
+
+  <div class="chart-placeholder">
+    <div style="text-align:center;">
+      <strong>Figure 4:</strong> Building Materials Producer Price Indices (2019–2025)<br>
+      <span style="font-size:9pt;color:#999;">[Chart.js or matplotlib rendering would go here]</span>
+    </div>
+  </div>
+
+  <p>
+    <span class="impact-label">Impact on Construction:</span> Stabilized input costs support
+    margin recovery for contractors and manufacturers, but tariff escalation poses a renewed
+    threat to project economics.
+  </p>
+  <p>
+    <span class="impact-label">Implication for Materials &amp; Products:</span> Expanding tariffs
+    on metals, lumber, and appliances could add $7,500–$10,000 to new home costs, reintroducing
+    volatility and compressing builder margins.
+  </p>
+</div>
+
+<!-- FOOTER -->
+<div class="page-footer">
+  Compiled by Jarvis AI — Building Materials & Building Products Monitor &nbsp;|&nbsp;
+  Applied Value &nbsp;|&nbsp; www.appliedvaluegroup.com
+</div>
+
+</body>
+</html>

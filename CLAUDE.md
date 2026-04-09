@@ -11,7 +11,7 @@ A remote scheduled trigger (`building-materials-daily-review`, ID: `trig_015uykD
 1. Searches for today's Building Materials & Building Products news
 2. Filters through a 9-tier approved source whitelist
 3. Archives EVERY article into a search-optimized knowledge base (KB_Raw HTML on SharePoint)
-4. Deep dives all 35 tracked companies (KB_Companies HTML on SharePoint)
+4. Deep dives all 39 tracked companies (KB_Companies HTML on SharePoint)
 5. Curates top 10-15 stories into a briefing (Building_Materials_Briefing HTML on SharePoint)
 6. Emails the digest to gavin.gattuso@appliedvalue.com
 - Manage at: https://claude.ai/code/scheduled/trig_015uykDko3ppsdJ7kNN5ezSW
@@ -40,7 +40,7 @@ The main API (`api/index.ts`) handles all endpoints except build-report:
 - `GET /api/wiki?type=company|market-driver|concept` -- Wiki page listings
 - `GET /api/wiki/{slug}` -- Full wiki page content
 - `GET /api/weekly-summary` -- Latest AI-generated weekly digest
-- `GET /api/financial-ratios?period=` -- Financial metrics for all 35 companies
+- `GET /api/financial-ratios?period=` -- Financial metrics for all 39 companies
 - `GET /api/financial-ratio-flags?period=` -- Flagged >15% YoY changes with linked articles
 - `GET /api/av-sections` -- 9 Applied Value report sections
 - `GET /api/av-sections/{slug}` -- Section detail with tagged articles and relevance scores
@@ -75,21 +75,22 @@ The main API (`api/index.ts`) handles all endpoints except build-report:
 - `knowledge-base/wiki/indexes/` -- MASTER-INDEX.md, COMPANY-INDEX.md, etc.
 - `knowledge-base/outputs/` -- Generated briefings and reports
 
-## 35 Tracked Companies (by segment)
+## 39 Tracked Companies (by segment)
 **Aggregates & Cement:** CRH, CEMEX, Heidelberg Materials, Holcim, Martin Marietta, Taiheiyo Cement, Vulcan Materials
 **Glass & Insulation:** AGC, Owens Corning, Saint-Gobain
 **Wood & Lumber:** Canfor, Interfor, UFP Industries, West Fraser, Weyerhaeuser
 **Steel & Metals:** ArcelorMittal, Nucor, Steel Dynamics, Wienerberger
-**Building Products & Distribution:** Builders FirstSource, Carlisle Companies, Kingspan, QXO
+**Building Products & Distribution:** Builders FirstSource, Carlisle Companies, Installed Building Products, Kingspan, QXO, RPM International
 **Doors, Windows & Security:** ASSA ABLOY, JELD-WEN, LIXIL, Sanwa Holdings
 **Plumbing, Drainage & Fixtures:** Advanced Drainage Systems, Geberit, Fortune Brands, Masco
 **HVAC & Climate:** Carrier Global, Daikin Industries, Johnson Controls, Trane Technologies
+**Retail & Distribution:** Home Depot, Lowe's
 
 ## 9-Tier Source Whitelist
 1. Major News (Reuters, Bloomberg, WSJ, FT, NYT, WaPo, BBC, CNBC, Forbes, Fortune, AP)
 2. Top Publications (TechCrunch, Verge, Wired, Ars Technica, MIT Tech Review, VentureBeat, ZDNet, CNET)
 3. Industry-Specific (Construction Dive, BD+C, ENR, Remodeling Magazine, JLC, ProBuilder)
-4. Company IR Pages (all 35 companies' official investor relations sites)
+4. Company IR Pages (all 39 companies' official investor relations sites)
 5. Associations & Research (NAHB, ABC, PCA, AISI, AGC, Construction Analytics, AIA, Conference Board, S&P Global Ratings)
 6. Government & Data (Census, BLS/PPI, BEA, FRED, Federal Reserve, USGS, Procore, BusinessWire/PR Newswire/GlobeNewsWire)
 7. Financial Analysis (Yahoo Finance, Seeking Alpha, MarketScreener -- limited to these three)
