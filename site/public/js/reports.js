@@ -217,7 +217,7 @@ async function generateReport() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Building_Materials_Report_${startDate}_to_${endDate}.docx`;
+    a.download = `Building_Materials_Report_${startDate}_to_${endDate}.html`;
     a.click();
     URL.revokeObjectURL(url);
 

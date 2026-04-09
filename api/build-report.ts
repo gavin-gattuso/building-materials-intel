@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { buildReportDocument } from "../lib/docx-formatting.js";
+import { buildReportHTML } from "../lib/html-report.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -11,7 +11,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const { startDate, endDate, executiveSummary, sections, drivers } = req.body;
-    const buffer = await buildReportDocument({
+    const html = buildReportHTML({
       startDate,
       endDate,
       executiveSummary,
@@ -19,10 +19,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       drivers: drivers || [],
     });
 
-    const filename = `Building_Materials_Report_${startDate}_to_${endDate}.docx`;
-    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+    const filename = `Building_Materials_Report_${startDate}_to_${endDate}.html`;
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-    return res.send(buffer);
+    return res.send(html);
   } catch (err: any) {
     console.error("build-report error:", err);
     return res.status(500).json({ error: err.message || "Failed to build report" });
