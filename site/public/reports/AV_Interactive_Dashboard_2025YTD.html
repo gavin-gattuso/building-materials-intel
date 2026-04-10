@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AV Building Materials &amp; Products Market Health — 2025 YTD</title>
+<!-- To use offline: download chart.umd.js from the CDN URL below and replace the <script src="..."> at the bottom with <script src="chart.umd.js"></script> -->
+<style>
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --av-dark:#1B3C2D;--av-mid:#2E7D52;--av-light:#4CAF7D;
+  --seg-nonres:#2E7D52;--seg-dist:#E07B2A;--seg-resi:#1565A0;
+  --pos-bg:#E8F5E9;--pos-text:#2E7D52;
+  --neu-bg:#FFF8E1;--neu-text:#B84700;
+  --neg-bg:#FFEBEE;--neg-text:#C62828;
+  --bg:#FFFFFF;--bg-alt:#F5F5F5;--bg-callout:#F0F7F3;
+  --text:#1A1A1A;--text2:#555555;--text3:#666666;
+  --border:#E0E0E0;--grid:#E8E8E8;
+  --sidebar-w:240px;
+  --header-h:56px;
+  --filter-h:44px;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  font-size:15px;color:var(--text);line-height:1.7;background:var(--bg-alt);
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;
+}
+a{color:var(--av-mid);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ============================================================
+   SCREEN LAYOUT
+   ============================================================ */
+/* --- Header --- */
+.sticky-header{
+  position:fixed;top:0;left:0;right:0;height:var(--header-h);
+  background:var(--av-dark);color:#fff;display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;z-index:1000;
+}
+.sticky-header .logo{display:flex;align-items:center}
+.sticky-header .logo img{height:32px;width:auto}
+.sticky-header .header-title{font-size:14px;opacity:.85;position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap}
+.download-btn{
+  background:var(--av-light);color:#fff;border:none;padding:8px 18px;
+  border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;
+}
+.download-btn:hover{background:var(--av-mid)}
+
+/* --- Hamburger (mobile) --- */
+.hamburger{display:none;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;margin-right:12px}
+
+/* --- Sidebar --- */
+.sidebar{
+  position:fixed;top:var(--header-h);left:0;bottom:0;width:var(--sidebar-w);
+  background:#fff;border-right:1px solid var(--border);overflow-y:auto;
+  padding:16px 0;z-index:900;
+}
+.sidebar h3{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);padding:8px 20px 4px}
+.sidebar a{
+  display:block;padding:6px 20px;font-size:13px;color:var(--text2);
+  border-left:3px solid transparent;transition:all .15s;
+}
+.sidebar a:hover,.sidebar a.active{color:var(--av-dark);background:var(--bg-callout);border-left-color:var(--av-mid);text-decoration:none}
+
+/* --- Filter bar --- */
+.global-filter-bar{
+  position:fixed;top:var(--header-h);left:var(--sidebar-w);right:0;
+  height:var(--filter-h);background:#fff;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 24px;gap:8px;z-index:800;
+  font-size:13px;
+}
+.global-filter-bar label{font-weight:600;color:var(--text2);margin-right:4px}
+.filter-btn{
+  padding:6px 14px;border:1px solid var(--border);border-radius:20px;
+  background:#fff;cursor:pointer;font-size:12px;font-weight:500;transition:all .15s;min-height:34px;
+}
+.filter-btn:hover{border-color:var(--av-mid);color:var(--av-mid);background:var(--bg-callout)}
+.filter-btn.active{background:var(--av-dark);color:#fff;border-color:var(--av-dark)}
+.filter-btn[data-segment="nonresidential"].active{background:var(--seg-nonres);border-color:var(--seg-nonres)}
+.filter-btn[data-segment="distribution"].active{background:var(--seg-dist);border-color:var(--seg-dist)}
+.filter-btn[data-segment="residential"].active{background:var(--seg-resi);border-color:var(--seg-resi)}
+
+/* --- Main content --- */
+.main-content{
+  margin-left:var(--sidebar-w);
+  margin-top:calc(var(--header-h) + var(--filter-h));
+  padding:32px 40px 80px;
+  max-width:1200px;
+}
+
+/* --- Sections --- */
+.report-section{margin-bottom:48px}
+.report-section.collapsed .section-body{display:none}
+.section-heading{
+  font-size:20px;font-weight:600;color:var(--av-dark);line-height:1.3;
+  padding-bottom:8px;border-bottom:2px solid var(--av-light);
+  margin-bottom:20px;cursor:pointer;position:relative;
+  padding-right:30px;
+}
+.section-heading::after{
+  content:'▾';position:absolute;right:0;top:50%;transform:translateY(-50%);
+  font-size:16px;color:var(--text3);transition:transform .2s;
+}
+.collapsed .section-heading::after{transform:translateY(-50%) rotate(-90deg)}
+
+.sub-heading{font-size:16px;font-weight:600;color:var(--av-mid);margin:24px 0 12px}
+
+/* --- Charts --- */
+.chart-block{margin:20px 0 32px;position:relative}
+.chart-wrapper{position:relative;width:100%;height:350px}
+.chart-wrapper.tall{height:500px}
+.chart-wrapper.short{height:280px}
+.chart-caption{font-size:12px;color:var(--text3);margin-top:6px;text-align:center}
+.chart-wrapper{position:relative}
+.chart-wrapper::before{content:'Loading chart\2026';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg-alt);color:var(--text3);font-size:13px;border-radius:6px;z-index:1;transition:opacity .3s}
+.chart-wrapper.loaded::before{opacity:0;pointer-events:none}
+
+/* Custom legend */
+.chart-legend{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:8px;font-size:12px}
+.chart-legend-item{display:inline-flex;align-items:center;gap:4px;cursor:pointer;background:none;border:none;padding:2px 4px;font:inherit;font-size:12px;color:var(--text);border-radius:3px}
+.chart-legend-swatch{width:12px;height:12px;border-radius:2px;flex-shrink:0}
+.chart-legend-item.struck .chart-legend-label{text-decoration:line-through;opacity:.5}
+
+/* --- Time range buttons --- */
+.time-range-bar{display:flex;gap:6px;margin-bottom:10px}
+.time-btn{
+  padding:6px 12px;border:1px solid var(--border);border-radius:12px;
+  background:#fff;cursor:pointer;font-size:11px;transition:all .15s;min-height:32px;
+}
+.time-btn:hover{border-color:var(--av-mid);background:var(--bg-callout)}
+.time-btn.active{background:var(--av-mid);color:#fff;border-color:var(--av-mid)}
+
+/* --- Metric tabs --- */
+.metric-tab-bar{display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--border)}
+.metric-tab{
+  padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;
+  border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--text2);
+  transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;
+}
+.metric-tab:hover{color:var(--av-dark)}
+.metric-tab.active{color:var(--av-dark);border-bottom-color:var(--av-mid)}
+
+/* --- Cards --- */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:16px 0}
+.card{
+  background:#fff;border:1px solid var(--border);border-radius:8px;
+  padding:20px;transition:box-shadow .2s;
+}
+.card:hover{box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.card-title{font-size:14px;font-weight:600;color:var(--av-dark);margin-bottom:8px}
+.card-value{font-size:24px;font-weight:600;color:var(--av-mid)}
+.card-desc{font-size:13px;color:var(--text2);line-height:1.5}
+
+.stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+.stat-card{text-align:center;background:var(--bg-callout);border-radius:8px;padding:16px 12px}
+.stat-card .val{font-size:22px;font-weight:700;color:var(--av-dark)}
+.stat-card .lbl{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* --- Callout --- */
+.callout{background:var(--bg-callout);border-left:4px solid var(--av-mid);padding:16px 20px;margin:16px 0;border-radius:0 6px 6px 0;font-size:14px}
+
+/* --- Badge --- */
+.badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:600}
+.badge-pos{background:var(--pos-bg);color:var(--pos-text)}
+.badge-neu{background:var(--neu-bg);color:var(--neu-text)}
+.badge-neg{background:var(--neg-bg);color:var(--neg-text)}
+
+/* --- Tables --- */
+table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+thead{background:var(--av-dark);color:#fff}
+th{padding:10px 12px;text-align:left;font-weight:600;font-size:12px}
+td{padding:8px 12px;border-bottom:1px solid var(--border)}
+tr:nth-child(even){background:var(--bg-alt)}
+.seg-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+
+/* --- Two-col charts --- */
+.dual-chart{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+
+/* --- Contact grid --- */
+.contact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin:20px 0}
+.contact-card{text-align:center;padding:20px;background:var(--bg-callout);border-radius:8px}
+.contact-card .name{font-size:16px;font-weight:600;color:var(--av-dark)}
+.contact-card .role{font-size:13px;color:var(--text2);margin:4px 0}
+.contact-card .phone{font-size:13px;color:var(--text)}
+
+/* --- Service cards --- */
+.service-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:20px 0}
+.service-card{
+  background:#fff;border:1px solid var(--border);border-radius:8px;
+  padding:24px 16px;text-align:center;
+}
+.service-icon{
+  width:48px;height:48px;border-radius:50%;background:var(--bg-callout);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 12px;
+  font-size:20px;color:var(--av-mid);font-weight:700;
+}
+.service-card h4{font-size:14px;color:var(--av-dark);margin-bottom:6px}
+
+/* --- Subsector Key --- */
+.subsector-key{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 20px;align-items:center}
+.subsector-key-label{font-size:12px;font-weight:600;color:var(--text2);margin-right:4px}
+.subsector-chip{
+  display:inline-flex;align-items:center;gap:5px;padding:5px 12px;
+  border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;
+  border:1.5px solid var(--border);background:#fff;transition:all .15s;
+  user-select:none;
+}
+.subsector-chip:hover{border-color:#999;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.subsector-chip.active{color:#fff;border-color:transparent}
+.subsector-chip .ss-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.subsector-chip.active .ss-dot{background:#fff!important;opacity:.7}
+@media print{.subsector-key .subsector-chip{cursor:default;font-size:8pt;padding:2pt 6pt}.subsector-key{gap:4px}}
+
+/* --- Driver summary mini cards --- */
+.driver-mini-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:16px 0}
+.driver-mini{background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center}
+.driver-mini .dm-name{font-size:13px;font-weight:600;color:var(--av-dark);margin-bottom:6px}
+.driver-mini:hover{box-shadow:0 2px 8px rgba(0,0,0,.1);border-color:var(--av-light)}
+
+/* --- YoY bubble --- */
+.yoy-bubble{
+  display:inline-block;font-size:10px;font-weight:600;padding:1px 6px;
+  border-radius:8px;margin-left:4px;vertical-align:middle;
+}
+.yoy-pos{background:var(--pos-bg);color:var(--pos-text)}
+.yoy-neg{background:var(--neg-bg);color:var(--neg-text)}
+.yoy-neu{background:var(--bg-alt);color:var(--text2)}
+
+/* --- Theme cards Section 7 --- */
+.theme-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:16px 0}
+.theme-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px}
+.theme-card .tc-icon{width:36px;height:36px;background:var(--bg-callout);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:8px;color:var(--av-mid);font-weight:700;font-size:16px}
+.theme-card h4{font-size:13px;color:var(--av-dark);margin-bottom:4px}
+.theme-card p{font-size:12px;color:var(--text2);line-height:1.4}
+
+/* --- Positioning cards --- */
+.pos-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0}
+.pos-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:20px;border-top:3px solid var(--av-mid)}
+.pos-card h4{font-size:14px;color:var(--av-dark);margin-bottom:8px}
+.pos-card p{font-size:13px;color:var(--text2);line-height:1.5}
+
+/* --- Annotation box --- */
+.annotation{
+  background:#fff;border:1px solid var(--border);border-left:3px solid var(--av-mid);
+  padding:10px 14px;font-size:12px;color:var(--text2);border-radius:0 6px 6px 0;
+  margin:8px 0;
+}
+
+/* --- Hero section --- */
+.hero-inner{text-align:center;padding:40px 0 20px}
+.hero-brand{font-size:13px;font-weight:600;color:var(--av-mid);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px}
+.hero-title{font-size:28px;font-weight:600;color:var(--av-dark);line-height:1.3}
+.hero-subtitle{font-size:16px;color:var(--text2);margin-top:8px}
+.hero-authors{font-size:13px;color:var(--text3);margin-top:12px}
+.hero-rule{width:120px;height:3px;background:var(--av-mid);margin:20px auto 0;border-radius:2px}
+
+/* --- Chart loading placeholder --- */
+.chart-wrapper::before{content:'Loading chart\2026';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--text3);background:var(--bg-alt);border-radius:6px;pointer-events:none;z-index:1;transition:opacity .3s}
+.chart-wrapper.loaded::before{opacity:0;pointer-events:none}
+
+/* --- AV footer block --- */
+.av-footer-block{text-align:center;margin-top:32px;padding:20px;border-top:2px solid var(--av-mid)}
+.av-footer-name{font-size:18px;font-weight:600;color:var(--av-dark)}
+.av-footer-addr{font-size:13px;color:var(--text3);margin-top:4px}
+
+/* --- Service card desc --- */
+.service-card-desc{font-size:12px;color:var(--text2)}
+
+/* --- Margin-top helper --- */
+.mt-12{margin-top:12px}
+.mt-32{margin-top:32px}
+
+/* --- Accented card borders --- */
+.card-accent-neg{border-left:4px solid var(--neg-text)}
+.card-accent-neg-top{border-top:3px solid var(--neg-text)}
+.card-accent-neu-top{border-top:3px solid var(--neu-text)}
+.card-accent-pos-top{border-top:3px solid var(--av-mid)}
+.card-accent-nonres-top{border-top-color:var(--seg-nonres)}
+.card-accent-resi-top{border-top-color:var(--seg-resi)}
+.card-accent-dist-top{border-top-color:var(--seg-dist)}
+
+/* --- Annotation negative --- */
+.annotation-neg{border-left-color:var(--neg-text)}
+
+/* --- Callout variants --- */
+.callout-neg{border-left-color:var(--neg-text)}
+.callout-neu{border-left-color:var(--neu-text)}
+
+/* --- Text-center helper --- */
+.text-center{text-align:center}
+
+/* --- Two-col grid helper --- */
+.grid-2col{grid-template-columns:1fr 1fr}
+
+/* --- Header flex helper --- */
+.header-flex{display:flex;align-items:center}
+
+/* --- Table overflow wrapper --- */
+.table-overflow{overflow-x:auto}
+
+/* --- Table footnote --- */
+.table-footnote{text-align:left;margin-bottom:8px}
+
+/* --- Segment column width --- */
+.seg-col{width:30px}
+
+/* --- Screen-reader only --- */
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+
+/* ============================================================
+   FOCUS & KEYBOARD NAV
+   ============================================================ */
+:focus-visible{outline:2px solid var(--av-mid);outline-offset:2px;border-radius:2px}
+button:focus-visible,.sidebar a:focus-visible{outline:2px solid var(--av-mid);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media(max-width:1023px){
+  .sidebar{transform:translateX(-100%);transition:transform .3s}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 20px rgba(0,0,0,.15)}
+  .main-content{margin-left:0;padding:28px 24px 60px}
+  .global-filter-bar{left:0;overflow-x:auto;gap:6px}
+  .hamburger{display:block}
+  .header-title{display:none}
+  .stat-cards{grid-template-columns:repeat(2,1fr)}
+  .contact-grid{grid-template-columns:repeat(2,1fr)}
+  .pos-cards{grid-template-columns:repeat(2,1fr)}
+  .chart-wrapper.tall{height:420px}
+}
+@media(max-width:767px){
+  .main-content{padding:20px 16px 60px}
+  .stat-cards{grid-template-columns:repeat(2,1fr)}
+  .dual-chart{grid-template-columns:1fr}
+  .contact-grid{grid-template-columns:1fr}
+  .pos-cards{grid-template-columns:1fr}
+  .global-filter-bar{overflow-x:auto;gap:6px}
+  .report-section{margin-bottom:32px}
+  .sticky-header .logo img{height:24px}
+}
+
+/* ============================================================
+   PRINT-ONLY / SCREEN-ONLY
+   ============================================================ */
+.print-only{display:none!important}
+.screen-only{}
+
+/* ============================================================
+   PRINT STYLES
+   ============================================================ */
+@media print{
+  /* === HIDE INTERACTIVE UI === */
+  .screen-only,.sticky-header,.sidebar,.global-filter-bar,
+  .download-btn,.hamburger,.time-range-bar,.metric-tab-bar,
+  .section-heading::after,.filter-btn,.subsector-chip[data-subsector="all"],
+  #sec-hero,.chart-legend-item{display:none!important}
+
+  .print-only{display:block!important}
+
+  /* === PAGE SETUP === */
+  @page{size:letter;margin:.85in 1in .85in 1in}
+  @page:first{margin-top:.5in}
+
+  html{font-size:10pt}
+  body{font-size:10pt;color:#000;background:#fff;line-height:1.55;margin:0;padding:0}
+  .main-content{margin:0!important;padding:0!important;width:100%;max-width:100%}
+
+  /* === PAGE BREAKS === */
+  .report-section{page-break-before:always;padding-top:0}
+  .report-section:first-child{page-break-before:avoid}
+  .report-section.collapsed .section-body{display:block!important}
+
+  /* Prevent splitting these across pages */
+  .chart-block{page-break-inside:avoid;break-inside:avoid;margin:12pt 0}
+  .card-grid,.stat-cards,.theme-cards,.service-cards,.contact-grid,.pos-cards,.driver-mini-grid{
+    page-break-inside:avoid;break-inside:avoid;
+  }
+  .card{page-break-inside:avoid;break-inside:avoid}
+  .callout,.annotation{page-break-inside:avoid;break-inside:avoid}
+  p{orphans:3;widows:3}
+
+  /* === TYPOGRAPHY === */
+  .section-heading{
+    font-size:14pt;cursor:default;padding-right:0;
+    border-bottom:1.5pt solid var(--av-mid);
+    margin-bottom:10pt;padding-bottom:4pt;
+    page-break-after:avoid;
+  }
+  .sub-heading{font-size:11pt;margin:14pt 0 8pt;page-break-after:avoid}
+  p{font-size:10pt;margin-bottom:6pt}
+  .callout{font-size:9pt;padding:8pt 12pt;margin:8pt 0;border-left-width:3pt}
+  .annotation{font-size:9pt;padding:6pt 10pt;margin:6pt 0}
+
+  /* === CHARTS === */
+  .chart-wrapper::before{display:none!important}
+  canvas{max-width:100%!important}
+  .chart-wrapper{height:240px!important;min-height:180px;max-height:300px}
+  .chart-wrapper.tall{height:400px!important;max-height:480px}
+  .chart-wrapper.short{height:200px!important}
+  .chart-caption{font-size:8pt;margin-top:4pt;color:#555}
+
+  /* Print chart images (generated by beforeprint JS) */
+  .print-chart-img{display:block!important;max-width:100%;height:auto;margin:4pt 0}
+  .print-chart-img+canvas{display:none!important}
+
+  /* Subsector key as static legend in print */
+  .subsector-key{margin:6pt 0 10pt;gap:4pt;font-size:8pt}
+  .subsector-key-label{font-size:8pt}
+  .subsector-chip{font-size:8pt;padding:3pt 8pt;cursor:default;border-radius:10pt;min-height:auto;white-space:nowrap}
+  .subsector-chip .ss-dot{width:7px;height:7px}
+
+  /* Custom legend: show as static in print */
+  .chart-legend{font-size:8pt;gap:6pt;margin-top:4pt}
+
+  /* Dual chart & two-col: full width stacked for print */
+  .dual-chart,.grid-2col{grid-template-columns:1fr!important;gap:12pt}
+
+  /* === TABLES === */
+  table{font-size:8pt;margin:6pt 0}
+  thead{display:table-header-group;background:var(--av-dark)!important;color:#fff!important}
+  th{font-size:8pt;padding:3pt 5pt;font-weight:600}
+  td{padding:3pt 5pt;border:.5pt solid #bbb}
+  tr{page-break-inside:avoid}
+  .yoy-bubble{font-size:7pt;padding:1pt 4pt}
+
+  /* === CARDS === */
+  .card{border:1px solid #ccc;box-shadow:none;padding:10pt;margin-bottom:6pt}
+  .card-title{font-size:9pt}
+  .card-desc{font-size:8pt}
+  .card-value{font-size:16pt}
+  .card-grid{gap:8pt;margin:8pt 0}
+
+  .stat-cards{gap:8pt;grid-template-columns:repeat(4,1fr)}
+  .stat-card{padding:8pt 6pt}
+  .stat-card .val{font-size:14pt}
+  .stat-card .lbl{font-size:7pt}
+
+  .theme-cards{gap:8pt}
+  .theme-card{padding:8pt}
+  .theme-card .tc-icon{width:24px;height:24px;font-size:12px;margin-bottom:4pt}
+  .theme-card h4{font-size:9pt}
+  .theme-card p{font-size:7.5pt}
+
+  .service-cards{gap:8pt}
+  .service-card{padding:10pt 8pt}
+  .service-card h4{font-size:9pt}
+  .service-icon{width:32px;height:32px;font-size:14px;margin-bottom:6pt}
+
+  .contact-grid{gap:10pt;grid-template-columns:repeat(3,1fr)}
+  .contact-card{padding:10pt}
+  .contact-card .name{font-size:11pt}
+  .contact-card .role{font-size:8pt}
+  .contact-card .phone{font-size:8pt}
+
+  .pos-cards{gap:8pt;grid-template-columns:repeat(3,1fr)}
+  .pos-card{padding:10pt;border-top-width:2pt}
+  .pos-card h4{font-size:10pt}
+  .pos-card p{font-size:8pt}
+
+  .driver-mini-grid{gap:6pt}
+  .driver-mini{padding:8pt}
+  .driver-mini .dm-name{font-size:8pt;margin-bottom:3pt}
+
+  /* === BADGES === */
+  .badge{font-size:7pt;padding:1pt 6pt}
+  .seg-dot{width:8px;height:8px}
+
+  /* === PRINT HEADER (every page via position:running — fallback: top of content) === */
+  .print-header{
+    display:flex!important;justify-content:space-between;align-items:baseline;
+    padding-bottom:4pt;border-bottom:1pt solid var(--av-dark);margin-bottom:10pt;
+    font-size:7.5pt;color:#555;
+  }
+
+  /* === PRINT FOOTER === */
+  .print-footer{
+    display:flex!important;justify-content:space-between;
+    padding-top:4pt;border-top:.5pt solid #ccc;margin-top:16pt;
+    font-size:7pt;color:#999;
+  }
+
+  /* === COVER PAGE === */
+  .print-cover{
+    display:flex!important;flex-direction:column;align-items:center;
+    justify-content:center;min-height:92vh;text-align:center;
+    page-break-after:always;padding:0;
+  }
+  .print-cover .pc-logo{margin-bottom:32pt}
+  .print-cover .pc-brand{font-size:32pt;font-weight:700;color:var(--av-dark);margin-bottom:16pt;letter-spacing:1pt}
+  .print-cover .pc-title{font-size:22pt;font-weight:600;color:var(--text);margin-bottom:10pt;line-height:1.3}
+  .print-cover .pc-sub{font-size:11pt;color:var(--text2);margin-bottom:6pt}
+  .print-cover .pc-divider{width:60pt;height:2pt;background:var(--av-mid);margin:20pt auto;border-radius:1pt}
+  .print-cover .pc-bar{width:100%;height:5pt;background:var(--av-mid);margin-top:auto;border-radius:0}
+
+  /* === TABLE OF CONTENTS === */
+  .print-toc{page-break-after:always;padding-top:20pt}
+  .print-toc h2{font-size:16pt;color:var(--av-dark);margin-bottom:14pt;border-bottom:1.5pt solid var(--av-mid);padding-bottom:6pt}
+  .print-toc ul{list-style:none;font-size:10pt;columns:1}
+  .print-toc li{padding:6pt 0;line-height:1.3;border-bottom:.5pt dotted #ccc;display:flex;justify-content:space-between}
+  .print-toc li a{color:var(--text);text-decoration:none;font-weight:400}
+  .print-toc li .toc-section{font-weight:600;color:var(--av-dark)}
+  .print-toc li.toc-sub{padding-left:16pt;font-size:9pt}
+  .print-toc li.toc-sub a{color:var(--text2)}
+}
+</style>
+</head>
+<body>
+
+<!-- ====== PRINT-ONLY: Cover Page ====== -->
+<div class="print-only print-cover" aria-hidden="true">
+  <div style="flex:1"></div>
+  <div class="pc-brand">Applied Value</div>
+  <div class="pc-divider"></div>
+  <div class="pc-title">Building Materials &amp; Products<br>Market Health Report</div>
+  <div class="pc-sub" style="font-size:13pt;margin-bottom:12pt">2025 Year-to-Date</div>
+  <div class="pc-sub">November 2025</div>
+  <div class="pc-divider"></div>
+  <div class="pc-sub" style="margin-top:16pt;font-size:10pt">
+    Prepared by:<br>
+    <strong>Jacob Wozniewski</strong> &nbsp;|&nbsp; <strong>Gavin Gattuso</strong> &nbsp;|&nbsp; <strong>Alex Schneider</strong>
+  </div>
+  <div style="flex:1"></div>
+  <div class="pc-sub" style="font-size:8pt;color:#999;margin-top:auto">
+    Applied Value Group<br>
+    One Biscayne Tower, 2 S Biscayne Blvd. Suite 1750, Miami, FL 33131
+  </div>
+  <div class="pc-bar"></div>
+</div>
+
+<!-- ====== PRINT-ONLY: Table of Contents ====== -->
+<div class="print-only print-toc" aria-hidden="true">
+  <h2>Table of Contents</h2>
+  <ul>
+    <li><a href="#sec-exec"><span class="toc-section">1.</span> Executive Summary</a></li>
+    <li><a href="#sec-scope"><span class="toc-section">2.</span> Market Scope</a></li>
+    <li><a href="#sec-context"><span class="toc-section">3.</span> Market Context &amp; Outlook</a></li>
+    <li><a href="#sec-drivers"><span class="toc-section">4.</span> Drivers of Market Health</a></li>
+    <li class="toc-sub"><a href="#sec-driver-rates">4.1 Interest &amp; Mortgage Rates</a></li>
+    <li class="toc-sub"><a href="#sec-driver-labor">4.2 Labor Dynamics</a></li>
+    <li class="toc-sub"><a href="#sec-driver-materials">4.3 Material &amp; Energy Costs</a></li>
+    <li class="toc-sub"><a href="#sec-driver-resi">4.4 Demand Visibility — Residential</a></li>
+    <li class="toc-sub"><a href="#sec-driver-nonres">4.5 Demand Visibility — Nonresidential</a></li>
+    <li class="toc-sub"><a href="#sec-driver-infra">4.6 Government Infrastructure Spending</a></li>
+    <li class="toc-sub"><a href="#sec-driver-credit">4.7 Credit Availability &amp; Lending Standards</a></li>
+    <li class="toc-sub"><a href="#sec-driver-gdp">4.8 GDP Growth &amp; Consumer Confidence</a></li>
+    <li><a href="#sec-conclusion"><span class="toc-section">5.</span> Sector Driver Conclusion</a></li>
+    <li><a href="#sec-snapshot"><span class="toc-section">6.</span> Public Company Performance Snapshot</a></li>
+    <li><a href="#sec-company"><span class="toc-section">7.</span> Company Performance Data</a></li>
+    <li><a href="#sec-shareprice"><span class="toc-section">8.</span> Share Price Performance</a></li>
+    <li><a href="#sec-positioning"><span class="toc-section">9.</span> Positioning for EOY 2025 &amp; Beyond</a></li>
+    <li><a href="#sec-retro"><span class="toc-section">10.</span> Trend Continuity &amp; Retrospective</a></li>
+    <li><a href="#sec-av"><span class="toc-section">11.</span> How Applied Value Can Help</a></li>
+  </ul>
+</div>
+
+<!-- ====== PRINT-ONLY: Running header ====== -->
+<div class="print-only print-header" aria-hidden="true">
+  <span style="font-weight:600;color:var(--av-dark)">Applied Value</span>
+  <span>Building Materials &amp; Products Market Health Report 2025 YTD</span>
+  <span></span>
+</div>
+
+<!-- ====== SCREEN: Sticky Header ====== -->
+<header class="sticky-header screen-only">
+  <div class="header-flex">
+    <button class="hamburger" onclick="var s=document.querySelector('.sidebar');s.classList.toggle('open');this.setAttribute('aria-expanded',s.classList.contains('open'))" aria-label="Toggle menu" aria-expanded="false" aria-controls="sidebar">&#9776;</button>
+    <div class="logo"><img src="data:image/png;base64,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" alt="Applied Value"></div>
+  </div>
+  <div class="header-title">Building Materials &amp; Products Market Health Report — 2025 YTD</div>
+  <button class="download-btn" onclick="setTimeout(function(){window.print()},100)">&#8681; Download as PDF</button>
+</header>
+
+<!-- ====== SCREEN: Sidebar ====== -->
+<nav class="sidebar screen-only" id="sidebar">
+  <h3>Contents</h3>
+  <a href="#sec-hero">Cover</a>
+  <a href="#sec-exec">Executive Summary</a>
+  <a href="#sec-scope">Market Scope</a>
+  <a href="#sec-context">Context &amp; Outlook</a>
+  <a href="#sec-drivers">Drivers Overview</a>
+  <a href="#sec-driver-rates">— Interest Rates</a>
+  <a href="#sec-driver-labor">— Labor Dynamics</a>
+  <a href="#sec-driver-materials">— Material Costs</a>
+  <a href="#sec-driver-resi">— Residential Demand</a>
+  <a href="#sec-driver-nonres">— Nonresidential Demand</a>
+  <a href="#sec-driver-infra">— Infrastructure</a>
+  <a href="#sec-driver-credit">— Credit &amp; Lending</a>
+  <a href="#sec-driver-gdp">— GDP &amp; Sentiment</a>
+  <a href="#sec-conclusion">Driver Conclusion</a>
+  <a href="#sec-snapshot">Company Snapshot</a>
+  <a href="#sec-company">Company Data</a>
+  <a href="#sec-shareprice">Share Price</a>
+  <a href="#sec-positioning">Positioning</a>
+  <a href="#sec-retro">Retrospective</a>
+  <a href="#sec-av">Applied Value</a>
+</nav>
+
+<!-- ====== SCREEN: Global Filter Bar ====== -->
+<div class="global-filter-bar screen-only">
+  <label>Segment:</label>
+  <button class="filter-btn active" data-segment="all" aria-pressed="true" onclick="applySegmentFilter('all')">All Segments</button>
+  <button class="filter-btn" data-segment="nonresidential" aria-pressed="false" onclick="applySegmentFilter('nonresidential')">Nonresidential Forward</button>
+  <button class="filter-btn" data-segment="distribution" aria-pressed="false" onclick="applySegmentFilter('distribution')">Distribution</button>
+  <button class="filter-btn" data-segment="residential" aria-pressed="false" onclick="applySegmentFilter('residential')">Residential Forward</button>
+</div>
+
+<!-- ============================================================
+     MAIN CONTENT
+     ============================================================ -->
+<main class="main-content">
+
+<!-- ========== SECTION 1: HERO ========== -->
+<section class="report-section" id="sec-hero">
+  <div class="hero-inner">
+    <div class="hero-brand">Applied Value Group</div>
+    <h1 class="hero-title">Building Materials &amp; Products<br>Market Health Report</h1>
+    <p class="hero-subtitle">2025 Year-to-Date &nbsp;|&nbsp; November 2025</p>
+    <p class="hero-authors">Jacob Wozniewski &nbsp;|&nbsp; Gavin Gattuso &nbsp;|&nbsp; Alex Schneider</p>
+    <div class="hero-rule"></div>
+  </div>
+</section>
+
+<!-- ========== SECTION 2: EXECUTIVE SUMMARY ========== -->
+<section class="report-section" id="sec-exec">
+  <h2 class="section-heading">Executive Summary</h2>
+  <div class="section-body">
+    <h3 class="sub-heading">Performance &amp; Outlook</h3>
+    <p>The US building materials and products sector delivered mixed but broadly resilient results through the first half of 2025. Total US construction spending reached an estimated $2.18 trillion, up roughly 3.8% YoY, driven by continued strength in non-residential categories — particularly data centers, semiconductor fabrication, and public infrastructure — while residential activity remained tepid amid elevated mortgage rates and affordability headwinds. Infrastructure-linked companies outperformed, supported by sustained IIJA, CHIPS Act, and IRA disbursements, while residential-exposed names faced volume headwinds partly offset by pricing discipline and R&amp;R demand stability.</p>
+    <p class="mt-12">Margins held up better than expected across most segments, with cost control, pricing power, and favorable mix shifts helping to offset input cost volatility from tariff-related disruptions on steel, aluminum, and Canadian lumber. M&amp;A activity accelerated, with aggregate deal sizes rising approximately 24% YoY as companies pursued scale, vertical integration, and geographic diversification.</p>
+
+    <h3 class="sub-heading">Key Risks to Monitor</h3>
+    <div class="card-grid">
+      <div class="card card-accent-neg">
+        <div class="card-title">Residential Recovery Fragility</div>
+        <div class="card-desc">Residential recovery remains fragile without meaningful rate declines or affordability relief.</div>
+      </div>
+      <div class="card card-accent-neg">
+        <div class="card-title">Labor Shortages</div>
+        <div class="card-desc">Persistent skilled labor shortages and wage pressures risk prolonging project delays.</div>
+      </div>
+      <div class="card card-accent-neg">
+        <div class="card-title">Tight Lending Standards</div>
+        <div class="card-desc">Higher equity requirements (~25-30%) constrain starts and private-sector recovery.</div>
+      </div>
+      <div class="card card-accent-neg">
+        <div class="card-title">Input Cost Volatility</div>
+        <div class="card-desc">Renewed volatility from tariffs and geopolitical disruption could erode margin gains.</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Success Factors:</strong> Outperformers will combine cost discipline, pricing strength, and operational agility with investment in supply chain resilience, workforce development, digital transformation, and sustainable product innovation.
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECTION 3: MARKET SCOPE ========== -->
+<section class="report-section" id="sec-scope">
+  <h2 class="section-heading">Market Scope</h2>
+  <div class="section-body">
+    <div class="chart-block">
+      <div class="time-range-bar screen-only" data-chart="constructionSpend">
+        <button class="time-btn active" aria-pressed="true" onclick="applyTimeRange('constructionSpend','all',this)">2019–Now</button>
+        <button class="time-btn" aria-pressed="false" onclick="applyTimeRange('constructionSpend','mid',this)">2022–Now</button>
+        <button class="time-btn" aria-pressed="false" onclick="applyTimeRange('constructionSpend','recent',this)">2024–Now</button>
+      </div>
+      <div class="chart-wrapper" aria-label="Total US Construction Spend from 2019 to 2025, reaching $2.18 trillion">
+        <canvas id="chart-construction-spend" role="img" aria-label="Total US Construction Spend 2019-2025: Total reached $2.18T, Non-Residential $1.35T, Residential $0.83T"></canvas>
+      </div>
+      <div class="chart-legend" id="legend-construction-spend"></div>
+      <div class="chart-caption">Total US Construction Spend (2019–2025, $T)</div>
+    </div>
+
+    <div class="stat-cards">
+      <div class="stat-card"><div class="val">$2.10–2.24T</div><div class="lbl">US Market Size</div></div>
+      <div class="stat-card"><div class="val">$12.1–16.5T</div><div class="lbl">Global Market</div></div>
+      <div class="stat-card"><div class="val">7.3%</div><div class="lbl">CAGR 2020–2024</div></div>
+      <div class="stat-card"><div class="val">2.6–4.9%</div><div class="lbl">Forward Growth/yr</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECTION 4: MARKET CONTEXT ========== -->
+<section class="report-section" id="sec-context">
+  <h2 class="section-heading">Market Context &amp; Outlook</h2>
+  <div class="section-body">
+    <h3 class="sub-heading">2025 YTD Summary</h3>
+    <p>Through the first three quarters of 2025, the US building materials sector navigated a complex demand landscape defined by divergent subsector performance. Non-residential construction — particularly data centers, semiconductor facilities, and federally funded infrastructure — delivered strong growth, while residential markets remained constrained by persistently elevated mortgage rates and tighter lending conditions.</p>
+    <div class="callout">Mortgage rates averaged 6.7–6.9% through mid-year before easing modestly to 6.2–6.35% by Q3 — still well above levels needed to catalyze meaningful residential recovery.</div>
+    <div class="callout callout-neg">The Architecture Billings Index contracted for 16 consecutive months through September 2025, signaling ongoing softness in commercial project pipeline formation.</div>
+    <div class="callout callout-neu">Tariff hikes on steel, aluminum, and Canadian lumber renewed cost volatility and reignited margin pressure across input-dependent segments.</div>
+
+    <h3 class="sub-heading">EOY 2025 + 2026 Prospectus</h3>
+    <p>Looking ahead, we expect continued bifurcation between infrastructure/non-residential (supported by IIJA and CHIPS disbursements hitting peak flow) and residential (contingent on Fed rate trajectory and credit availability). Key swing factors for 2026 include the pace and magnitude of rate cuts, tariff policy clarity, and whether the ABI's prolonged sub-50 reading translates into meaningful commercial backlog erosion.</p>
+  </div>
+</section>
+
+<!-- ========== SECTION 5: DRIVERS OVERVIEW ========== -->
+<section class="report-section" id="sec-drivers">
+  <h2 class="section-heading">Drivers of Market Health</h2>
+  <div class="section-body">
+    <table>
+      <thead>
+        <tr><th scope="col">Driver</th><th scope="col">Indicator Type</th><th scope="col">Recent Trend</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Interest &amp; Mortgage Rates</td><td>Leading</td><td><span class="badge badge-neg">Negative</span></td></tr>
+        <tr><td>Labor Dynamics</td><td>Lagging</td><td><span class="badge badge-neg">Negative</span></td></tr>
+        <tr><td>Material &amp; Energy Costs</td><td>Leading</td><td><span class="badge badge-neu">Neutral</span></td></tr>
+        <tr><td>Demand Visibility — Residential</td><td>Leading</td><td><span class="badge badge-neu">Neutral</span></td></tr>
+        <tr><td>Demand Visibility — Nonresidential</td><td>Leading</td><td><span class="badge badge-neg">Negative</span></td></tr>
+        <tr><td>Government Infrastructure Spending</td><td>Leading</td><td><span class="badge badge-pos">Positive</span></td></tr>
+        <tr><td>Credit Availability &amp; Lending Standards</td><td>Leading</td><td><span class="badge badge-neg">Negative</span></td></tr>
+        <tr><td>GDP Growth &amp; Consumer Confidence</td><td>Lagging</td><td><span class="badge badge-neg">Negative</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ========== 5.1 INTEREST RATES ========== -->
+<section class="report-section" id="sec-driver-rates">
+  <h2 class="section-heading">4.1 Interest &amp; Mortgage Rates</h2>
+  <div class="section-body">
+    <p>Interest rates remained the most impactful headwind for the building materials sector in 2025. The Federal Reserve held the federal funds rate at 5.25–5.50% through the first half of the year before initiating modest cuts in Q3, bringing the effective rate to approximately 4.0% by September. The 30-year fixed mortgage rate tracked a delayed response, averaging 6.7–6.9% before easing to 6.2–6.5%. These levels continued to constrain housing affordability and depress new residential activity, particularly for first-time buyers.</p>
+    <div class="chart-block">
+      <div class="time-range-bar screen-only" data-chart="rates">
+        <button class="time-btn active" aria-pressed="true" onclick="applyTimeRange('rates','all',this)">2019–Now</button>
+        <button class="time-btn" aria-pressed="false" onclick="applyTimeRange('rates','mid',this)">2022–Now</button>
+        <button class="time-btn" aria-pressed="false" onclick="applyTimeRange('rates','recent',this)">2024–Now</button>
+      </div>
+      <div class="chart-wrapper" aria-label="Federal Funds Rate versus 30-Year Fixed Mortgage Rate from 2019 to 2025">
+        <canvas id="chart-rates" role="img" aria-label="Federal Funds Rate declined from 5.3% to 4.0%, 30-Year Mortgage from 6.8% to 6.5% in 2025"></canvas>
+      </div>
+      <div class="chart-legend" id="legend-rates"></div>
+      <div class="chart-caption">Federal Funds Effective Rate vs. 30-Year Fixed Mortgage Average (%, 2019–2025)</div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 5.2 LABOR ========== -->
+<section class="report-section" id="sec-driver-labor">
+  <h2 class="section-heading">4.2 Labor Dynamics</h2>
+  <div class="section-body">
+    <p>Construction employment rose steadily to approximately 8.3 million by mid-2025, reflecting ongoing demand for labor despite macroeconomic uncertainty. However, the sector continued to face acute skilled labor shortages, with job openings remaining volatile — spiking to 310,000 in July 2025 before dropping sharply to 188,000 in August. Wage pressures persisted above broader economy averages, adding to project cost escalation and timeline risk.</p>
+    <div class="chart-block">
+      <div class="chart-wrapper" aria-label="US Construction Labor: total employment versus job openings from June 2024 to August 2025">
+        <canvas id="chart-labor" role="img" aria-label="Construction employment rose to 8.3M while job openings dropped to 188K in August 2025"></canvas>
+      </div>
+      <div class="chart-legend" id="legend-labor"></div>
+      <div class="chart-caption">US Construction Labor — Total Employment (M) vs. Job Openings (K), Jun 2024–Aug 2025</div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 5.3 MATERIAL COSTS ========== -->
+<section class="report-section" id="sec-driver-materials">
+  <h2 class="section-heading">4.3 Material &amp; Energy Costs</h2>
+  <div class="section-body">
+    <p>Input costs moderated from their 2022 peaks but remained structurally elevated. Construction materials PPI stabilized around 320, while metals retreated from peak levels above 440 to approximately 300. Lumber continued its pattern of high volatility, settling near 270 after extreme swings. Cement and concrete products maintained a steady upward trajectory, reflecting persistent demand and limited supply additions. Petroleum product prices, a key input for transportation and asphalt, declined from mid-2022 peaks but remain above pre-pandemic levels.</p>
+    <div class="chart-block">
+      <div class="time-range-bar screen-only" data-chart="ppi">
+        <button class="time-btn active" aria-pressed="true" onclick="applyTimeRange('ppi','all',this)">2021–Now</button>
+        <button class="time-btn" aria-pressed="false" onclick="applyTimeRange('ppi','mid',this)">2023–Now</button>
+        <button class="time-btn" aria-pressed="false" onclick="applyTimeRange('ppi','recent',this)">2024–Now</button>
+      </div>
+      <div class="chart-wrapper tall" aria-label="Building Materials Producer Price Indices from January 2021 to July 2025">
+        <canvas id="chart-ppi" role="img" aria-label="Building materials PPI: metals declined from 440 peak to 300, lumber volatile settling at 270, cement steady rise to 290"></canvas>
+      </div>
+      <div class="chart-legend" id="legend-ppi"></div>
+      <div class="chart-caption">Building Materials Producer Price Indices (Jan 2021–Jul 2025, Jan 2021 = 100 baseline index)</div>
+    </div>
+    <div class="chart-block">
+      <div class="chart-wrapper short" aria-label="Petroleum Product Prices from January 2021 to July 2025">
+        <canvas id="chart-petroleum" role="img" aria-label="Crude oil WTI settled at $1.5/gal, US diesel at $3.7/gal by mid-2025, down from 2022 peaks"></canvas>
+      </div>
+      <div class="chart-legend" id="legend-petroleum"></div>
+      <div class="chart-caption">Petroleum Product Prices ($/gallon, Jan 2021–Jul 2025)</div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 5.4 RESIDENTIAL DEMAND ========== -->
+<section class="report-section" id="sec-driver-resi">
+  <h2 class="section-heading">4.4 Demand Visibility — Residential</h2>
+  <div class="section-body">
+    <p>New privately owned housing units authorized by building permits remained subdued in 2025, with an estimated 1.45 million total permits (1.02M single-family, 0.43M multi-family). Single-family permits declined 4.7% YoY, while multi-family starts pulled back amid oversupply concerns in select metros and tighter construction lending. Overall permit activity fell 2.3–3.7% from 2024, steeper than initially expected.</p>
+    <div class="chart-block">
+      <div class="chart-wrapper" aria-label="Housing Permits Authorized from 2019 to 2025 showing total, single-family, and multi-family">
+        <canvas id="chart-permits" role="img" aria-label="Housing permits 2025: 1.02M single-family and 0.43M multi-family, total 1.45M, down from 2021 peak of 1.74M"></canvas>
+      </div>
+      <div class="chart-legend" id="legend-permits"></div>
+      <div class="chart-caption">New Privately Owned Housing Units Authorized by Building Permits (M units, 2019–2025)</div>
+    </div>
+    <div class="callout">2025 total permits: <strong>1.45M</strong> (1.02M single-family + 0.43M multi-family) — down 2.3–3.7% YoY</div>
+  </div>
+</section>
+
+<!-- ========== 5.5 NONRESIDENTIAL DEMAND ========== -->
+<section class="report-section" id="sec-driver-nonres">
+  <h2 class="section-heading">4.5 Demand Visibility — Nonresidential</h2>
+  <div class="section-body">
+    <p>The Architecture Billings Index (ABI), a leading indicator for non-residential construction activity, remained in contraction territory throughout 2025. After briefly approaching the 50-point threshold in early 2024, the index resumed its downward trajectory, hitting 43.3 in September 2025. This represents 16 consecutive months below the 50 expansion/contraction baseline, the longest sustained contraction since the 2008–2009 financial crisis.</p>
+    <div class="chart-block">
+      <div class="chart-wrapper" aria-label="Architecture Billings Index from 2022 to 2025, below 50 threshold for 16 consecutive months">
+        <canvas id="chart-abi" role="img" aria-label="Architecture Billings Index dropped to 43.3, 16 consecutive months below the 50 expansion threshold"></canvas>
+      </div>
+      <div class="chart-legend" id="legend-abi"></div>
+      <div class="chart-caption">National Architecture Billings Index (2022–2025, 50 = Expansion/Contraction Baseline)</div>
+    </div>
+    <div class="annotation"><strong>16 consecutive months below 50</strong> as of September 2025 — the longest sustained contraction since the 2008–2009 financial crisis, signaling pipeline softening for commercial and mixed-use projects in 2026.</div>
+  </div>
+</section>
+
+<!-- ========== 5.6 INFRASTRUCTURE ========== -->
+<section class="report-section" id="sec-driver-infra">
+  <h2 class="section-heading">4.6 Government Infrastructure Spending</h2>
+  <div class="section-body">
+    <p>Federal infrastructure disbursements provided the strongest positive catalyst for the sector in 2025. Public non-residential construction spend reached an estimated $480 billion, up approximately 9% YoY, driven by accelerating IIJA project awards and CHIPS Act facility construction. Private non-residential spend also expanded, reaching $870 billion, though growth moderated as data center and semiconductor facility pipelines entered execution phases.</p>
+    <div class="dual-chart">
+      <div class="chart-block">
+        <div class="chart-wrapper short" aria-label="US Non-Residential Construction Spend, public versus private, 2019 to 2025">
+          <canvas id="chart-nonres-spend" role="img" aria-label="Non-residential construction: public spend $480B, private $870B in 2025"></canvas>
+        </div>
+        <div class="chart-legend" id="legend-nonres-spend"></div>
+        <div class="chart-caption">US Non-Residential Construction Spend ($B, 2019–2025)</div>
+      </div>
+      <div class="chart-block">
+        <div class="chart-wrapper short" aria-label="IIJA, CHIPS, IRA federal budget allocation showing allocated versus unallocated funds">
+          <canvas id="chart-federal-alloc" role="img" aria-label="Federal allocation: IIJA 67% allocated of $432B, CHIPS 74% of $280B, IRA 35% of $37B"></canvas>
+        </div>
+        <div class="chart-legend" id="legend-federal-alloc"></div>
+        <div class="chart-caption">IIJA / CHIPS / IRA Budget Allocation (July 2025, $B)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 5.7 CREDIT ========== -->
+<section class="report-section" id="sec-driver-credit">
+  <h2 class="section-heading">4.7 Credit Availability &amp; Lending Standards</h2>
+  <div class="section-body">
+    <p>Credit conditions tightened faster than anticipated in 2025, with regional and national lenders raising underwriting standards across commercial real estate and construction lending. Key developments include:</p>
+    <div class="card-grid">
+      <div class="card card-accent-neg-top">
+        <div class="card-title">LTV/LTC Ratios Reduced</div>
+        <div class="card-desc">Loan-to-value and loan-to-cost ratios reduced across both regional and national lenders, reflecting heightened risk aversion in CRE lending.</div>
+      </div>
+      <div class="card card-accent-neg-top">
+        <div class="card-title">Equity Requirements: 25–30%</div>
+        <div class="card-desc">Sponsor equity requirements raised to approximately 25–30%, up from 15–20% pre-tightening, constraining smaller developers.</div>
+      </div>
+      <div class="card card-accent-neu-top">
+        <div class="card-title">Regional Banks Pull Back</div>
+        <div class="card-desc">Regional lenders pulled back sharpest; larger sponsors still accessing capital through private credit and institutional partnerships.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 5.8 GDP & SENTIMENT ========== -->
+<section class="report-section" id="sec-driver-gdp">
+  <h2 class="section-heading">4.8 GDP Growth &amp; Consumer Confidence</h2>
+  <div class="section-body">
+    <p>US GDP continued to expand in 2025, with the index reaching approximately 122 (2019 = 100), reflecting cumulative real growth of over 22% since pre-pandemic levels. However, consumer sentiment — as measured by the University of Michigan Consumer Sentiment Index — declined to 55, its lowest level since the pandemic trough. This divergence between objective economic output and subjective consumer confidence is one of the most notable features of the current cycle.</p>
+    <div class="chart-block">
+      <div class="time-range-bar screen-only" data-chart="gdp">
+        <button class="time-btn active" aria-pressed="true" onclick="applyTimeRange('gdp','all',this)">2019–Now</button>
+        <button class="time-btn" aria-pressed="false" onclick="applyTimeRange('gdp','mid',this)">2022–Now</button>
+        <button class="time-btn" aria-pressed="false" onclick="applyTimeRange('gdp','recent',this)">2024–Now</button>
+      </div>
+      <div class="chart-wrapper" aria-label="US GDP Index versus University of Michigan Consumer Sentiment, both indexed to 100 at 2019">
+        <canvas id="chart-gdp" role="img" aria-label="GDP index rose to 122 while consumer sentiment fell to 55, a major divergence"></canvas>
+      </div>
+      <div class="chart-legend" id="legend-gdp"></div>
+      <div class="chart-caption">US GDP Index vs. U-M Consumer Sentiment (2019–2025, indexed to 100 at 2019)</div>
+    </div>
+    <div class="callout">
+      <strong>Why GDP strength is not reflected in sentiment</strong> — Lingering inflation effects, declining trust in economic mobility, and increasingly pessimistic survey biases depress sentiment even as GDP grows. For the building sector, this means consumer-facing segments (R&amp;R, retail distribution) may underperform relative to what GDP headline numbers would suggest.
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECTION 6: CONCLUSION ========== -->
+<section class="report-section" id="sec-conclusion">
+  <h2 class="section-heading">Sector Driver Conclusion</h2>
+  <div class="section-body">
+    <p>The 2025 market environment presents a clear bifurcation: infrastructure and non-residential tailwinds remain robust, anchored by federal spending programs, while residential and credit-sensitive segments face persistent headwinds from elevated rates, tight lending, and weakening consumer confidence. Companies with balanced exposure across end markets, strong pricing discipline, and cost control capabilities are best positioned to navigate this divergent landscape.</p>
+    <div class="driver-mini-grid">
+      <div class="driver-mini"><div class="dm-name">Interest &amp; Mortgage Rates</div><span class="badge badge-neg">Negative</span></div>
+      <div class="driver-mini"><div class="dm-name">Labor Dynamics</div><span class="badge badge-neg">Negative</span></div>
+      <div class="driver-mini"><div class="dm-name">Material &amp; Energy Costs</div><span class="badge badge-neu">Neutral</span></div>
+      <div class="driver-mini"><div class="dm-name">Demand — Residential</div><span class="badge badge-neu">Neutral</span></div>
+      <div class="driver-mini"><div class="dm-name">Demand — Nonresidential</div><span class="badge badge-neg">Negative</span></div>
+      <div class="driver-mini"><div class="dm-name">Infrastructure Spending</div><span class="badge badge-pos">Positive</span></div>
+      <div class="driver-mini"><div class="dm-name">Credit &amp; Lending</div><span class="badge badge-neg">Negative</span></div>
+      <div class="driver-mini"><div class="dm-name">GDP &amp; Sentiment</div><span class="badge badge-neg">Negative</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECTION 7: COMPANY SNAPSHOT ========== -->
+<section class="report-section" id="sec-snapshot">
+  <h2 class="section-heading">Public Company Performance Snapshot</h2>
+  <div class="section-body">
+    <p>Across the 35 public companies tracked in this report, H1 2025 results revealed a sector adapting to structural shifts rather than cyclical recovery. Revenue growth was narrowly positive for infrastructure-linked names (CRH +4.8%, Martin Marietta +4.9%, Vulcan +5.0%) but negative for most lumber and steel producers. Margin performance was broadly resilient, with EBITDA margins expanding for a majority of companies despite modest topline headwinds — reflecting the sustained focus on cost discipline, pricing power, and portfolio optimization that has defined the sector since the 2022 inflationary peak.</p>
+    <p class="mt-12">M&amp;A remained a defining theme. QXO's transformative acquisition of Beacon Roofing Supply drove a dramatic revenue increase but heavily distorted its operating ratios. ASSA ABLOY, Owens Corning, and CRH continued bolt-on acquisition strategies. The aggregate deal value across the tracked universe rose approximately 24% YoY, with infrastructure adjacencies and building envelope companies as the most active targets.</p>
+    <p class="mt-12">Residential-exposed companies managed through volume declines with margin preservation strategies. Builders FirstSource, JELD-WEN, and Fortune Brands each saw revenue contractions but largely maintained or narrowed EBITDA margin erosion through cost reduction programs, manufacturing footprint optimization, and selective pricing actions.</p>
+
+    <h3 class="sub-heading">Key Performance Themes</h3>
+    <div class="theme-cards">
+      <div class="theme-card">
+        <div class="tc-icon">&#9650;</div>
+        <h4>Infrastructure-Linked Outperformance</h4>
+        <p>Aggregates, cement, and steel companies benefiting from IIJA/CHIPS disbursements delivered the strongest revenue and margin growth.</p>
+      </div>
+      <div class="theme-card">
+        <div class="tc-icon">&#9670;</div>
+        <h4>Margin Resilience</h4>
+        <p>Pricing discipline and cost control allowed most companies to expand or defend EBITDA margins despite volume headwinds.</p>
+      </div>
+      <div class="theme-card">
+        <div class="tc-icon">&#8962;</div>
+        <h4>R&amp;R as Defensive Segment</h4>
+        <p>Repair and remodel demand provided a stabilizing floor for residential-exposed names, partially offsetting new construction weakness.</p>
+      </div>
+      <div class="theme-card">
+        <div class="tc-icon">&#10038;</div>
+        <h4>Strategic Portfolio Management</h4>
+        <p>M&amp;A deal size rose ~24% YoY as companies pursued scale, vertical integration, and end-market diversification.</p>
+      </div>
+      <div class="theme-card">
+        <div class="tc-icon">&#9733;</div>
+        <h4>Capital Allocation Discipline</h4>
+        <p>Balanced deployment across dividends, buybacks, debt reduction, and growth capex reflected management confidence tempered by caution.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECTION 8: COMPANY DATA ========== -->
+<section class="report-section" id="sec-company">
+  <h2 class="section-heading">Company Performance Data</h2>
+  <div class="section-body">
+    <div class="metric-tab-bar screen-only" role="tablist" aria-label="Financial metric selector">
+      <button class="metric-tab active" data-metric="revenue" role="tab" aria-selected="true" onclick="switchMetric('revenue')">Revenue Growth %</button>
+      <button class="metric-tab" data-metric="cogs" role="tab" aria-selected="false" onclick="switchMetric('cogs')">COGS/Sales %</button>
+      <button class="metric-tab" data-metric="sga" role="tab" aria-selected="false" onclick="switchMetric('sga')">SG&amp;A/Sales %</button>
+      <button class="metric-tab" data-metric="ebitda" role="tab" aria-selected="false" onclick="switchMetric('ebitda')">EBITDA Margin %</button>
+    </div>
+
+    <!-- Subsector Key -->
+    <div class="subsector-key" id="subsector-key">
+      <span class="subsector-key-label">Subsector:</span>
+      <button class="subsector-chip active" data-subsector="all" aria-pressed="true" onclick="applySubsectorFilter('all',this)" style="background:var(--av-dark);color:#fff">All</button>
+    </div>
+
+    <div class="dual-chart">
+      <div class="chart-block">
+        <h3 class="sub-heading text-center">Building Materials</h3>
+        <div class="chart-wrapper tall" aria-label="Building Materials company performance horizontal bar chart">
+          <canvas id="chart-materials" role="img" aria-label="Building Materials company performance horizontal bar chart, sortable by metric"></canvas>
+        </div>
+      </div>
+      <div class="chart-block">
+        <h3 class="sub-heading text-center">Building Products</h3>
+        <div class="chart-wrapper tall" aria-label="Building Products company performance horizontal bar chart">
+          <canvas id="chart-products" role="img" aria-label="Building Products company performance horizontal bar chart, sortable by metric"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="chart-legend" id="legend-company"></div>
+    <div class="chart-caption" id="company-chart-caption">Revenue Growth YoY (%) — H1 2025</div>
+    <div id="filter-announce" aria-live="polite" class="sr-only"></div>
+
+    <!-- Full summary table -->
+    <h3 class="sub-heading mt-32">Company Summary Table</h3>
+    <p class="chart-caption table-footnote">35 of 39 tracked companies shown. Home Depot, Lowe's, Installed Building Products, and RPM International are excluded as their building materials segment data is not separately reported. * QXO metrics distorted by Beacon Roofing Supply acquisition (~$11B, Q1 2025). ** Owens Corning revenue growth reflects Masonite acquisition ($3.9B, closed Nov 2024).</p>
+    <div class="table-overflow">
+    <table id="company-table">
+      <thead><tr><th scope="col" class="seg-col">Seg.</th><th scope="col">Company</th><th scope="col">Revenue YoY</th><th scope="col">COGS/Sales</th><th scope="col">SG&amp;A/Sales</th><th scope="col">EBITDA Margin</th></tr></thead>
+      <tbody>
+        <tr><td><span class="seg-dot" style="background:var(--seg-nonres)"></span></td><td>CRH</td><td>+4.8%</td><td>65.9% <span class="yoy-bubble yoy-neg">+0.6pp</span></td><td>21.9% <span class="yoy-bubble yoy-neg">+0.1pp</span></td><td>17.3% <span class="yoy-bubble yoy-pos">+1.4pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>Cemex</td><td>-2.2%</td><td>68.2% <span class="yoy-bubble yoy-neg">+2.0pp</span></td><td>22.0% <span class="yoy-bubble yoy-pos">-0.2pp</span></td><td>21.8% <span class="yoy-bubble yoy-neg">-2.7pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-nonres)"></span></td><td>Heidelberg Materials</td><td>+4.0%</td><td>36.0% <span class="yoy-bubble yoy-pos">-1.0pp</span></td><td>17.0% <span class="yoy-bubble yoy-pos">-0.2pp</span></td><td>16.9% <span class="yoy-bubble yoy-pos">+2.5pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>Holcim</td><td>n/a</td><td>56.0% <span class="yoy-bubble yoy-pos">-0.3pp</span></td><td>27.1% <span class="yoy-bubble yoy-pos">-0.2pp</span></td><td>n/a</td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-nonres)"></span></td><td>Martin Marietta</td><td>+4.9%</td><td>70.5% <span class="yoy-bubble yoy-neg">+0.3pp</span></td><td>6.7% <span class="yoy-bubble yoy-neu">0.0pp</span></td><td>33.3% <span class="yoy-bubble yoy-pos">+2.5pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>Taiheiyo Cement</td><td>-2.1%</td><td>75.8% <span class="yoy-bubble yoy-pos">-2.4pp</span></td><td>15.6% <span class="yoy-bubble yoy-neg">+0.2pp</span></td><td>12.7% <span class="yoy-bubble yoy-pos">+0.9pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-nonres)"></span></td><td>Vulcan Materials</td><td>+5.0%</td><td>72.4% <span class="yoy-bubble yoy-pos">-1.7pp</span></td><td>7.3% <span class="yoy-bubble yoy-neu">0.0pp</span></td><td>28.3% <span class="yoy-bubble yoy-pos">+1.8pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-nonres)"></span></td><td>AGC</td><td>-1.9%</td><td>75.8% <span class="yoy-bubble yoy-pos">-0.5pp</span></td><td>18.3% <span class="yoy-bubble yoy-neg">+0.4pp</span></td><td>15.1% <span class="yoy-bubble yoy-pos">+13.2pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>Owens Corning</td><td>+16.9%</td><td>70.7% <span class="yoy-bubble yoy-neg">+0.9pp</span></td><td>9.7% <span class="yoy-bubble yoy-pos">-0.5pp</span></td><td>24.2% <span class="yoy-bubble yoy-pos">+0.7pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-dist)"></span></td><td>Saint-Gobain</td><td>+1.7%</td><td>72.1% <span class="yoy-bubble yoy-pos">-0.6pp</span></td><td>16.7% <span class="yoy-bubble yoy-neg">+0.4pp</span></td><td>15.1% <span class="yoy-bubble yoy-pos">+13.2pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>Canfor</td><td>+1.2%</td><td>80.5% <span class="yoy-bubble yoy-pos">-2.4pp</span></td><td>14.7% <span class="yoy-bubble yoy-pos">-1.2pp</span></td><td>4.3% <span class="yoy-bubble yoy-neg">-3.2pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>Interfor</td><td>-4.3%</td><td>96.4% <span class="yoy-bubble yoy-neg">+0.4pp</span></td><td>2.4% <span class="yoy-bubble yoy-neg">+0.1pp</span></td><td>8.3% <span class="yoy-bubble yoy-neg">-2.8pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>UFP Industries</td><td>-3.1%</td><td>82.9% <span class="yoy-bubble yoy-neg">+2.5pp</span></td><td>10.7% <span class="yoy-bubble yoy-pos">-0.3pp</span></td><td>8.7% <span class="yoy-bubble yoy-neg">-0.2pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>West Fraser</td><td>-10.3%</td><td>72.2% <span class="yoy-bubble yoy-neg">+3.8pp</span></td><td>18.2% <span class="yoy-bubble yoy-neg">+0.4pp</span></td><td>9.5% <span class="yoy-bubble yoy-neg">-1.4pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>Weyerhaeuser</td><td>-2.4%</td><td>75.8% <span class="yoy-bubble yoy-neg">+4.5pp</span></td><td>8.7% <span class="yoy-bubble yoy-neg">+1.2pp</span></td><td>15.7% <span class="yoy-bubble yoy-pos">+0.1pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-nonres)"></span></td><td>ArcelorMittal</td><td>-5.6%</td><td>90.4% <span class="yoy-bubble yoy-neg">+0.6pp</span></td><td>4.2% <span class="yoy-bubble yoy-neg">+0.3pp</span></td><td>7.0% <span class="yoy-bubble yoy-neg">-0.6pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-nonres)"></span></td><td>Nucor</td><td>+0.4%</td><td>89.5% <span class="yoy-bubble yoy-neg">+8.8pp</span></td><td>3.5% <span class="yoy-bubble yoy-pos">-0.7pp</span></td><td>12.1% <span class="yoy-bubble yoy-neg">-4.1pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-nonres)"></span></td><td>Steel Dynamics</td><td>-4.2%</td><td>87.5% <span class="yoy-bubble yoy-neg">+6.9pp</span></td><td>4.9% <span class="yoy-bubble yoy-neg">+0.2pp</span></td><td>10.3% <span class="yoy-bubble yoy-neg">-3.9pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>Wienerberger</td><td>+6.0%</td><td>63.0% <span class="yoy-bubble yoy-pos">-1.6pp</span></td><td>27.3% <span class="yoy-bubble yoy-pos">-0.1pp</span></td><td>16.1% <span class="yoy-bubble yoy-pos">+1.5pp</span></td></tr>
+        <!-- Building Products -->
+        <tr><td><span class="seg-dot" style="background:var(--seg-dist)"></span></td><td>Builders FirstSource</td><td>-5.5%</td><td>68.4% <span class="yoy-bubble yoy-neg">+2.6pp</span></td><td>21.9% <span class="yoy-bubble yoy-neg">+1.6pp</span></td><td>11.3% <span class="yoy-bubble yoy-neg">-2.8pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-dist)"></span></td><td>QXO</td><td>+6520%</td><td>58.9% <span class="yoy-bubble yoy-pos">-1.7pp</span></td><td>230.4% <span class="yoy-bubble yoy-neg">+1061pp</span></td><td>-191.1% <span class="yoy-bubble yoy-neg">-191pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>Kingspan</td><td>+8.4%</td><td>52.6% <span class="yoy-bubble yoy-neg">+4.2pp</span></td><td>39.4% <span class="yoy-bubble yoy-neg">+3.3pp</span></td><td>18.7% <span class="yoy-bubble yoy-neg">-4.2pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>Carlisle Companies</td><td>-0.1%</td><td>63.1% <span class="yoy-bubble yoy-neg">+0.6pp</span></td><td>15.4% <span class="yoy-bubble yoy-neg">+1.9pp</span></td><td>24.5% <span class="yoy-bubble yoy-neg">-2.2pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>ASSA ABLOY</td><td>+3.8%</td><td>58.0% <span class="yoy-bubble yoy-pos">-1.2pp</span></td><td>22.9% <span class="yoy-bubble yoy-neg">+2.4pp</span></td><td>18.0% <span class="yoy-bubble yoy-pos">+18pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>JELD-WEN</td><td>-17.8%</td><td>82.6% <span class="yoy-bubble yoy-neg">+1.9pp</span></td><td>18.0% <span class="yoy-bubble yoy-neg">+1.0pp</span></td><td>5.6% <span class="yoy-bubble yoy-neg">-3.0pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>LIXIL</td><td>+3.2%</td><td>66.3% <span class="yoy-bubble yoy-pos">-1.9pp</span></td><td>28.1% <span class="yoy-bubble yoy-pos">-2.2pp</span></td><td>8.2% <span class="yoy-bubble yoy-pos">+2.3pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>Sanwa Holdings</td><td>+3.2%</td><td>66.9% <span class="yoy-bubble yoy-pos">-0.8pp</span></td><td>20.9% <span class="yoy-bubble yoy-pos">-0.6pp</span></td><td>14.6% <span class="yoy-bubble yoy-pos">+1.4pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-nonres)"></span></td><td>Advanced Drainage Systems</td><td>-1.6%</td><td>62.3% <span class="yoy-bubble yoy-neg">+2.2pp</span></td><td>12.8% <span class="yoy-bubble yoy-pos">-0.1pp</span></td><td>28.8% <span class="yoy-bubble yoy-neg">-1.2pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>Geberit</td><td>+1.7%</td><td>26.9% <span class="yoy-bubble yoy-pos">-1.3pp</span></td><td>28.9% <span class="yoy-bubble yoy-neg">+1.3pp</span></td><td>28.6% <span class="yoy-bubble yoy-neg">-0.5pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>Fortune Brands</td><td>-8.0%</td><td>54.4% <span class="yoy-bubble yoy-pos">-1.4pp</span></td><td>28.0% <span class="yoy-bubble yoy-neg">+1.9pp</span></td><td>20.2% <span class="yoy-bubble yoy-neg">-0.4pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>Masco</td><td>-4.1%</td><td>63.6% <span class="yoy-bubble yoy-neg">+0.2pp</span></td><td>18.7% <span class="yoy-bubble yoy-pos">-0.4pp</span></td><td>19.6% <span class="yoy-bubble yoy-pos">+0.2pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>Carrier Global</td><td>-0.2%</td><td>73.1% <span class="yoy-bubble yoy-neg">+1.3pp</span></td><td>13.6% <span class="yoy-bubble yoy-neg">+0.1pp</span></td><td>14.9% <span class="yoy-bubble yoy-neg">-0.9pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>Daikin Industries</td><td>-0.4%</td><td>65.4% <span class="yoy-bubble yoy-pos">-0.6pp</span></td><td>26.0% <span class="yoy-bubble yoy-neg">+10.5pp</span></td><td>13.9% <span class="yoy-bubble yoy-pos">+0.4pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>Johnson Controls</td><td>+2.0%</td><td>63.6% <span class="yoy-bubble yoy-neg">+4.1pp</span></td><td>22.7% <span class="yoy-bubble yoy-pos">-2.9pp</span></td><td>15.9% <span class="yoy-bubble yoy-pos">+5.5pp</span></td></tr>
+        <tr><td><span class="seg-dot" style="background:var(--seg-resi)"></span></td><td>Trane Technologies</td><td>+9.6%</td><td>63.7% <span class="yoy-bubble yoy-pos">-1.6pp</span></td><td>18.3% <span class="yoy-bubble yoy-neg">+0.7pp</span></td><td>19.6% <span class="yoy-bubble yoy-pos">+0.9pp</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECTION 9: SHARE PRICE ========== -->
+<section class="report-section" id="sec-shareprice">
+  <h2 class="section-heading">Share Price Performance</h2>
+  <div class="section-body">
+    <div class="chart-block">
+      <div class="chart-wrapper" aria-label="YTD 2025 indexed share price performance for S&P 500, Building Materials, and Building Products">
+        <canvas id="chart-shareprice" role="img" aria-label="YTD 2025 share price: S&P 500 +14.6%, Building Materials +5.2%, Building Products -1.7%"></canvas>
+      </div>
+      <div class="chart-legend" id="legend-shareprice"></div>
+      <div class="chart-caption">YTD Share Price Performance 2025 (Indexed, Jan 2025 = 100)</div>
+    </div>
+    <div class="dual-chart">
+      <div class="annotation"><strong>Q2 Recovery:</strong> Aggregates and cement stocks rallied in Q2 as IIJA disbursement data exceeded expectations and pricing momentum held, driving the Building Materials index to its YTD peak of 110 in June.</div>
+      <div class="annotation annotation-neg"><strong>Q1 Headwinds:</strong> Building Products underperformed from the start, weighed down by residential volume weakness, tariff-related input cost uncertainty, and negative revisions to housing starts forecasts.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECTION 10: POSITIONING ========== -->
+<section class="report-section" id="sec-positioning">
+  <h2 class="section-heading">Positioning for EOY 2025 &amp; Beyond</h2>
+  <div class="section-body">
+    <p>As the sector enters the final quarter of 2025, strategic positioning depends heavily on end-market exposure and operational flexibility. Companies aligned with secular infrastructure themes — data centers, semiconductor fabrication, renewable energy, and federally funded transportation — continue to benefit from multi-year spending tailwinds. Residential-focused companies must demonstrate pricing discipline, R&amp;R resilience, and cost flexibility to sustain margins through what may be a prolonged recovery timeline.</p>
+    <p class="mt-12">The ABI's extended contraction poses the most significant forward-looking risk for commercial and mixed-use project formation. While current backlogs remain supportive through mid-2026, new project wins may decelerate unless billings stabilize above 50 in the coming quarters.</p>
+
+    <div class="pos-cards">
+      <div class="pos-card card-accent-nonres-top">
+        <h4>Infrastructure-Aligned</h4>
+        <p>Best positioned: companies with exposure to data centers, semiconductor facilities, utilities, and transportation infrastructure. IIJA/CHIPS funding flows peak in 2025–2026.</p>
+      </div>
+      <div class="pos-card card-accent-resi-top">
+        <h4>Residential-Focused</h4>
+        <p>Navigating headwinds through R&amp;R demand stability, efficiency gains, and disciplined pricing. Recovery contingent on rate trajectory and affordability improvements.</p>
+      </div>
+      <div class="pos-card card-accent-dist-top">
+        <h4>ABI Risk — Commercial</h4>
+        <p>Backlog moderation signal for commercial and mixed-use in 2026. 16+ months of sub-50 ABI readings suggest project pipeline thinning ahead.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECTION 11: RETROSPECTIVE ========== -->
+<section class="report-section" id="sec-retro">
+  <h2 class="section-heading">Trend Continuity &amp; Retrospective</h2>
+  <div class="section-body">
+    <h3 class="sub-heading">Variances from Expectation</h3>
+    <p>Several key metrics diverged from our earlier 2025 guidance:</p>
+    <div class="card-grid grid-2col">
+      <div class="card">
+        <div class="card-title">Residential Permits</div>
+        <div class="card-desc">Fell 2.3–3.7% YoY (single-family -4.7%), steeper than the flat-to-modest-decline scenario we projected. Persistent affordability constraints and cautious builder sentiment drove the undershoot.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">ABI Contraction</div>
+        <div class="card-desc">The ABI reached 43.3 in September, extending the sub-50 streak to 16–19 months — deeper and longer than our base case of stabilization at 47–49 by mid-year.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Labor Inflation</div>
+        <div class="card-desc">Wage growth in construction exceeded broader economy averages by a wider margin than anticipated, adding to project cost escalation.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Credit Conditions</div>
+        <div class="card-desc">Tightened faster than guidance — equity requirements rose to 25–30% (vs. our 20–25% assumption), and regional bank pullback was more pronounced.</div>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">Looking Ahead: Key Variables</h3>
+    <div class="card-grid grid-2col">
+      <div class="card card-accent-pos-top">
+        <div class="card-title">Fed Rate Path</div>
+        <div class="card-desc">The pace and magnitude of 2026 rate cuts will be the single most influential variable for residential recovery. Markets currently price 75–100bps of cuts by end of 2026, but actual delivery remains highly data-dependent.</div>
+      </div>
+      <div class="card card-accent-neu-top">
+        <div class="card-title">Tariff Impact</div>
+        <div class="card-desc">Tariff policy uncertainty on steel, aluminum, and Canadian lumber continues to cloud input cost visibility. Escalation risk remains a key margin headwind for 2026.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECTION 12: HOW AV CAN HELP ========== -->
+<section class="report-section" id="sec-av">
+  <h2 class="section-heading">How Applied Value Can Help</h2>
+  <div class="section-body">
+    <p>Applied Value partners with building materials and products companies to drive measurable improvement across the value chain. Our team brings deep sector expertise, data-driven methodologies, and hands-on implementation support to help clients capture value in both growth and challenging market environments.</p>
+
+    <div class="service-cards">
+      <div class="service-card">
+        <div class="service-icon">&#8644;</div>
+        <h4>Optimize Sourcing &amp; Supply Chains</h4>
+        <p class="service-card-desc">Strategic procurement, supplier consolidation, and logistics optimization to reduce costs and improve resilience.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">&#9881;</div>
+        <h4>Enhance Operational Efficiency</h4>
+        <p class="service-card-desc">Lean manufacturing, capacity optimization, and continuous improvement programs for sustainable margin expansion.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">&#36;</div>
+        <h4>Improve Pricing &amp; Commercial Strategy</h4>
+        <p class="service-card-desc">Data-driven pricing analytics, channel strategy, and go-to-market optimization to capture value.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">&#10070;</div>
+        <h4>Strategic M&amp;A &amp; Portfolio Optimization</h4>
+        <p class="service-card-desc">Target identification, due diligence support, integration planning, and portfolio rationalization.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">&#9889;</div>
+        <h4>Accelerate Digitalization &amp; Productivity</h4>
+        <p class="service-card-desc">Digital transformation roadmaps, technology evaluation, and implementation to boost productivity.</p>
+      </div>
+    </div>
+
+    <h3 class="sub-heading mt-32">Contact Us</h3>
+    <div class="contact-grid">
+      <div class="contact-card">
+        <div class="name">Max Sultan</div>
+        <div class="role">Partner</div>
+        <div class="phone">+1 (978) 760-9971</div>
+        <div class="role">Miami</div>
+      </div>
+      <div class="contact-card">
+        <div class="name">Alexander Schneider</div>
+        <div class="role">Senior Manager</div>
+        <div class="phone">+1 (561) 289-1313</div>
+        <div class="role">Miami</div>
+      </div>
+      <div class="contact-card">
+        <div class="name">Jacob Wozniewski</div>
+        <div class="role">Senior Consultant</div>
+        <div class="phone">+1 (351) 216-9648</div>
+        <div class="role">Miami</div>
+      </div>
+    </div>
+
+    <div class="av-footer-block">
+      <div class="av-footer-name">Applied Value Group</div>
+      <div class="av-footer-addr">One Biscayne Tower, 2 S Biscayne Blvd. Suite 1750, Miami, FL 33131</div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== PRINT-ONLY: Running footer ====== -->
+<div class="print-only print-footer" aria-hidden="true">
+  <span>Applied Value Group — Confidential</span>
+  <span>&copy; 2025 Applied Value Group. All rights reserved.</span>
+</div>
+
+</main>
+
+<!-- ============================================================
+     CHART.JS
+     ============================================================ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
+<script>
+/* ============================================================
+   GLOBAL STATE & DATA
+   ============================================================ */
+let activeSegment = 'all';
+let activeMetric = 'revenue';
+const allCharts = {};
+const timeRangeData = {};
+
+// Subsector definitions & colors
+const subsectorColors = {
+  'Aggregates & Cement':'#1A4731',
+  'Glass & Insulation':'#0097A7',
+  'Wood & Lumber':'#8D6E27',
+  'Steel & Metals':'#546E7A',
+  'Building Envelope & Dist.':'#6A1B9A',
+  'Doors & Windows':'#00695C',
+  'Plumbing & Fixtures':'#1565A0',
+  'HVAC & Climate':'#D84315'
+};
+let activeSubsector = 'all';
+
+// Company data
+const materials = [
+  {name:'CRH',seg:'nonresidential',sub:'Aggregates & Cement',revenue:4.8,cogs:65.9,cogsD:0.6,sga:21.9,sgaD:0.1,ebitda:17.3,ebitdaD:1.4},
+  {name:'Cemex',seg:'residential',sub:'Aggregates & Cement',revenue:-2.2,cogs:68.2,cogsD:2.0,sga:22.0,sgaD:-0.2,ebitda:21.8,ebitdaD:-2.7},
+  {name:'Heidelberg',seg:'nonresidential',sub:'Aggregates & Cement',revenue:4.0,cogs:36.0,cogsD:-1.0,sga:17.0,sgaD:-0.2,ebitda:16.9,ebitdaD:2.5},
+  {name:'Holcim',seg:'residential',sub:'Aggregates & Cement',revenue:null,cogs:56.0,cogsD:-0.3,sga:27.1,sgaD:-0.2,ebitda:null,ebitdaD:null},
+  {name:'Martin Marietta',seg:'nonresidential',sub:'Aggregates & Cement',revenue:4.9,cogs:70.5,cogsD:0.3,sga:6.7,sgaD:0.0,ebitda:33.3,ebitdaD:2.5},
+  {name:'Taiheiyo',seg:'residential',sub:'Aggregates & Cement',revenue:-2.1,cogs:75.8,cogsD:-2.4,sga:15.6,sgaD:0.2,ebitda:12.7,ebitdaD:0.9},
+  {name:'Vulcan Materials',seg:'nonresidential',sub:'Aggregates & Cement',revenue:5.0,cogs:72.4,cogsD:-1.7,sga:7.3,sgaD:0.0,ebitda:28.3,ebitdaD:1.8},
+  {name:'AGC',seg:'nonresidential',sub:'Glass & Insulation',revenue:-1.9,cogs:75.8,cogsD:-0.5,sga:18.3,sgaD:0.4,ebitda:15.1,ebitdaD:13.2},
+  {name:'Owens Corning',seg:'residential',sub:'Glass & Insulation',revenue:16.9,cogs:70.7,cogsD:0.9,sga:9.7,sgaD:-0.5,ebitda:24.2,ebitdaD:0.7},
+  {name:'Saint-Gobain',seg:'distribution',sub:'Glass & Insulation',revenue:1.7,cogs:72.1,cogsD:-0.6,sga:16.7,sgaD:0.4,ebitda:15.1,ebitdaD:13.2},
+  {name:'Canfor',seg:'residential',sub:'Wood & Lumber',revenue:1.2,cogs:80.5,cogsD:-2.4,sga:14.7,sgaD:-1.2,ebitda:4.3,ebitdaD:-3.2},
+  {name:'Interfor',seg:'residential',sub:'Wood & Lumber',revenue:-4.3,cogs:96.4,cogsD:0.4,sga:2.4,sgaD:0.1,ebitda:8.3,ebitdaD:-2.8},
+  {name:'UFP Industries',seg:'residential',sub:'Wood & Lumber',revenue:-3.1,cogs:82.9,cogsD:2.5,sga:10.7,sgaD:-0.3,ebitda:8.7,ebitdaD:-0.2},
+  {name:'West Fraser',seg:'residential',sub:'Wood & Lumber',revenue:-10.3,cogs:72.2,cogsD:3.8,sga:18.2,sgaD:0.4,ebitda:9.5,ebitdaD:-1.4},
+  {name:'Weyerhaeuser',seg:'residential',sub:'Wood & Lumber',revenue:-2.4,cogs:75.8,cogsD:4.5,sga:8.7,sgaD:1.2,ebitda:15.7,ebitdaD:0.1},
+  {name:'ArcelorMittal',seg:'nonresidential',sub:'Steel & Metals',revenue:-5.6,cogs:90.4,cogsD:0.6,sga:4.2,sgaD:0.3,ebitda:7.0,ebitdaD:-0.6},
+  {name:'Nucor',seg:'nonresidential',sub:'Steel & Metals',revenue:0.4,cogs:89.5,cogsD:8.8,sga:3.5,sgaD:-0.7,ebitda:12.1,ebitdaD:-4.1},
+  {name:'Steel Dynamics',seg:'nonresidential',sub:'Steel & Metals',revenue:-4.2,cogs:87.5,cogsD:6.9,sga:4.9,sgaD:0.2,ebitda:10.3,ebitdaD:-3.9},
+  {name:'Wienerberger',seg:'residential',sub:'Steel & Metals',revenue:6.0,cogs:63.0,cogsD:-1.6,sga:27.3,sgaD:-0.1,ebitda:16.1,ebitdaD:1.5}
+];
+
+const products = [
+  {name:'Builders FirstSource',seg:'distribution',sub:'Building Envelope & Dist.',revenue:-5.5,cogs:68.4,cogsD:2.6,sga:21.9,sgaD:1.6,ebitda:11.3,ebitdaD:-2.8},
+  {name:'QXO',seg:'distribution',sub:'Building Envelope & Dist.',revenue:6520.0,cogs:58.9,cogsD:-1.7,sga:230.4,sgaD:1061,ebitda:-191.1,ebitdaD:-191},
+  {name:'Kingspan',seg:'residential',sub:'Building Envelope & Dist.',revenue:8.4,cogs:52.6,cogsD:4.2,sga:39.4,sgaD:3.3,ebitda:18.7,ebitdaD:-4.2},
+  {name:'Carlisle',seg:'residential',sub:'Building Envelope & Dist.',revenue:-0.1,cogs:63.1,cogsD:0.6,sga:15.4,sgaD:1.9,ebitda:24.5,ebitdaD:-2.2},
+  {name:'ASSA ABLOY',seg:'residential',sub:'Doors & Windows',revenue:3.8,cogs:58.0,cogsD:-1.2,sga:22.9,sgaD:2.4,ebitda:18.0,ebitdaD:18},
+  {name:'JELD-WEN',seg:'residential',sub:'Doors & Windows',revenue:-17.8,cogs:82.6,cogsD:1.9,sga:18.0,sgaD:1.0,ebitda:5.6,ebitdaD:-3.0},
+  {name:'LIXIL',seg:'residential',sub:'Doors & Windows',revenue:3.2,cogs:66.3,cogsD:-1.9,sga:28.1,sgaD:-2.2,ebitda:8.2,ebitdaD:2.3},
+  {name:'Sanwa',seg:'residential',sub:'Doors & Windows',revenue:3.2,cogs:66.9,cogsD:-0.8,sga:20.9,sgaD:-0.6,ebitda:14.6,ebitdaD:1.4},
+  {name:'Adv. Drainage Sys.',seg:'nonresidential',sub:'Plumbing & Fixtures',revenue:-1.6,cogs:62.3,cogsD:2.2,sga:12.8,sgaD:-0.1,ebitda:28.8,ebitdaD:-1.2},
+  {name:'Geberit',seg:'residential',sub:'Plumbing & Fixtures',revenue:1.7,cogs:26.9,cogsD:-1.3,sga:28.9,sgaD:1.3,ebitda:28.6,ebitdaD:-0.5},
+  {name:'Fortune Brands',seg:'residential',sub:'Plumbing & Fixtures',revenue:-8.0,cogs:54.4,cogsD:-1.4,sga:28.0,sgaD:1.9,ebitda:20.2,ebitdaD:-0.4},
+  {name:'Masco',seg:'residential',sub:'Plumbing & Fixtures',revenue:-4.1,cogs:63.6,cogsD:0.2,sga:18.7,sgaD:-0.4,ebitda:19.6,ebitdaD:0.2},
+  {name:'Carrier',seg:'residential',sub:'HVAC & Climate',revenue:-0.2,cogs:73.1,cogsD:1.3,sga:13.6,sgaD:0.1,ebitda:14.9,ebitdaD:-0.9},
+  {name:'Daikin',seg:'residential',sub:'HVAC & Climate',revenue:-0.4,cogs:65.4,cogsD:-0.6,sga:26.0,sgaD:10.5,ebitda:13.9,ebitdaD:0.4},
+  {name:'Johnson Controls',seg:'residential',sub:'HVAC & Climate',revenue:2.0,cogs:63.6,cogsD:4.1,sga:22.7,sgaD:-2.9,ebitda:15.9,ebitdaD:5.5},
+  {name:'Trane',seg:'residential',sub:'HVAC & Climate',revenue:9.6,cogs:63.7,cogsD:-1.6,sga:18.3,sgaD:0.7,ebitda:19.6,ebitdaD:0.9}
+];
+
+const segColors = {nonresidential:'#2E7D52',distribution:'#E07B2A',residential:'#1565A0'};
+const dimColor = 'rgba(200,200,200,0.3)';
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function getSegColor(seg){return segColors[seg]||'#999'}
+function getSubColor(sub){return subsectorColors[sub]||'#999'}
+function getBarColor(company){
+  // Subsector filter takes priority when active
+  if(activeSubsector!=='all'){
+    return company.sub===activeSubsector ? getSubColor(company.sub) : dimColor;
+  }
+  // Then segment filter
+  if(activeSegment!=='all'){
+    return company.seg===activeSegment ? getSegColor(company.seg) : dimColor;
+  }
+  // Default: color by subsector
+  return getSubColor(company.sub);
+}
+
+function buildLegend(id, items){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.innerHTML=items.map((it,i)=>
+    `<button class="chart-legend-item" data-idx="${i}" aria-label="Toggle ${it.label}"><span class="chart-legend-swatch" style="background:${it.color}"></span><span class="chart-legend-label">${it.label}</span></button>`
+  ).join('');
+}
+
+function attachLegendToggle(legendId, chart){
+  const el=document.getElementById(legendId);
+  if(!el)return;
+  el.querySelectorAll('.chart-legend-item').forEach(item=>{
+    item.addEventListener('click',function(){
+      const idx=+this.dataset.idx;
+      const meta=chart.getDatasetMeta(idx);
+      meta.hidden=!meta.hidden;
+      this.classList.toggle('struck');
+      chart.update();
+    });
+  });
+}
+
+/* ============================================================
+   CHART INITIALIZATION
+   ============================================================ */
+// roundRect polyfill for Safari < 16
+if(!CanvasRenderingContext2D.prototype.roundRect){
+  CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){
+    if(typeof r==='number') r=[r,r,r,r];
+    this.moveTo(x+r[0],y);
+    this.lineTo(x+w-r[1],y);
+    this.arcTo(x+w,y,x+w,y+r[1],r[1]);
+    this.lineTo(x+w,y+h-r[2]);
+    this.arcTo(x+w,y+h,x+w-r[2],y+h,r[2]);
+    this.lineTo(x+r[3],y+h);
+    this.arcTo(x,y+h,x,y+h-r[3],r[3]);
+    this.lineTo(x,y+r[0]);
+    this.arcTo(x,y,x+r[0],y,r[0]);
+    this.closePath();
+    return this;
+  };
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+
+// --- Chart.js global defaults ---
+Chart.defaults.layout = { padding: { top: 8, right: 10, bottom: 4, left: 4 } };
+Chart.defaults.plugins.tooltip.cornerRadius = 4;
+Chart.defaults.plugins.tooltip.caretSize = 5;
+
+// --- Plugin: Average Line for horizontal bar charts ---
+Chart.register({
+  id:'avgLine',
+  afterDraw(chart){
+    const opts=chart.options.plugins.avgLine;
+    if(!opts||opts.avg===undefined||opts.avg===null) return;
+    const avg=opts.avg;
+    const xScale=chart.scales.x;
+    if(!xScale||typeof xScale.getPixelForValue!=='function') return;
+    const xPixel=xScale.getPixelForValue(avg);
+    const ctx=chart.ctx;
+    const top=chart.chartArea.top;
+    const bottom=chart.chartArea.bottom;
+    ctx.save();
+    // Draw dashed vertical line (full height of chart area)
+    ctx.beginPath();
+    ctx.setLineDash([6,4]);
+    ctx.lineWidth=1.5;
+    ctx.strokeStyle='#C62828';
+    ctx.moveTo(xPixel,top);
+    ctx.lineTo(xPixel,bottom);
+    ctx.stroke();
+    // Label with background pill — positioned ABOVE chart area in the padding zone
+    ctx.setLineDash([]);
+    const label='\u00D8 '+avg.toFixed(1)+'%';
+    ctx.font='bold 10px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif';
+    const tw=ctx.measureText(label).width;
+    const lx=xPixel;
+    const ly=top-10;
+    // Background pill
+    ctx.fillStyle='rgba(255,255,255,0.95)';
+    ctx.beginPath();
+    ctx.roundRect(lx-tw/2-6,ly-7,tw+12,16,4);
+    ctx.fill();
+    ctx.strokeStyle='#C62828';
+    ctx.lineWidth=1;
+    ctx.stroke();
+    // Text
+    ctx.fillStyle='#C62828';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText(label,lx,ly+1);
+    ctx.restore();
+  }
+});
+
+// --- CHART: Construction Spend ---
+(function(){
+  const labels=['2019','2020','2021','2022','2023','2024','2025'];
+  const ds=[
+    {label:'Total',data:[1.29,1.36,1.57,1.79,1.97,2.10,2.18],borderColor:'#1A4731',backgroundColor:'rgba(26,71,49,0.08)',borderWidth:2.5,fill:true,tension:0.3,pointRadius:4,pointBackgroundColor:'#1A4731'},
+    {label:'Non-Residential',data:[0.81,0.83,0.88,0.96,1.11,1.29,1.35],borderColor:'#2E7D52',backgroundColor:'rgba(46,125,82,0.06)',borderWidth:2,fill:false,tension:0.3,pointRadius:3,pointBackgroundColor:'#2E7D52'},
+    {label:'Residential',data:[0.48,0.53,0.69,0.83,0.86,0.81,0.83],borderColor:'#1565A0',backgroundColor:'rgba(21,101,160,0.06)',borderWidth:2,fill:false,tension:0.3,pointRadius:3,pointBackgroundColor:'#1565A0'}
+  ];
+  timeRangeData.constructionSpend={labels:labels,datasets:ds.map(d=>({...d,fullData:[...d.data]}))};
+  const ctx=document.getElementById('chart-construction-spend');
+  allCharts.constructionSpend=new Chart(ctx,{
+    type:'line',
+    data:{labels:[...labels],datasets:ds.map(d=>({...d}))},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:400,easing:'easeInOutQuart'},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',titleColor:'#1A1A1A',bodyColor:'#555',borderColor:'#E0E0E0',borderWidth:1,padding:10,bodyFont:{size:12}}},
+      scales:{y:{beginAtZero:false,ticks:{callback:v=>'$'+v.toFixed(2)+'T',font:{size:11},color:'#666'},grid:{color:'#E8E8E8',lineWidth:0.5}},x:{ticks:{font:{size:11},color:'#666'},grid:{display:false}}}
+    }
+  });
+  buildLegend('legend-construction-spend',[{color:'#1A4731',label:'Total'},{color:'#2E7D52',label:'Non-Residential'},{color:'#1565A0',label:'Residential'}]);
+  attachLegendToggle('legend-construction-spend',allCharts.constructionSpend);
+})();
+
+// --- CHART: Interest Rates ---
+(function(){
+  const labels=['2019','2020','2021','2022','2023','2024','2025'];
+  const ds=[
+    {label:'Fed Funds Rate',data:[2.4,0.4,0.1,1.7,5.3,5.3,4.0],borderColor:'#1A4731',borderWidth:2.5,tension:0.3,pointRadius:4,pointBackgroundColor:'#1A4731',fill:false},
+    {label:'30yr Mortgage',data:[3.9,3.1,3.0,5.3,6.8,6.8,6.5],borderColor:'#E07B2A',borderWidth:2.5,tension:0.3,pointRadius:4,pointBackgroundColor:'#E07B2A',fill:false}
+  ];
+  timeRangeData.rates={labels:labels,datasets:ds.map(d=>({...d,fullData:[...d.data]}))};
+  const ctx=document.getElementById('chart-rates');
+  allCharts.rates=new Chart(ctx,{
+    type:'line',
+    data:{labels:[...labels],datasets:ds.map(d=>({...d}))},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',titleColor:'#1A1A1A',bodyColor:'#555',borderColor:'#E0E0E0',borderWidth:1,padding:10}},
+      scales:{y:{beginAtZero:true,ticks:{callback:v=>v+'%',font:{size:11},color:'#666'},grid:{color:'#E8E8E8',lineWidth:0.5}},x:{ticks:{font:{size:11},color:'#666'},grid:{display:false}}}
+    }
+  });
+  buildLegend('legend-rates',[{color:'#1A4731',label:'Fed Funds Rate'},{color:'#E07B2A',label:'30-Year Fixed Mortgage'}]);
+  attachLegendToggle('legend-rates',allCharts.rates);
+})();
+
+// --- CHART: Labor ---
+(function(){
+  const labels=['Jun24','Jul24','Aug24','Sep24','Oct24','Nov24','Dec24','Jan25','Feb25','Mar25','Apr25','May25','Jun25','Jul25','Aug25'];
+  const emp=[8.0,8.1,8.1,8.1,8.1,8.2,8.2,8.2,8.2,8.2,8.3,8.3,8.3,8.3,8.3];
+  const openings=[318,298,301,265,285,270,255,280,260,250,300,285,240,310,188];
+  const ctx=document.getElementById('chart-labor');
+  allCharts.labor=new Chart(ctx,{
+    type:'bar',
+    data:{labels:labels,datasets:[
+      {label:'Job Openings (K)',data:openings,backgroundColor:'rgba(26,71,49,0.2)',borderColor:'#1A4731',borderWidth:1,yAxisID:'y1',order:2},
+      {label:'Employment (M)',data:emp,type:'line',borderColor:'#E07B2A',borderWidth:2.5,pointRadius:3,pointBackgroundColor:'#E07B2A',tension:0.3,yAxisID:'y',fill:false,order:1}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',titleColor:'#1A1A1A',bodyColor:'#555',borderColor:'#E0E0E0',borderWidth:1,padding:10}},
+      scales:{
+        y:{position:'left',min:7.8,max:8.5,ticks:{callback:v=>v.toFixed(1)+'M',font:{size:11},color:'#666'},grid:{color:'#E8E8E8',lineWidth:0.5},title:{display:true,text:'Employment (M)',font:{size:11},color:'#666'}},
+        y1:{position:'right',min:100,max:400,ticks:{callback:v=>v+'K',font:{size:11},color:'#666'},grid:{display:false},title:{display:true,text:'Job Openings (K)',font:{size:11},color:'#666'}},
+        x:{ticks:{font:{size:10},color:'#666',maxRotation:45,autoSkip:true,maxTicksLimit:10},grid:{display:false}}
+      }
+    }
+  });
+  buildLegend('legend-labor',[{color:'#E07B2A',label:'Total Employment (M)'},{color:'#1A4731',label:'Job Openings (K)'}]);
+  attachLegendToggle('legend-labor',allCharts.labor);
+})();
+
+// --- CHART: PPI ---
+(function(){
+  // ~20 points per series from Jan 2021 to Jul 2025 (quarterly-ish)
+  const labels=['Jan21','Apr21','Jul21','Oct21','Jan22','Apr22','Jul22','Oct22','Jan23','Apr23','Jul23','Oct23','Jan24','Apr24','Jul24','Oct24','Jan25','Apr25','Jul25'];
+  const construction=[280,290,300,310,320,330,340,335,330,325,322,320,318,320,318,319,320,320,320];
+  const metals=[280,320,360,400,420,440,430,390,360,340,330,320,310,305,300,300,298,300,300];
+  const lumber=[280,400,500,450,380,350,330,310,290,280,275,270,268,270,272,270,268,270,270];
+  const cement=[200,210,220,230,240,245,250,255,260,265,268,272,275,280,282,285,287,289,290];
+  timeRangeData.ppi={labels:labels,datasets:[
+    {fullData:[...construction]},{fullData:[...metals]},{fullData:[...lumber]},{fullData:[...cement]}
+  ]};
+  const ctx=document.getElementById('chart-ppi');
+  allCharts.ppi=new Chart(ctx,{
+    type:'line',
+    data:{labels:labels,datasets:[
+      {label:'Construction Materials',data:construction,borderColor:'#1A4731',borderWidth:2,tension:0.3,pointRadius:2,fill:false},
+      {label:'Metals & Metal Products',data:metals,borderColor:'#C62828',borderWidth:2,tension:0.3,pointRadius:2,fill:false},
+      {label:'Lumber',data:lumber,borderColor:'#E07B2A',borderWidth:2,tension:0.3,pointRadius:2,fill:false},
+      {label:'Cement & Concrete',data:cement,borderColor:'#1565A0',borderWidth:2,tension:0.3,pointRadius:2,fill:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',titleColor:'#1A1A1A',bodyColor:'#555',borderColor:'#E0E0E0',borderWidth:1}},
+      scales:{y:{ticks:{font:{size:11},color:'#666'},grid:{color:'#E8E8E8',lineWidth:0.5}},x:{ticks:{font:{size:10},color:'#666',maxRotation:45,autoSkip:true,maxTicksLimit:12},grid:{display:false}}}
+    }
+  });
+  buildLegend('legend-ppi',[{color:'#1A4731',label:'Construction Materials'},{color:'#C62828',label:'Metals & Metal Products'},{color:'#E07B2A',label:'Lumber'},{color:'#1565A0',label:'Cement & Concrete'}]);
+  attachLegendToggle('legend-ppi',allCharts.ppi);
+})();
+
+// --- CHART: Petroleum ---
+(function(){
+  const labels=['Jan21','Apr21','Jul21','Oct21','Jan22','Apr22','Jul22','Oct22','Jan23','Apr23','Jul23','Oct23','Jan24','Apr24','Jul24','Oct24','Jan25','Apr25','Jul25'];
+  const crude=[1.5,1.8,2.1,2.4,2.6,3.2,3.5,2.8,2.3,2.2,2.3,2.5,2.2,2.3,2.1,1.9,1.7,1.6,1.5];
+  const diesel=[3.0,3.3,3.6,3.9,4.2,5.5,6.5,5.5,4.8,4.2,4.0,4.2,4.0,3.9,3.8,3.8,3.7,3.7,3.7];
+  const ctx=document.getElementById('chart-petroleum');
+  allCharts.petroleum=new Chart(ctx,{
+    type:'line',
+    data:{labels:labels,datasets:[
+      {label:'Crude Oil WTI',data:crude,borderColor:'#1A4731',borderWidth:2,tension:0.3,pointRadius:2,fill:false},
+      {label:'US Diesel',data:diesel,borderColor:'#E07B2A',borderWidth:2,tension:0.3,pointRadius:2,fill:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',titleColor:'#1A1A1A',bodyColor:'#555',borderColor:'#E0E0E0',borderWidth:1}},
+      scales:{y:{ticks:{callback:v=>'$'+v.toFixed(1),font:{size:11},color:'#666'},grid:{color:'#E8E8E8',lineWidth:0.5}},x:{ticks:{font:{size:10},color:'#666',maxRotation:45,autoSkip:true,maxTicksLimit:12},grid:{display:false}}}
+    }
+  });
+  buildLegend('legend-petroleum',[{color:'#1A4731',label:'Crude Oil WTI ($/gal)'},{color:'#E07B2A',label:'US Diesel ($/gal)'}]);
+  attachLegendToggle('legend-petroleum',allCharts.petroleum);
+})();
+
+// --- CHART: Housing Permits ---
+(function(){
+  const labels=['2019','2020','2021','2022','2023','2024','2025'];
+  const ctx=document.getElementById('chart-permits');
+  allCharts.permits=new Chart(ctx,{
+    type:'bar',
+    data:{labels:labels,datasets:[
+      {label:'Single Family',data:[0.90,1.03,1.17,1.03,0.97,1.04,1.02],backgroundColor:'#2E7D52',borderRadius:3},
+      {label:'Multi-Family',data:[0.48,0.44,0.57,0.65,0.54,0.44,0.43],backgroundColor:'#1565A0',borderRadius:3}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',titleColor:'#1A1A1A',bodyColor:'#555',borderColor:'#E0E0E0',borderWidth:1,callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y.toFixed(2)+'M'}}},
+      scales:{y:{stacked:false,ticks:{callback:v=>v.toFixed(1)+'M',font:{size:11},color:'#666'},grid:{color:'#E8E8E8',lineWidth:0.5}},x:{ticks:{font:{size:11},color:'#666'},grid:{display:false}}}
+    }
+  });
+  buildLegend('legend-permits',[{color:'#2E7D52',label:'Single Family'},{color:'#1565A0',label:'Multi-Family'}]);
+  attachLegendToggle('legend-permits',allCharts.permits);
+})();
+
+// --- CHART: ABI ---
+(function(){
+  // Monthly from Jan 2022 to Dec 2025
+  const labels=[];const data=[];
+  // Shape: starts ~55, peaks ~58 mid 2022, drops below 50 Aug 2023, oscillates 44-49, hits 43.3 Sep 2025
+  const vals=[55,56,57,58,57,58,56,54,52,51,50,49,49,50,51,52,51,50,49,48,47,46,45,44,44,45,46,47,46,45,44,44,45,44,43.5,43.3,44,43.8,43.5,44,45,44.5,44,44.5,44,43.5,43.3,43.5];
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let vi=0;
+  for(let y=2022;y<=2025;y++){
+    for(let m=0;m<12&&vi<vals.length;m++){
+      labels.push(months[m]+' '+String(y).slice(2));
+      data.push(vals[vi++]);
+    }
+  }
+  const ctx=document.getElementById('chart-abi');
+  allCharts.abi=new Chart(ctx,{
+    type:'line',
+    data:{labels:labels,datasets:[
+      {label:'ABI',data:data,borderColor:'#1A4731',borderWidth:2,tension:0.3,pointRadius:1.5,fill:false},
+      {label:'Baseline (50)',data:data.map(()=>50),borderColor:'#C62828',borderWidth:1.5,borderDash:[6,4],pointRadius:0,fill:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',titleColor:'#1A1A1A',bodyColor:'#555',borderColor:'#E0E0E0',borderWidth:1}},
+      scales:{y:{min:40,max:62,ticks:{font:{size:11},color:'#666'},grid:{color:'#E8E8E8',lineWidth:0.5}},x:{ticks:{font:{size:9},color:'#666',maxRotation:45,autoSkip:false,callback:function(v,i){return i%6===0?labels[i]:''}},grid:{display:false}}}
+    }
+  });
+  buildLegend('legend-abi',[{color:'#1A4731',label:'Architecture Billings Index'},{color:'#C62828',label:'50 = Expansion/Contraction'}]);
+  attachLegendToggle('legend-abi',allCharts.abi);
+})();
+
+// --- CHART: Non-Res Spend ---
+(function(){
+  const labels=['2019','2020','2021','2022','2023','2024','2025'];
+  const ctx=document.getElementById('chart-nonres-spend');
+  allCharts.nonresSpend=new Chart(ctx,{
+    type:'line',
+    data:{labels:labels,datasets:[
+      {label:'Public',data:[330,340,345,360,395,440,480],borderColor:'#2E7D52',borderWidth:2.5,tension:0.3,pointRadius:4,pointBackgroundColor:'#2E7D52',fill:false},
+      {label:'Private',data:[480,490,535,600,715,850,870],borderColor:'#1565A0',borderWidth:2.5,tension:0.3,pointRadius:4,pointBackgroundColor:'#1565A0',fill:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',titleColor:'#1A1A1A',bodyColor:'#555',borderColor:'#E0E0E0',borderWidth:1,callbacks:{label:ctx=>ctx.dataset.label+': $'+ctx.parsed.y+'B'}}},
+      scales:{y:{ticks:{callback:v=>'$'+v+'B',font:{size:11},color:'#666'},grid:{color:'#E8E8E8',lineWidth:0.5}},x:{ticks:{font:{size:11},color:'#666'},grid:{display:false}}}
+    }
+  });
+  buildLegend('legend-nonres-spend',[{color:'#2E7D52',label:'Public'},{color:'#1565A0',label:'Private'}]);
+  attachLegendToggle('legend-nonres-spend',allCharts.nonresSpend);
+})();
+
+// --- CHART: Federal Allocation ---
+(function(){
+  const ctx=document.getElementById('chart-federal-alloc');
+  allCharts.federalAlloc=new Chart(ctx,{
+    type:'bar',
+    data:{labels:['IIJA ($432B)','CHIPS ($280B)','IRA ($37B)'],datasets:[
+      {label:'Allocated',data:[288,206,13],backgroundColor:'#2E7D52',borderRadius:3},
+      {label:'Unallocated',data:[144,74,24],backgroundColor:'rgba(46,125,82,0.2)',borderRadius:3}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',layout:{padding:{top:4,right:12}},animation:{duration:400},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',titleColor:'#1A1A1A',bodyColor:'#555',borderColor:'#E0E0E0',borderWidth:1,callbacks:{label:ctx=>ctx.dataset.label+': $'+ctx.parsed.x+'B'}}},
+      scales:{x:{stacked:true,ticks:{callback:v=>'$'+v+'B',font:{size:11},color:'#666'},grid:{color:'#E8E8E8',lineWidth:0.5}},y:{stacked:true,ticks:{font:{size:11},color:'#666'},grid:{display:false}}}
+    }
+  });
+  buildLegend('legend-federal-alloc',[{color:'#2E7D52',label:'Allocated'},{color:'rgba(46,125,82,0.2)',label:'Unallocated'}]);
+})();
+
+// --- CHART: GDP vs Sentiment ---
+(function(){
+  const labels=['2019','2020','2021','2022','2023','2024','2025'];
+  const ds=[
+    {label:'GDP Index',data:[100,97,103,108,111,116,122],borderColor:'#1A4731',borderWidth:2.5,tension:0.3,pointRadius:4,pointBackgroundColor:'#1A4731',fill:false},
+    {label:'Consumer Sentiment',data:[100,79,88,68,69,74,55],borderColor:'#C62828',borderWidth:2.5,tension:0.3,pointRadius:4,pointBackgroundColor:'#C62828',fill:false}
+  ];
+  timeRangeData.gdp={labels:labels,datasets:ds.map(d=>({...d,fullData:[...d.data]}))};
+  const ctx=document.getElementById('chart-gdp');
+  allCharts.gdp=new Chart(ctx,{
+    type:'line',
+    data:{labels:[...labels],datasets:ds.map(d=>({...d}))},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',titleColor:'#1A1A1A',bodyColor:'#555',borderColor:'#E0E0E0',borderWidth:1}},
+      scales:{y:{ticks:{font:{size:11},color:'#666'},grid:{color:'#E8E8E8',lineWidth:0.5}},x:{ticks:{font:{size:11},color:'#666'},grid:{display:false}}}
+    }
+  });
+  buildLegend('legend-gdp',[{color:'#1A4731',label:'US GDP Index (2019=100)'},{color:'#C62828',label:'U-M Consumer Sentiment (2019=100)'}]);
+  attachLegendToggle('legend-gdp',allCharts.gdp);
+})();
+
+// --- CHART: Share Price ---
+(function(){
+  const labels=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const ctx=document.getElementById('chart-shareprice');
+  allCharts.shareprice=new Chart(ctx,{
+    type:'line',
+    data:{labels:labels,datasets:[
+      {label:'S&P 500',data:[100,105,103,108,110,109,112,115,114,116,118,114.6],borderColor:'#E07B2A',borderWidth:2.5,tension:0.3,pointRadius:3,pointBackgroundColor:'#E07B2A',fill:false},
+      {label:'Building Materials',data:[100,104,100,99,107,110,108,106,106,107,108,105.2],borderColor:'#1A4731',borderWidth:2.5,tension:0.3,pointRadius:3,pointBackgroundColor:'#1A4731',fill:false},
+      {label:'Building Products',data:[100,103,98,87,92,96,94,95,96,97,98,98.3],borderColor:'#4CAF7D',borderWidth:2.5,tension:0.3,pointRadius:3,pointBackgroundColor:'#4CAF7D',fill:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',titleColor:'#1A1A1A',bodyColor:'#555',borderColor:'#E0E0E0',borderWidth:1,callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y.toFixed(1)}}},
+      scales:{y:{ticks:{font:{size:11},color:'#666'},grid:{color:'#E8E8E8',lineWidth:0.5}},x:{ticks:{font:{size:11},color:'#666'},grid:{display:false}}}
+    }
+  });
+  buildLegend('legend-shareprice',[{color:'#E07B2A',label:'S&P 500 (+14.6% YTD)'},{color:'#1A4731',label:'Building Materials (+5.2% YTD)'},{color:'#4CAF7D',label:'Building Products (-1.7% YTD)'}]);
+  attachLegendToggle('legend-shareprice',allCharts.shareprice);
+})();
+
+// --- CHARTS: Company Performance (Materials & Products) ---
+function getMetricData(companies, metric){
+  return companies.map(c=>{
+    if(metric==='revenue') return c.revenue;
+    if(metric==='cogs') return c.cogs;
+    if(metric==='sga') return c.sga;
+    if(metric==='ebitda') return c.ebitda;
+    return 0;
+  });
+}
+function getMetricDataForChart(companies, metric){
+  return getMetricData(companies,metric).map(v=>v===null?0:v);
+}
+
+function getMetricDelta(companies, metric){
+  return companies.map(c=>{
+    if(metric==='revenue') return null; // revenue uses the value itself as the delta indicator
+    if(metric==='cogs') return c.cogsD;
+    if(metric==='sga') return c.sgaD;
+    if(metric==='ebitda') return c.ebitdaD;
+    return null;
+  });
+}
+
+function buildCompanyChart(canvasId, companies, metric){
+  const ctx=document.getElementById(canvasId);
+  const existing=allCharts[canvasId];
+  if(existing) existing.destroy();
+
+  // Filter to active subsector if set
+  const filtered = activeSubsector==='all' ? companies : companies.filter(c=>c.sub===activeSubsector);
+  // If no companies match in this panel, show empty state
+  if(filtered.length===0){
+    allCharts[canvasId]=new Chart(ctx,{
+      type:'bar',data:{labels:['No companies in this subsector'],datasets:[{data:[0],backgroundColor:'#eee'}]},
+      options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{display:false},y:{ticks:{font:{size:11},color:'#999'}}}}
+    });
+    return;
+  }
+
+  const rawData=getMetricData(filtered, metric);
+  const data=getMetricDataForChart(filtered, metric);
+  const colors=filtered.map(c=>getBarColor(c));
+  const names=filtered.map(c=>c.name);
+
+  // Cap QXO outliers for readable chart scale
+  const displayData = data.map((v,i)=>{
+    if(filtered[i].name==='QXO'){
+      if(metric==='revenue') return 65;
+      if(metric==='sga') return 100;
+      if(metric==='ebitda') return Math.max(v, -50);
+    }
+    return v;
+  });
+
+  // Adjust chart height based on number of companies
+  const wrapper = ctx.closest('.chart-wrapper');
+  if(wrapper) wrapper.style.height = Math.max(200, filtered.length * 28 + 40) + 'px';
+
+  // Calculate average (exclude nulls and QXO outliers for meaningful avg)
+  const validVals = rawData.filter((v,i)=> v!==null && filtered[i].name!=='QXO');
+  const avg = validVals.length ? validVals.reduce((a,b)=>a+b,0)/validVals.length : null;
+
+  allCharts[canvasId]=new Chart(ctx,{
+    type:'bar',
+    data:{labels:names,datasets:[{
+      data:displayData,
+      backgroundColor:colors,
+      borderRadius:3,
+      barPercentage:0.7
+    }]},
+    options:{
+      responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      layout:{padding:{top:26,right:10}},
+      animation:{duration:0},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#fff',titleColor:'#1A1A1A',bodyColor:'#555',borderColor:'#E0E0E0',borderWidth:1,
+          callbacks:{
+            title:items=>{
+              const i=items[0].dataIndex;
+              return filtered[i].name+' — '+filtered[i].sub;
+            },
+            label:item=>{
+              const i=item.dataIndex;
+              const realVal=getMetricData(filtered,metric)[i];
+              const delta=getMetricDelta(filtered,metric);
+              let label=metricLabels[metric]+': '+(realVal===null?'n/a':realVal.toFixed(1)+'%');
+              if(delta&&delta[i]!==null&&delta[i]!==undefined){
+                label+=' (YoY: '+(delta[i]>0?'+':'')+delta[i]+'pp)';
+              }
+              return label;
+            }
+          }
+        },
+        avgLine:{avg:avg}
+      },
+      scales:{
+        x:{
+          ticks:{callback:v=>v+'%',font:{size:10},color:'#666'},
+          grid:{color:'#E8E8E8',lineWidth:0.5}
+        },
+        y:{ticks:{font:{size:10},color:'#333'},grid:{display:false}}
+      }
+    }
+  });
+
+  allCharts[canvasId]._companies=filtered;
+}
+
+const metricLabels={revenue:'Revenue Growth YoY',cogs:'COGS/Sales',sga:'SG&A/Sales',ebitda:'EBITDA Margin'};
+const metricCaptions={
+  revenue:'Revenue Growth YoY (%) — H1 2025',
+  cogs:'COGS/Sales (%) — H1 2025 (lower is better)',
+  sga:'SG&A/Sales (%) — H1 2025 (lower is better)',
+  ebitda:'EBITDA Margin (%) — H1 2025 (higher is better)'
+};
+
+function announce(msg){
+  const el=document.getElementById('filter-announce');
+  if(el){el.textContent='';setTimeout(()=>{el.textContent=msg;},50);}
+}
+function updateCompanyCharts(){
+  buildCompanyChart('chart-materials', materials, activeMetric);
+  buildCompanyChart('chart-products', products, activeMetric);
+  document.getElementById('company-chart-caption').textContent=metricCaptions[activeMetric];
+}
+
+// Build the subsector key chips dynamically
+function buildSubsectorKey(){
+  const keyEl=document.getElementById('subsector-key');
+  if(!keyEl) return;
+  // Collect all unique subsectors across both arrays
+  const allSubs=[];
+  [...materials,...products].forEach(c=>{
+    if(!allSubs.includes(c.sub)) allSubs.push(c.sub);
+  });
+  // "All" chip is already in HTML; add subsector chips
+  const existing=keyEl.querySelectorAll('[data-subsector]:not([data-subsector="all"])');
+  existing.forEach(e=>e.remove());
+  allSubs.forEach(sub=>{
+    const color=subsectorColors[sub];
+    const btn=document.createElement('button');
+    btn.className='subsector-chip';
+    btn.dataset.subsector=sub;
+    btn.setAttribute('aria-pressed','false');
+    btn.onclick=function(){applySubsectorFilter(sub,this)};
+    btn.innerHTML='<span class="ss-dot" style="background:'+color+'"></span>'+sub;
+    keyEl.appendChild(btn);
+  });
+}
+buildSubsectorKey();
+
+// Subsector filter handler
+window.applySubsectorFilter=function(sub,btn){
+  activeSubsector=sub;
+  // Update chip active states
+  document.querySelectorAll('.subsector-chip').forEach(chip=>{
+    const isSel=chip.dataset.subsector===sub;
+    chip.classList.toggle('active',isSel);
+    chip.setAttribute('aria-pressed',isSel);
+    if(isSel && sub!=='all'){
+      chip.style.background=subsectorColors[sub]||'var(--av-dark)';
+      chip.style.color='#fff';
+    } else if(isSel && sub==='all'){
+      chip.style.background='var(--av-dark)';
+      chip.style.color='#fff';
+    } else {
+      chip.style.background='#fff';
+      chip.style.color='';
+    }
+  });
+  // When subsector is active, reset the segment filter to "all" to avoid conflicts
+  if(sub!=='all'){
+    activeSegment='all';
+    document.querySelectorAll('.filter-btn').forEach(b=>{
+      b.classList.toggle('active',b.dataset.segment==='all');
+    });
+  }
+  updateCompanyCharts();
+  announce('Filtered to '+(sub==='all'?'all subsectors':sub));
+};
+
+updateCompanyCharts();
+
+/* ============================================================
+   INTERACTIVITY
+   ============================================================ */
+
+// --- Global Segment Filter ---
+window.applySegmentFilter=function(segment){
+  activeSegment=segment;
+  document.querySelectorAll('.filter-btn').forEach(btn=>{
+    const sel=btn.dataset.segment===segment;
+    btn.classList.toggle('active',sel);
+    btn.setAttribute('aria-pressed',sel);
+  });
+  // Reset subsector filter when segment filter is used
+  activeSubsector='all';
+  document.querySelectorAll('.subsector-chip').forEach(chip=>{
+    const isAll=chip.dataset.subsector==='all';
+    chip.classList.toggle('active',isAll);
+    chip.setAttribute('aria-pressed',isAll);
+    chip.style.background=isAll?'var(--av-dark)':'#fff';
+    chip.style.color=isAll?'#fff':'';
+  });
+  updateCompanyCharts();
+  announce('Filtered to '+segment+' segment');
+};
+
+// --- Time Range Selector ---
+// Map range presets to label prefixes for each chart
+const rangeMap={
+  constructionSpend:{mid:'2022',recent:'2024'},
+  rates:{mid:'2022',recent:'2024'},
+  ppi:{mid:'Jan23',recent:'Jan24'},
+  gdp:{mid:'2022',recent:'2024'}
+};
+window.applyTimeRange=function(chartKey, range, btn){
+  const chart=allCharts[chartKey];
+  const tr=timeRangeData[chartKey];
+  if(!chart||!tr)return;
+
+  let start=0;
+  if(range!=='all'&&rangeMap[chartKey]){
+    const prefix=rangeMap[chartKey][range];
+    const idx=tr.labels.findIndex(l=>l.startsWith(prefix));
+    if(idx>=0) start=idx;
+  }
+
+  chart.data.labels=tr.labels.slice(start);
+  chart.data.datasets.forEach((ds,i)=>{
+    if(tr.datasets[i]&&tr.datasets[i].fullData){
+      ds.data=tr.datasets[i].fullData.slice(start);
+    }
+  });
+  chart.update();
+
+  // Update active button
+  btn.parentElement.querySelectorAll('.time-btn').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});
+  btn.classList.add('active');
+  btn.setAttribute('aria-pressed','true');
+};
+
+// --- Metric Tab Switcher ---
+window.switchMetric=function(metric){
+  activeMetric=metric;
+  document.querySelectorAll('.metric-tab').forEach(tab=>{
+    const sel=tab.dataset.metric===metric;
+    tab.classList.toggle('active',sel);
+    tab.setAttribute('aria-selected',sel);
+  });
+  updateCompanyCharts();
+  announce('Showing '+metricLabels[metric]);
+};
+
+// --- Section Collapse ---
+document.querySelectorAll('.section-heading').forEach(heading=>{
+  heading.setAttribute('role','button');
+  heading.setAttribute('tabindex','0');
+  heading.setAttribute('aria-expanded','true');
+  function toggle(){
+    const sec=heading.closest('.report-section');
+    sec.classList.toggle('collapsed');
+    heading.setAttribute('aria-expanded',!sec.classList.contains('collapsed'));
+  }
+  heading.addEventListener('click',toggle);
+  heading.addEventListener('keydown',function(e){
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}
+  });
+});
+
+// --- Sidebar active link tracking ---
+const sections=document.querySelectorAll('.report-section[id]');
+const sidebarLinks=document.querySelectorAll('.sidebar a');
+let ticking=false;
+window.addEventListener('scroll',function(){
+  if(!ticking){
+    window.requestAnimationFrame(function(){
+      let current='';
+      sections.forEach(sec=>{
+        const top=sec.getBoundingClientRect().top;
+        if(top<window.innerHeight/3) current=sec.id;
+      });
+      sidebarLinks.forEach(link=>{
+        link.classList.toggle('active',link.getAttribute('href')==='#'+current);
+      });
+      ticking=false;
+    });
+    ticking=true;
+  }
+});
+
+// --- Close sidebar on mobile link click ---
+document.querySelectorAll('.sidebar a').forEach(a=>{
+  a.addEventListener('click',()=>{
+    if(window.innerWidth<1024) document.querySelector('.sidebar').classList.remove('open');
+  });
+});
+
+// --- Mark chart wrappers as loaded ---
+document.querySelectorAll('.chart-wrapper').forEach(w=>w.classList.add('loaded'));
+
+// --- Mark chart wrappers as loaded ---
+document.querySelectorAll('.chart-wrapper').forEach(w=>w.classList.add('loaded'));
+
+// --- Segment dot accessibility ---
+document.querySelectorAll('.seg-dot').forEach(dot=>{
+  const bg=dot.style.background||dot.style.backgroundColor||'';
+  let label='';
+  if(bg.includes('nonres')||bg.includes('2E7D52')) label='Nonresidential Forward';
+  else if(bg.includes('dist')||bg.includes('E07B2A')) label='Distribution';
+  else if(bg.includes('resi')||bg.includes('1565A0')) label='Residential Forward';
+  dot.setAttribute('title',label);
+  dot.setAttribute('aria-label',label);
+  dot.setAttribute('role','img');
+});
+
+// --- Print preparation: convert canvases to images for reliable rendering ---
+window.addEventListener('beforeprint',function(){
+  // Expand all collapsed sections for print
+  document.querySelectorAll('.report-section.collapsed').forEach(sec=>{
+    sec.dataset.wasCollapsed='true';
+    sec.classList.remove('collapsed');
+    const h=sec.querySelector('.section-heading');
+    if(h) h.setAttribute('aria-expanded','true');
+  });
+  // Disable animations and resize charts
+  Object.values(allCharts).forEach(chart=>{
+    if(chart&&chart.options){
+      chart.options.animation=false;
+      chart.resize();
+    }
+  });
+  // Convert each canvas to a static image for print reliability
+  document.querySelectorAll('.chart-wrapper canvas').forEach(canvas=>{
+    if(canvas.nextElementSibling&&canvas.nextElementSibling.classList.contains('print-chart-img')) return;
+    try{
+      const img=document.createElement('img');
+      img.src=canvas.toDataURL('image/png');
+      img.className='print-chart-img';
+      img.alt=canvas.getAttribute('aria-label')||'Chart';
+      img.style.display='none';
+      canvas.parentNode.insertBefore(img,canvas.nextSibling);
+    }catch(e){}
+  });
+});
+window.addEventListener('afterprint',function(){
+  // Remove print images
+  document.querySelectorAll('.print-chart-img').forEach(img=>img.remove());
+  // Restore collapsed state
+  document.querySelectorAll('[data-was-collapsed]').forEach(sec=>{
+    sec.classList.add('collapsed');
+    delete sec.dataset.wasCollapsed;
+    const h=sec.querySelector('.section-heading');
+    if(h) h.setAttribute('aria-expanded','false');
+  });
+});
+
+}); // end DOMContentLoaded
+</script>
+
+</body>
+</html>
