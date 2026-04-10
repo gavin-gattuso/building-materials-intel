@@ -137,22 +137,24 @@ async function generateReport() {
       { label: 'Fetching latest articles from knowledge base...', status: 'active' },
       { label: 'AI analyzing 7 market health drivers...', status: '' },
       { label: 'AI synthesizing 6 news categories...', status: '' },
-      { label: 'Writing executive summary & conclusion...', status: '' },
+      { label: 'Writing executive summary, narrative & conclusion...', status: '' },
+      { label: 'Generating Market Scope, Context, Snapshot & Outlook...', status: '' },
       { label: 'Building interactive dashboard...', status: '' },
     ]);
 
     // Animate progress steps while waiting for the server
     let step = 0;
-    const stepTimings = [3000, 8000, 8000, 5000]; // estimated ms per phase
+    const stepTimings = [3000, 10000, 10000, 8000, 8000]; // estimated ms per phase
     const progressTimer = setInterval(() => {
       step++;
-      if (step >= 5) { clearInterval(progressTimer); return; }
+      if (step >= 6) { clearInterval(progressTimer); return; }
       const steps = [
         { label: 'Fetching latest articles from knowledge base...', status: 'done' },
         { label: 'AI analyzing 7 market health drivers...', status: step >= 1 ? (step > 1 ? 'done' : 'active') : '' },
         { label: 'AI synthesizing 6 news categories...', status: step >= 2 ? (step > 2 ? 'done' : 'active') : '' },
-        { label: 'Writing executive summary & conclusion...', status: step >= 3 ? (step > 3 ? 'done' : 'active') : '' },
-        { label: 'Building interactive dashboard...', status: step >= 4 ? 'active' : '' },
+        { label: 'Writing executive summary, narrative & conclusion...', status: step >= 3 ? (step > 3 ? 'done' : 'active') : '' },
+        { label: 'Generating Market Scope, Context, Snapshot & Outlook...', status: step >= 4 ? (step > 4 ? 'done' : 'active') : '' },
+        { label: 'Building interactive dashboard...', status: step >= 5 ? 'active' : '' },
       ];
       setStep(steps);
     }, stepTimings[step] || 5000);
@@ -183,7 +185,8 @@ async function generateReport() {
       { label: 'Fetching latest articles from knowledge base...', status: 'done' },
       { label: 'AI analyzing 7 market health drivers...', status: 'done' },
       { label: 'AI synthesizing 6 news categories...', status: 'done' },
-      { label: 'Writing executive summary & conclusion...', status: 'done' },
+      { label: 'Writing executive summary, narrative & conclusion...', status: 'done' },
+      { label: 'Generating Market Scope, Context, Snapshot & Outlook...', status: 'done' },
       { label: 'Building interactive dashboard...', status: 'done' },
       { label: 'Report downloaded successfully!', status: 'done' },
     ]);

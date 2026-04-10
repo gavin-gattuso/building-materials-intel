@@ -223,9 +223,54 @@ async function synthesizeConclusion(drivers: any[], startDate: string, endDate: 
   return first?.type === "text" ? first.text : "";
 }
 
+async function synthesizeNarrative(drivers: any[], sections: any[], financials: any[], startDate: string, endDate: string) {
+  if (!process.env.ANTHROPIC_API_KEY) return {};
+
+  const { default: Anthropic } = await import("@anthropic-ai/sdk");
+  const anthropic = new Anthropic();
+
+  const driverSummary = drivers.map((d: any) => `- ${d.driver}: ${d.direction} — ${d.signal}`).join("\n");
+  const categorySummary = sections.map((s: any) => `- ${s.category}: ${s.content?.slice(0, 200) || ""}...`).join("\n");
+  const topCompanies = financials.slice(0, 10).map((f: any) => `${f.company} (Rev YoY: ${f.revenue_growth_yoy ?? "n/a"}%, EBITDA: ${f.ebitda_margin_pct ?? "n/a"}%)`).join(", ");
+
+  const response = await anthropic.messages.create({
+    model: "claude-sonnet-4-6",
+    max_tokens: 6144,
+    system: "You are a building materials industry analyst writing a professional market health report. Respond with valid JSON only, no markdown fences.",
+    messages: [{ role: "user", content: `Generate 6 narrative report sections for a Building Materials & Products Market Health Report covering ${startDate} to ${endDate}.
+
+CONTEXT:
+Driver Signals:
+${driverSummary}
+
+Category Themes:
+${categorySummary}
+
+Top Companies: ${topCompanies}
+
+For each section, write 2-4 paragraphs of professional analyst-quality prose. Return JSON:
+{
+  "marketScope": "Overview of US construction market size ($2T+), segments (residential, nonresidential, infrastructure), CAGR, and forward growth expectations...",
+  "marketContext": "YTD summary of market conditions, key callouts (mortgage rates, ABI readings, tariff impacts), and EOY + next year prospectus...",
+  "companySnapshot": "Narrative overview of public company performance across the 35 tracked companies, revenue/margin themes, M&A activity, key performance themes...",
+  "sharePrice": "YTD share price performance commentary for building materials vs products vs S&P 500, key inflection points and catalysts...",
+  "positioning": "Strategic positioning analysis for infrastructure-aligned, residential-focused, and commercial-exposed companies going forward...",
+  "retrospective": "Variances from earlier expectations (permits, ABI, labor, credit), and key variables to watch going forward (rate path, tariffs, etc.)..."
+}` }],
+  });
+
+  const first = response.content[0];
+  const text = first?.type === "text" ? first.text : "{}";
+  try {
+    return JSON.parse(text);
+  } catch {
+    return {};
+  }
+}
+
 /* ── Vercel function config ── */
 export const config = {
-  maxDuration: 120, // AI synthesis can take 30-60s across multiple Claude calls
+  maxDuration: 180, // AI synthesis can take 60-90s across multiple Claude calls
 };
 
 /* ── Main handler ── */
@@ -280,10 +325,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         synthesizeCategories(articles, safeStart, safeEnd),
       ]);
 
-      // Executive summary + conclusion in parallel (they both depend on drivers/sections)
-      const [aiExecSummary, aiConclusion] = await Promise.all([
+      // Executive summary + conclusion + narrative sections in parallel
+      const [aiExecSummary, aiConclusion, aiNarrative] = await Promise.all([
         synthesizeExecutiveSummary(aiDrivers, aiSections, safeStart, safeEnd),
         synthesizeConclusion(aiDrivers, safeStart, safeEnd),
+        synthesizeNarrative(aiDrivers, aiSections, financials, safeStart, safeEnd),
       ]);
 
       const html = buildDashboardHTML({
@@ -294,6 +340,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         drivers: aiDrivers,
         financials,
         conclusion: aiConclusion,
+        narrative: aiNarrative,
       });
 
       const filename = `Building_Materials_Dashboard_${safeStart}_to_${safeEnd}.html`;

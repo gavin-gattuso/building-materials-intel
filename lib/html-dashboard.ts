@@ -50,6 +50,15 @@ function deduplicateFinancials(rows: FinancialRow[]): FinancialRow[] {
   return [...best.values()];
 }
 
+export interface DashboardNarrative {
+  marketScope?: string;
+  marketContext?: string;
+  companySnapshot?: string;
+  sharePrice?: string;
+  positioning?: string;
+  retrospective?: string;
+}
+
 export interface DashboardOpts {
   startDate: string;
   endDate: string;
@@ -58,6 +67,7 @@ export interface DashboardOpts {
   sections: DashboardSection[];
   financials: FinancialRow[];
   conclusion?: string;
+  narrative?: DashboardNarrative;
 }
 
 /* ── Helpers ── */
@@ -250,8 +260,9 @@ function buildDriverSection(
 
 /* ── Main builder ── */
 export function buildDashboardHTML(opts: DashboardOpts): string {
-  const { startDate, endDate, executiveSummary, drivers, sections, conclusion } = opts;
+  const { startDate, endDate, executiveSummary, drivers, sections, conclusion, narrative } = opts;
   const financials = deduplicateFinancials(opts.financials);
+  const n = narrative || {};
   const dateRange = `${formatDate(startDate)} \u2013 ${formatDate(endDate)}`;
   const dateRangeFull = `${formatDateFull(startDate)} \u2013 ${formatDateFull(endDate)}`;
   const endDateLabel = formatDate(endDate);
@@ -359,13 +370,19 @@ ${css}
   <h2>Table of Contents</h2>
   <ul>
     <li><a href="#sec-exec"><span class="toc-section">1.</span> Executive Summary</a></li>
-    <li><a href="#sec-drivers"><span class="toc-section">2.</span> Drivers of Market Health</a></li>
-    ${drivers.map((d, i) => `<li class="toc-sub"><a href="#sec-driver-${i}">2.${i + 1} ${esc(d.driver)}</a></li>`).join("\n    ")}
-    <li><a href="#sec-conclusion"><span class="toc-section">3.</span> Sector Driver Conclusion</a></li>
-    <li><a href="#sec-company"><span class="toc-section">4.</span> Company Performance Data</a></li>
-    ${sections.length ? `<li><a href="#sec-news"><span class="toc-section">5.</span> Industry News</a></li>` : ""}
-    ${sections.map((s, i) => `<li class="toc-sub"><a href="#sec-news-${s.category.replace(/[^a-zA-Z0-9]+/g, "-").toLowerCase()}">${esc(s.category)}</a></li>`).join("\n    ")}
-    <li><a href="#sec-av"><span class="toc-section">${sections.length ? 6 : 5}.</span> How Applied Value Can Help</a></li>
+    <li><a href="#sec-scope"><span class="toc-section">2.</span> Market Scope</a></li>
+    <li><a href="#sec-context"><span class="toc-section">3.</span> Market Context &amp; Outlook</a></li>
+    <li><a href="#sec-drivers"><span class="toc-section">4.</span> Drivers of Market Health</a></li>
+    ${drivers.map((d, i) => `<li class="toc-sub"><a href="#sec-driver-${i}">4.${i + 1} ${esc(d.driver)}</a></li>`).join("\n    ")}
+    <li><a href="#sec-conclusion"><span class="toc-section">5.</span> Sector Driver Conclusion</a></li>
+    <li><a href="#sec-snapshot"><span class="toc-section">6.</span> Public Company Performance Snapshot</a></li>
+    <li><a href="#sec-company"><span class="toc-section">7.</span> Company Performance Data</a></li>
+    <li><a href="#sec-shareprice"><span class="toc-section">8.</span> Share Price Performance</a></li>
+    <li><a href="#sec-positioning"><span class="toc-section">9.</span> Positioning</a></li>
+    <li><a href="#sec-retro"><span class="toc-section">10.</span> Trend Continuity &amp; Retrospective</a></li>
+    ${sections.length ? `<li><a href="#sec-news"><span class="toc-section">11.</span> Industry News</a></li>` : ""}
+    ${sections.map((s) => `<li class="toc-sub"><a href="#sec-news-${s.category.replace(/[^a-zA-Z0-9]+/g, "-").toLowerCase()}">${esc(s.category)}</a></li>`).join("\n    ")}
+    <li><a href="#sec-av"><span class="toc-section">${sections.length ? 12 : 11}.</span> How Applied Value Can Help</a></li>
   </ul>
 </div>
 
@@ -391,10 +408,16 @@ ${css}
   <h3>Contents</h3>
   <a href="#sec-hero">Cover</a>
   <a href="#sec-exec">Executive Summary</a>
+  <a href="#sec-scope">Market Scope</a>
+  <a href="#sec-context">Context &amp; Outlook</a>
   <a href="#sec-drivers">Drivers Overview</a>
   ${drivers.map((d, i) => `<a href="#sec-driver-${i}">\u2014 ${esc(d.driver)}</a>`).join("\n  ")}
   <a href="#sec-conclusion">Driver Conclusion</a>
+  <a href="#sec-snapshot">Company Snapshot</a>
   <a href="#sec-company">Company Data</a>
+  <a href="#sec-shareprice">Share Price</a>
+  <a href="#sec-positioning">Positioning</a>
+  <a href="#sec-retro">Retrospective</a>
   ${sections.length ? `<a href="#sec-news">Industry News</a>` : ""}
   ${newsSidebarLinks}
   <a href="#sec-av">Applied Value</a>
@@ -430,6 +453,22 @@ ${css}
   <h2 class="section-heading">Executive Summary</h2>
   <div class="section-body">
     ${paragraphs(executiveSummary)}
+  </div>
+</section>
+
+<!-- ========== MARKET SCOPE ========== -->
+<section class="report-section" id="sec-scope">
+  <h2 class="section-heading">Market Scope</h2>
+  <div class="section-body">
+    ${n.marketScope ? paragraphs(n.marketScope) : `<p>Market scope analysis for ${esc(dateRange)}.</p>`}
+  </div>
+</section>
+
+<!-- ========== MARKET CONTEXT & OUTLOOK ========== -->
+<section class="report-section" id="sec-context">
+  <h2 class="section-heading">Market Context &amp; Outlook</h2>
+  <div class="section-body">
+    ${n.marketContext ? paragraphs(n.marketContext) : `<p>Market context and outlook for ${esc(dateRange)}.</p>`}
   </div>
 </section>
 
@@ -474,6 +513,14 @@ ${drivers
     <div class="driver-mini-grid">
 ${driverMiniGrid}
     </div>
+  </div>
+</section>
+
+<!-- ========== PUBLIC COMPANY PERFORMANCE SNAPSHOT ========== -->
+<section class="report-section" id="sec-snapshot">
+  <h2 class="section-heading">Public Company Performance Snapshot</h2>
+  <div class="section-body">
+    ${n.companySnapshot ? paragraphs(n.companySnapshot) : `<p>Company performance snapshot for ${esc(dateRange)}.</p>`}
   </div>
 </section>
 
@@ -532,6 +579,30 @@ ${buildCompanyTableRows(financials)}
   </div>
 </section>
 
+<!-- ========== SHARE PRICE PERFORMANCE ========== -->
+<section class="report-section" id="sec-shareprice">
+  <h2 class="section-heading">Share Price Performance</h2>
+  <div class="section-body">
+    ${n.sharePrice ? paragraphs(n.sharePrice) : `<p>Share price performance analysis for ${esc(dateRange)}.</p>`}
+  </div>
+</section>
+
+<!-- ========== POSITIONING ========== -->
+<section class="report-section" id="sec-positioning">
+  <h2 class="section-heading">Positioning for EOY &amp; Beyond</h2>
+  <div class="section-body">
+    ${n.positioning ? paragraphs(n.positioning) : `<p>Strategic positioning outlook for ${esc(dateRange)}.</p>`}
+  </div>
+</section>
+
+<!-- ========== TREND CONTINUITY & RETROSPECTIVE ========== -->
+<section class="report-section" id="sec-retro">
+  <h2 class="section-heading">Trend Continuity &amp; Retrospective</h2>
+  <div class="section-body">
+    ${n.retrospective ? paragraphs(n.retrospective) : `<p>Trend retrospective for ${esc(dateRange)}.</p>`}
+  </div>
+</section>
+
 ${sections.length ? `
 <!-- ========== INDUSTRY NEWS ========== -->
 <section class="report-section" id="sec-news">
@@ -547,28 +618,33 @@ ${newsSectionsHtml}
 <section class="report-section" id="sec-av">
   <h2 class="section-heading">How Applied Value Can Help</h2>
   <div class="section-body">
-    <p>Applied Value partners with building materials and products companies to drive measurable improvement across the value chain. Our team brings deep sector expertise, data-driven methodologies, and hands-on implementation support.</p>
+    <p>Applied Value partners with building materials and products companies to drive measurable improvement across the value chain. Our team brings deep sector expertise, data-driven methodologies, and hands-on implementation support to help clients capture value in both growth and challenging market environments.</p>
 
     <div class="service-cards">
       <div class="service-card">
         <div class="service-icon">&#8644;</div>
         <h4>Optimize Sourcing &amp; Supply Chains</h4>
-        <p class="service-card-desc">Strategic procurement, supplier consolidation, and logistics optimization.</p>
+        <p class="service-card-desc">Strategic procurement, supplier consolidation, and logistics optimization to reduce costs and improve resilience.</p>
       </div>
       <div class="service-card">
         <div class="service-icon">&#9881;</div>
         <h4>Enhance Operational Efficiency</h4>
-        <p class="service-card-desc">Lean manufacturing, capacity optimization, and continuous improvement programs.</p>
+        <p class="service-card-desc">Lean manufacturing, capacity optimization, and continuous improvement programs for sustainable margin expansion.</p>
       </div>
       <div class="service-card">
         <div class="service-icon">&#36;</div>
         <h4>Improve Pricing &amp; Commercial Strategy</h4>
-        <p class="service-card-desc">Data-driven pricing analytics, channel strategy, and go-to-market optimization.</p>
+        <p class="service-card-desc">Data-driven pricing analytics, channel strategy, and go-to-market optimization to capture value.</p>
       </div>
       <div class="service-card">
         <div class="service-icon">&#10070;</div>
         <h4>Strategic M&amp;A &amp; Portfolio Optimization</h4>
-        <p class="service-card-desc">Target identification, due diligence support, integration planning.</p>
+        <p class="service-card-desc">Target identification, due diligence support, integration planning, and portfolio rationalization.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">&#9889;</div>
+        <h4>Accelerate Digitalization &amp; Productivity</h4>
+        <p class="service-card-desc">Digital transformation roadmaps, technology evaluation, and implementation to boost productivity.</p>
       </div>
     </div>
 
