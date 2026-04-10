@@ -148,7 +148,7 @@ async function generateReport() {
         status: i < completed ? 'done' : i === completed ? 'active' : '',
       }));
       steps.push({ label: 'Writing executive summary...', status: completed >= allSections.length ? 'active' : '' });
-      steps.push({ label: 'Building Word document...', status: completed >= allSections.length + 1 ? 'active' : '' });
+      steps.push({ label: 'Building interactive dashboard...', status: completed >= allSections.length + 1 ? 'active' : '' });
       setStep(steps);
     }
     updateProgress();
@@ -218,7 +218,7 @@ async function generateReport() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Building_Materials_Report_${startDate}_to_${endDate}.html`;
+    a.download = `Building_Materials_Dashboard_${startDate}_to_${endDate}.html`;
     a.click();
     URL.revokeObjectURL(url);
 

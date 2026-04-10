@@ -1,5 +1,9 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { buildReportHTML } from "../lib/html-report.js";
+import { createClient } from "@supabase/supabase-js";
+import { buildDashboardHTML } from "../lib/html-dashboard.js";
+
+const SUPABASE_URL = (process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co").trim();
+const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || "").trim();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const origin = req.headers.origin || "";
@@ -19,15 +23,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const safeStart = dateRe.test(startDate) ? startDate : "unknown";
     const safeEnd = dateRe.test(endDate) ? endDate : "unknown";
 
-    const html = buildReportHTML({
+    // Fetch financial ratios from Supabase for the company data charts
+    let financials: any[] = [];
+    if (SUPABASE_KEY) {
+      const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+      const { data } = await supabase
+        .from("financial_ratios")
+        .select("company, ticker, segment, category, revenue_growth_yoy, cogs_sales_pct, cogs_sales_yoy_delta, sga_sales_pct, sga_sales_yoy_delta, ebitda_margin_pct, ebitda_margin_yoy_delta")
+        .order("company");
+      financials = data || [];
+    }
+
+    const html = buildDashboardHTML({
       startDate,
       endDate,
-      executiveSummary,
+      executiveSummary: executiveSummary || "",
       sections: sections || [],
       drivers: drivers || [],
+      financials,
     });
 
-    const filename = `Building_Materials_Report_${safeStart}_to_${safeEnd}.html`;
+    const filename = `Building_Materials_Dashboard_${safeStart}_to_${safeEnd}.html`;
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
     return res.send(html);
