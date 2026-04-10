@@ -213,6 +213,9 @@ tr:nth-child(even){background:var(--bg-alt)}
 .subsector-chip.active{color:#fff;border-color:transparent}
 .subsector-chip .ss-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .subsector-chip.active .ss-dot{background:#fff!important;opacity:.7}
+.subsector-group{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.subsector-group-label{font-size:11px;font-weight:600;color:var(--text2);white-space:nowrap;margin-right:2px}
+.subsector-divider{width:1px;height:24px;background:var(--border);margin:0 8px;flex-shrink:0}
 @media print{.subsector-key .subsector-chip{cursor:default;font-size:8pt;padding:2pt 6pt}.subsector-key{gap:4px}}
 
 /* --- Driver summary mini cards --- */
@@ -409,8 +412,10 @@ button:focus-visible,.sidebar a:focus-visible{outline:2px solid var(--av-mid);ou
   .print-chart-img+canvas{display:none!important}
 
   /* Subsector key as static legend in print */
-  .subsector-key{margin:6pt 0 10pt;gap:4pt;font-size:8pt}
-  .subsector-key-label{font-size:8pt}
+  .subsector-key{margin:6pt 0 10pt;gap:4pt;font-size:8pt;flex-wrap:wrap}
+  .subsector-group{gap:4pt}
+  .subsector-group-label{font-size:8pt}
+  .subsector-divider{height:1px;width:100%;background:var(--border);margin:4pt 0}
   .subsector-chip{font-size:8pt;padding:3pt 8pt;cursor:default;border-radius:10pt;min-height:auto;white-space:nowrap}
   .subsector-chip .ss-dot{width:7px;height:7px}
 
@@ -955,8 +960,13 @@ button:focus-visible,.sidebar a:focus-visible{outline:2px solid var(--av-mid);ou
 
     <!-- Subsector Key -->
     <div class="subsector-key" id="subsector-key">
-      <span class="subsector-key-label">Subsector:</span>
-      <button class="subsector-chip active" data-subsector="all" aria-pressed="true" onclick="applySubsectorFilter('all',this)" style="background:var(--av-dark);color:#fff">All</button>
+      <div class="subsector-group" id="subsector-materials">
+        <span class="subsector-group-label">Materials:</span>
+      </div>
+      <div class="subsector-divider"></div>
+      <div class="subsector-group" id="subsector-products">
+        <span class="subsector-group-label">Products:</span>
+      </div>
     </div>
 
     <div class="dual-chart">
@@ -1737,59 +1747,67 @@ function updateCompanyCharts(){
   document.getElementById('company-chart-caption').textContent=metricCaptions[activeMetric];
 }
 
-// Build the subsector key chips dynamically
+// Materials subsectors (left chart) vs Products subsectors (right chart)
+const materialsSubs=['Aggregates & Cement','Glass & Insulation','Wood & Lumber','Steel & Metals'];
+const productsSubs=['Building Envelope & Dist.','Doors & Windows','Plumbing & Fixtures','HVAC & Climate'];
+
+// Build the subsector key chips into two groups
 function buildSubsectorKey(){
-  const keyEl=document.getElementById('subsector-key');
-  if(!keyEl) return;
-  // Collect all unique subsectors across both arrays
-  const allSubs=[];
-  [...materials,...products].forEach(c=>{
-    if(!allSubs.includes(c.sub)) allSubs.push(c.sub);
-  });
-  // "All" chip is already in HTML; add subsector chips
-  const existing=keyEl.querySelectorAll('[data-subsector]:not([data-subsector="all"])');
-  existing.forEach(e=>e.remove());
-  allSubs.forEach(sub=>{
+  const matEl=document.getElementById('subsector-materials');
+  const prodEl=document.getElementById('subsector-products');
+  if(!matEl||!prodEl) return;
+
+  function addChip(container, sub){
     const color=subsectorColors[sub];
     const btn=document.createElement('button');
     btn.className='subsector-chip';
     btn.dataset.subsector=sub;
     btn.setAttribute('aria-pressed','false');
-    btn.onclick=function(){applySubsectorFilter(sub,this)};
+    btn.onclick=function(){toggleSubsector(sub)};
     btn.innerHTML='<span class="ss-dot" style="background:'+color+'"></span>'+sub;
-    keyEl.appendChild(btn);
-  });
+    container.appendChild(btn);
+  }
+
+  materialsSubs.forEach(sub=>addChip(matEl,sub));
+  productsSubs.forEach(sub=>addChip(prodEl,sub));
 }
 buildSubsectorKey();
 
-// Subsector filter handler
-window.applySubsectorFilter=function(sub,btn){
-  activeSubsector=sub;
-  // Update chip active states
+// Toggle subsector: click to activate, click again to deactivate (show all)
+window.toggleSubsector=function(sub){
+  // If already active, deactivate (show all)
+  if(activeSubsector===sub){
+    activeSubsector='all';
+  } else {
+    activeSubsector=sub;
+  }
+
+  // Update chip styles
   document.querySelectorAll('.subsector-chip').forEach(chip=>{
-    const isSel=chip.dataset.subsector===sub;
+    const isSel=chip.dataset.subsector===activeSubsector;
     chip.classList.toggle('active',isSel);
     chip.setAttribute('aria-pressed',isSel);
-    if(isSel && sub!=='all'){
-      chip.style.background=subsectorColors[sub]||'var(--av-dark)';
-      chip.style.color='#fff';
-    } else if(isSel && sub==='all'){
-      chip.style.background='var(--av-dark)';
+    if(isSel){
+      chip.style.background=subsectorColors[activeSubsector]||'var(--av-dark)';
       chip.style.color='#fff';
     } else {
       chip.style.background='#fff';
       chip.style.color='';
     }
   });
-  // When subsector is active, reset the segment filter to "all" to avoid conflicts
-  if(sub!=='all'){
+
+  // Reset segment filter when subsector is active
+  if(activeSubsector!=='all'){
     activeSegment='all';
     document.querySelectorAll('.filter-btn').forEach(b=>{
-      b.classList.toggle('active',b.dataset.segment==='all');
+      const sel=b.dataset.segment==='all';
+      b.classList.toggle('active',sel);
+      b.setAttribute('aria-pressed',sel);
     });
   }
+
   updateCompanyCharts();
-  announce('Filtered to '+(sub==='all'?'all subsectors':sub));
+  announce(activeSubsector==='all'?'Showing all subsectors':'Filtered to '+activeSubsector);
 };
 
 updateCompanyCharts();
@@ -1809,11 +1827,10 @@ window.applySegmentFilter=function(segment){
   // Reset subsector filter when segment filter is used
   activeSubsector='all';
   document.querySelectorAll('.subsector-chip').forEach(chip=>{
-    const isAll=chip.dataset.subsector==='all';
-    chip.classList.toggle('active',isAll);
-    chip.setAttribute('aria-pressed',isAll);
-    chip.style.background=isAll?'var(--av-dark)':'#fff';
-    chip.style.color=isAll?'#fff':'';
+    chip.classList.remove('active');
+    chip.setAttribute('aria-pressed','false');
+    chip.style.background='#fff';
+    chip.style.color='';
   });
   updateCompanyCharts();
   announce('Filtered to '+segment+' segment');
