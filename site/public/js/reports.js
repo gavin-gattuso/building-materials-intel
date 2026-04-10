@@ -133,85 +133,42 @@ async function generateReport() {
   }
 
   try {
-    setStep([{ label: 'Checking articles in date range...', status: 'active' }]);
-    await fetch('/api/articles?limit=1&q=*').then(r => r.json());
+    setStep([
+      { label: 'Fetching latest articles from knowledge base...', status: 'active' },
+      { label: 'AI analyzing 7 market health drivers...', status: '' },
+      { label: 'AI synthesizing 6 news categories...', status: '' },
+      { label: 'Writing executive summary & conclusion...', status: '' },
+      { label: 'Building interactive dashboard...', status: '' },
+    ]);
 
-    const allSections = [
-      ...NEWS_CATEGORIES.map(s => ({ section: s, sectionType: 'category' })),
-      ...MARKET_DRIVERS.map(s => ({ section: s, sectionType: 'driver' })),
-    ];
-    let completed = 0;
-
-    function updateProgress() {
-      const steps = allSections.map((s, i) => ({
-        label: `${s.section}`,
-        status: i < completed ? 'done' : i === completed ? 'active' : '',
-      }));
-      steps.push({ label: 'Writing executive summary...', status: completed >= allSections.length ? 'active' : '' });
-      steps.push({ label: 'Building interactive dashboard...', status: completed >= allSections.length + 1 ? 'active' : '' });
+    // Animate progress steps while waiting for the server
+    let step = 0;
+    const stepTimings = [3000, 8000, 8000, 5000]; // estimated ms per phase
+    const progressTimer = setInterval(() => {
+      step++;
+      if (step >= 5) { clearInterval(progressTimer); return; }
+      const steps = [
+        { label: 'Fetching latest articles from knowledge base...', status: 'done' },
+        { label: 'AI analyzing 7 market health drivers...', status: step >= 1 ? (step > 1 ? 'done' : 'active') : '' },
+        { label: 'AI synthesizing 6 news categories...', status: step >= 2 ? (step > 2 ? 'done' : 'active') : '' },
+        { label: 'Writing executive summary & conclusion...', status: step >= 3 ? (step > 3 ? 'done' : 'active') : '' },
+        { label: 'Building interactive dashboard...', status: step >= 4 ? 'active' : '' },
+      ];
       setStep(steps);
-    }
-    updateProgress();
+    }, stepTimings[step] || 5000);
 
-    const settled = await Promise.allSettled(
-      allSections.map(async (s) => {
-        const res = await fetch('/api/synthesize-section', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ startDate, endDate, section: s.section, sectionType: s.sectionType }),
-        });
-        if (!res.ok) {
-          console.error(`Section "${s.section}" failed:`, await res.text());
-          return { ...s, content: `[Error loading ${s.section}]`, articles: [] };
-        }
-        const result = await res.json();
-        completed++;
-        updateProgress();
-        return { ...s, ...result };
-      })
-    );
-    const sectionResults = settled.map((r, i) =>
-      r.status === 'fulfilled' ? r.value : { ...allSections[i], content: '', articles: [] }
-    );
-
-    const newsSections = sectionResults.filter(s => s.sectionType === 'category');
-    const driverSections = sectionResults.filter(s => s.sectionType === 'driver');
-
-    completed = allSections.length;
-    updateProgress();
-    const execResult = await fetch('/api/executive-summary', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ startDate, endDate, sectionSummaries: sectionResults }),
-    }).then(r => r.json());
-
-    completed = allSections.length + 1;
-    updateProgress();
-
-    const sections = newsSections.map(s => ({
-      category: s.section,
-      content: s.content || '',
-      articles: (s.articles || []).map(a => ({
-        title: a.title || '', source: a.source || '',
-        analysis: a.analysis || '', dataPoints: a.dataPoints || [], url: a.url || '',
-      })),
-    }));
-
-    const drivers = driverSections.map(s => ({
-      driver: s.section, direction: s.direction || 'Mixed',
-      signal: s.signal || '', content: s.content || '',
-      impact: s.impact || '', dataPoints: s.dataPoints || [],
-    }));
-
+    // Single server call — AI generates everything from live KB data
     const docResponse = await fetch('/api/build-report', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ startDate, endDate, executiveSummary: execResult.summary || '', sections, drivers }),
+      body: JSON.stringify({ startDate, endDate, mode: 'ai' }),
     });
+
+    clearInterval(progressTimer);
 
     if (!docResponse.ok) {
       const errDetail = await docResponse.text();
-      throw new Error(`Failed to build document: ${errDetail}`);
+      throw new Error(`Failed to build report: ${errDetail}`);
     }
 
     const blob = await docResponse.blob();
@@ -222,7 +179,14 @@ async function generateReport() {
     a.click();
     URL.revokeObjectURL(url);
 
-    setStep([{ label: 'Report downloaded successfully!', status: 'done' }]);
+    setStep([
+      { label: 'Fetching latest articles from knowledge base...', status: 'done' },
+      { label: 'AI analyzing 7 market health drivers...', status: 'done' },
+      { label: 'AI synthesizing 6 news categories...', status: 'done' },
+      { label: 'Writing executive summary & conclusion...', status: 'done' },
+      { label: 'Building interactive dashboard...', status: 'done' },
+      { label: 'Report downloaded successfully!', status: 'done' },
+    ]);
   } catch (err) {
     progress.innerHTML = `<div class="rg-step" style="color:var(--danger-text)">Error: ${escHtml(err.message)}</div>`;
   } finally {

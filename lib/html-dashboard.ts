@@ -44,6 +44,7 @@ export interface DashboardOpts {
   drivers: DashboardDriver[];
   sections: DashboardSection[];
   financials: FinancialRow[];
+  conclusion?: string;
 }
 
 /* ── Helpers ── */
@@ -234,7 +235,7 @@ function buildDriverSection(
 
 /* ── Main builder ── */
 export function buildDashboardHTML(opts: DashboardOpts): string {
-  const { startDate, endDate, executiveSummary, drivers, sections, financials } = opts;
+  const { startDate, endDate, executiveSummary, drivers, sections, financials, conclusion } = opts;
   const dateRange = `${formatDate(startDate)} \u2013 ${formatDate(endDate)}`;
   const dateRangeFull = `${formatDateFull(startDate)} \u2013 ${formatDateFull(endDate)}`;
   const endDateLabel = formatDate(endDate);
@@ -453,7 +454,7 @@ ${drivers
 <section class="report-section" id="sec-conclusion">
   <h2 class="section-heading">Sector Driver Conclusion</h2>
   <div class="section-body">
-    <p>The market environment for the period ${esc(dateRange)} presents a complex landscape across the building materials and products sector. The driver overview below summarizes the current direction of each key market force.</p>
+    ${conclusion ? paragraphs(conclusion) : `<p>The market environment for the period ${esc(dateRange)} presents a complex landscape across the building materials and products sector. The driver overview below summarizes the current direction of each key market force.</p>`}
     <div class="driver-mini-grid">
 ${driverMiniGrid}
     </div>
