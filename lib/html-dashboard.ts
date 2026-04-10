@@ -28,6 +28,7 @@ export interface FinancialRow {
   ticker: string;
   segment: string;
   category: string;
+  period?: string;
   revenue_growth_yoy: number | null;
   cogs_sales_pct: number | null;
   cogs_sales_yoy_delta: number | null;
@@ -35,6 +36,18 @@ export interface FinancialRow {
   sga_sales_yoy_delta: number | null;
   ebitda_margin_pct: number | null;
   ebitda_margin_yoy_delta: number | null;
+}
+
+/** Keep only the latest-period row per company */
+function deduplicateFinancials(rows: FinancialRow[]): FinancialRow[] {
+  const best = new Map<string, FinancialRow>();
+  for (const r of rows) {
+    const existing = best.get(r.company);
+    if (!existing || (r.period || "") > (existing.period || "")) {
+      best.set(r.company, r);
+    }
+  }
+  return [...best.values()];
 }
 
 export interface DashboardOpts {
@@ -235,7 +248,8 @@ function buildDriverSection(
 
 /* ── Main builder ── */
 export function buildDashboardHTML(opts: DashboardOpts): string {
-  const { startDate, endDate, executiveSummary, drivers, sections, financials, conclusion } = opts;
+  const { startDate, endDate, executiveSummary, drivers, sections, conclusion } = opts;
+  const financials = deduplicateFinancials(opts.financials);
   const dateRange = `${formatDate(startDate)} \u2013 ${formatDate(endDate)}`;
   const dateRangeFull = `${formatDateFull(startDate)} \u2013 ${formatDateFull(endDate)}`;
   const endDateLabel = formatDate(endDate);
