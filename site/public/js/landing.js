@@ -21,15 +21,15 @@ export async function loadHome() {
   if (earningsEl) earningsEl.innerHTML = Array.from({length: 4}, () => '<div class="earnings-cal-item" style="pointer-events:none"><div class="skeleton" style="width:140px;height:14px"></div><div class="skeleton" style="width:40px;height:14px"></div><div class="skeleton" style="width:80px;height:14px"></div></div>').join('');
 
   const [companies, tracked, drivers, earningsCalendar, weeklySummary] = await Promise.all([
-    fetch('/api/wiki?type=company').then(r => r.json()).catch(() => []),
-    fetch('/api/tracked-companies').then(r => r.json()).catch(() => []),
-    fetch('/api/wiki?type=market-driver').then(r => r.json()).catch(() => []),
+    fetch('/api/wiki?type=company').then(r => r.ok ? r.json() : []).catch(() => []),
+    fetch('/api/tracked-companies').then(r => r.ok ? r.json() : []).catch(() => []),
+    fetch('/api/wiki?type=market-driver').then(r => r.ok ? r.json() : []).catch(() => []),
     fetch('/earnings-calendar.json').then(r => r.json()).then(all => {
       const today = new Date().toISOString().slice(0, 10);
       return all.filter(e => e.date >= today).slice(0, 10);
     }).catch(() => []),
     fetch('/weekly-summary.json').then(r => { if (!r.ok) throw new Error(); return r.json(); })
-      .catch(() => fetch('/api/weekly-summary').then(r => r.json()).catch(() => null)),
+      .catch(() => fetch('/api/weekly-summary').then(r => r.ok ? r.json() : null).catch(() => null)),
   ]);
 
   // Weekly AI summary

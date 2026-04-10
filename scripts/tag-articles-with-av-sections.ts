@@ -9,6 +9,10 @@ import { join, basename } from "path";
 import matter from "gray-matter";
 import { TRACKED_COMPANY_NAMES } from "../lib/constants";
 
+function dollarQuote(s: string): string {
+  return `'${String(s).replace(/'/g, "''")}'`;
+}
+
 // Supports both REST API (SUPABASE_SERVICE_ROLE_KEY) and Management API (SUPABASE_ACCESS_TOKEN)
 const PROJECT_REF = "pmjqymxdaiwfpfglwqux";
 const SUPABASE_URL = `https://${PROJECT_REF}.supabase.co`;
@@ -217,7 +221,7 @@ async function main() {
       if (!dryRun) {
         if (useManagementAPI) {
           const roundedScore = Math.round(score * 100) / 100;
-          insertBatch.push(`('${article.id}', '${section.id}', ${roundedScore})`);
+          insertBatch.push(`(${dollarQuote(article.id)}, ${dollarQuote(section.id)}, ${roundedScore})`);
         } else {
           const res = await fetch(`${SUPABASE_URL}/rest/v1/article_av_sections`, {
             method: "POST",

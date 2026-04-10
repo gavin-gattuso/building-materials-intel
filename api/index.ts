@@ -21,6 +21,12 @@ const RATE_WINDOW = 60_000; // 1 minute
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
+  // Periodically purge expired entries to prevent memory leak
+  if (rateLimitMap.size > 500) {
+    for (const [key, val] of rateLimitMap) {
+      if (now > val.resetAt) rateLimitMap.delete(key);
+    }
+  }
   const entry = rateLimitMap.get(ip);
   if (!entry || now > entry.resetAt) {
     rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW });
@@ -32,62 +38,51 @@ function isRateLimited(ip: string): boolean {
 
 // ---------- Data access ----------
 
+async function attachCompanies<T extends { id: string }>(articles: T[]): Promise<(T & { companies: string[]; type: "article" })[]> {
+  if (articles.length === 0) return [];
+  const articleIds = articles.map(a => a.id);
+  const { data: junctions } = await supabase
+    .from("article_companies")
+    .select("article_id, companies(name)")
+    .in("article_id", articleIds);
+
+  const companyMap: Record<string, string[]> = {};
+  if (junctions) {
+    for (const j of junctions as any[]) {
+      const name = j.companies?.name;
+      if (name) {
+        if (!companyMap[j.article_id]) companyMap[j.article_id] = [];
+        companyMap[j.article_id].push(name);
+      }
+    }
+  }
+  return articles.map(a => ({ ...a, companies: companyMap[a.id] || [], type: "article" as const }));
+}
+
 async function getArticles(limit = 200) {
-  const { data: articles } = await supabase
+  const { data: articles, error } = await supabase
     .from("articles")
     .select("id, slug, title, date, source, url, category, content")
     .order("date", { ascending: false })
     .limit(limit);
+  if (error) console.error("getArticles error:", error.message);
   if (!articles || articles.length === 0) return [];
-
-  const articleIds = articles.map(a => a.id);
-  const { data: junctions } = await supabase
-    .from("article_companies")
-    .select("article_id, companies(name)")
-    .in("article_id", articleIds);
-
-  const companyMap: Record<string, string[]> = {};
-  if (junctions) {
-    for (const j of junctions as any[]) {
-      const name = j.companies?.name;
-      if (name) {
-        if (!companyMap[j.article_id]) companyMap[j.article_id] = [];
-        companyMap[j.article_id].push(name);
-      }
-    }
-  }
-  return articles.map(a => ({ ...a, companies: companyMap[a.id] || [], type: "article" as const }));
+  return attachCompanies(articles);
 }
 
 async function getArticlesMeta(limit = 200) {
-  const { data: articles } = await supabase
+  const { data: articles, error } = await supabase
     .from("articles")
     .select("id, slug, title, date, source, url, category")
     .order("date", { ascending: false })
     .limit(limit);
+  if (error) console.error("getArticlesMeta error:", error.message);
   if (!articles || articles.length === 0) return [];
-
-  const articleIds = articles.map(a => a.id);
-  const { data: junctions } = await supabase
-    .from("article_companies")
-    .select("article_id, companies(name)")
-    .in("article_id", articleIds);
-
-  const companyMap: Record<string, string[]> = {};
-  if (junctions) {
-    for (const j of junctions as any[]) {
-      const name = j.companies?.name;
-      if (name) {
-        if (!companyMap[j.article_id]) companyMap[j.article_id] = [];
-        companyMap[j.article_id].push(name);
-      }
-    }
-  }
-  return articles.map(a => ({ ...a, companies: companyMap[a.id] || [], type: "article" as const }));
+  return attachCompanies(articles);
 }
 
 async function getArticleBySlug(slug: string) {
-  const { data } = await supabase.from("articles").select("id, slug, title, date, source, url, category, content").eq("slug", slug).single();
+  const { data } = await supabase.from("articles").select("id, slug, title, date, source, url, category, content").eq("slug", slug).maybeSingle();
   if (!data) return null;
   const { data: junctions } = await supabase.from("article_companies").select("companies(name)").eq("article_id", data.id);
   const companies = (junctions as any[] || []).map(j => j.companies?.name).filter(Boolean);
@@ -110,13 +105,13 @@ async function getConcepts() {
 }
 
 async function getWikiBySlug(slug: string) {
-  const { data: company } = await supabase.from("companies").select("slug, name, ticker, sector, subsector, content").eq("slug", slug).single();
+  const { data: company } = await supabase.from("companies").select("slug, name, ticker, sector, subsector, content").eq("slug", slug).maybeSingle();
   if (company) return { id: company.slug, title: company.name, type: "company", content: company.content, frontmatter: { ticker: company.ticker, sector: company.sector, subsector: company.subsector } };
 
-  const { data: driver } = await supabase.from("market_drivers").select("slug, title, current_signal, content").eq("slug", slug).single();
+  const { data: driver } = await supabase.from("market_drivers").select("slug, title, current_signal, content").eq("slug", slug).maybeSingle();
   if (driver) return { id: driver.slug, title: driver.title, type: "market-driver", content: driver.content, frontmatter: { current_signal: driver.current_signal } };
 
-  const { data: concept } = await supabase.from("concepts").select("slug, title, content").eq("slug", slug).single();
+  const { data: concept } = await supabase.from("concepts").select("slug, title, content").eq("slug", slug).maybeSingle();
   if (concept) return { id: concept.slug, title: concept.title, type: "concept", content: concept.content, frontmatter: {} };
 
   return null;
@@ -174,6 +169,7 @@ async function searchArticlesFTS(query: string, limit: number) {
 
   // Fallback to ilike search if RPC not available (pre-migration)
   if (error || !articles) {
+    console.error("searchArticlesFTS failed:", error?.message || "no data returned", { tsQuery, limit });
     return null; // signal to use in-memory fallback
   }
   return articles;
@@ -273,6 +269,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.json({ aiEnabled: !!process.env.ANTHROPIC_API_KEY });
     }
 
+    // /api/earnings-calendar
+    if (path === "earnings-calendar") {
+      res.setHeader("Cache-Control", "public, max-age=3600, s-maxage=7200");
+      const { data } = await supabase.from("earnings_calendar").select("*").gte("date", new Date().toISOString().split("T")[0]).order("date").limit(Number(req.query.limit) || 20);
+      return res.json(data || []);
+    }
+
     // /api/weekly-summary
     if (path === "weekly-summary") {
       res.setHeader("Cache-Control", "public, max-age=300, s-maxage=600");
@@ -346,7 +349,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
         }
         return res.json(flags);
-      } catch { return res.json([]); }
+      } catch (err: any) { console.error("financial-ratio-flags error:", err?.message); return res.json([]); }
     }
 
     // /api/articles
@@ -477,7 +480,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           messages: msgs,
         });
 
-        const text = response.content[0].type === "text" ? response.content[0].text : "";
+        const text = response.content?.[0]?.type === "text" ? response.content[0].text : "";
         return res.json({ mode: "ai", answer: text, sources: buildSourceList(results) });
       } else {
         return res.json(buildSmartSearchResponse(results, message));

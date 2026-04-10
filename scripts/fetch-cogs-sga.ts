@@ -15,7 +15,7 @@ for (const c of companies) {
   try {
     const data = await yf.fundamentalsTimeSeries(c.ticker, {
       period1: "2023-01-01",
-      period2: "2026-04-07",
+      period2: new Date().toISOString().split("T")[0],
       type: "annual",
       module: "financials",
     });

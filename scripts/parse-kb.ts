@@ -54,4 +54,4 @@ async function main() {
   console.log(`Parsed: ${companies.length} companies, ${drivers.length} drivers, ${concepts.length} concepts, ${articles.length} articles`);
 }
 
-main();
+main().catch(err => { console.error("parse-kb failed:", err); process.exit(1); });

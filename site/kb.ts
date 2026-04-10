@@ -51,7 +51,8 @@ async function readMarkdownDir(dir: string): Promise<{ frontmatter: Record<strin
       })
     );
     return results;
-  } catch {
+  } catch (err) {
+    console.error("Failed to read KB from", dir, err);
     return [];
   }
 }

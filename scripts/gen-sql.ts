@@ -62,7 +62,7 @@ for (let i = 0; i < data.articles.length; i += 25) {
   for (const a of batch) {
     const slug = esc(a.slug);
     const title = esc(a.title);
-    const date = a.meta.date || "2026-01-01";
+    const date = a.meta.date || new Date().toISOString().split("T")[0];
     const source = a.meta.source ? `'${esc(a.meta.source)}'` : "NULL";
     const url = a.meta.url ? `'${esc(a.meta.url)}'` : "NULL";
     const category = a.meta.category ? `'${esc(a.meta.category)}'` : "NULL";

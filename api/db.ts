@@ -21,6 +21,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!dbPath) {
     return res.status(400).json({ error: "path query param required (e.g. /rest/v1/articles)" });
   }
+  // Validate path to prevent arbitrary endpoint access
+  const ALLOWED_PATHS = ["/rest/v1/articles", "/rest/v1/companies", "/rest/v1/market_drivers", "/rest/v1/concepts", "/rest/v1/weekly_summaries", "/rest/v1/financial_ratios", "/rest/v1/article_companies", "/rest/v1/av_report_sections", "/rest/v1/article_av_sections", "/rest/v1/earnings_calendar"];
+  if (!ALLOWED_PATHS.some(p => dbPath.startsWith(p))) {
+    return res.status(403).json({ error: "Path not allowed" });
+  }
 
   // Build the Supabase URL with remaining query params
   const params = new URLSearchParams();

@@ -20,7 +20,7 @@ const MARKET_DRIVERS = [
 
 export async function loadReportDownloads() {
   try {
-    const reports = await fetch('/reports.json').then(r => r.json());
+    const reports = await fetch('/reports.json').then(r => r.ok ? r.json() : []);
     const el = document.getElementById('report-downloads');
     if (!Array.isArray(reports) || reports.length === 0) {
       el.innerHTML = '<div class="loading">No published reports available yet.</div>';
@@ -44,12 +44,12 @@ export async function loadReportDownloads() {
 
 export async function loadReports() {
   try {
-    const sections = await fetch('/api/av-sections').then(r => r.json());
+    const sections = await fetch('/api/av-sections').then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); });
     if (!Array.isArray(sections) || sections.length === 0) {
       document.getElementById('coverage-grid').innerHTML = '<div class="loading">No report sections configured. Run migrate-av-reports-schema.ts first.</div>';
       return;
     }
-    const coverage = await fetch('/api/av-coverage').then(r => r.json()).catch(() => []);
+    const coverage = await fetch('/api/av-coverage').then(r => r.ok ? r.json() : []).catch(() => []);
     const countMap = {};
     if (Array.isArray(coverage)) {
       for (const s of coverage) {
@@ -77,7 +77,7 @@ export async function loadReports() {
 
 export async function openReportSection(slug) {
   try {
-    const data = await fetch('/api/av-sections/' + slug).then(r => r.json());
+    const data = await fetch('/api/av-sections/' + slug).then(r => { if (!r.ok) throw new Error(r.status + ''); return r.json(); });
     document.getElementById('coverage-grid').style.display = 'none';
     const detail = document.getElementById('report-section-detail');
     detail.style.display = 'block';

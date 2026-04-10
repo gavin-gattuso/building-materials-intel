@@ -42,7 +42,7 @@ for (const c of companies) {
     if (!rev_ltm && fin?.totalRevenue) rev_ltm = fin.totalRevenue;
 
     const rev_b = rev_ltm ? Math.round(rev_ltm / 1e8) / 10 : null;
-    const prev_b = prev_rev ? prev_rev / 1e9 : null;
+    const prev_b = prev_rev ? Math.round(prev_rev / 1e8) / 10 : null;
     const growth = rev_b && prev_b && prev_b > 0
       ? Math.round(((rev_b - prev_b) / prev_b) * 1000) / 10
       : null;

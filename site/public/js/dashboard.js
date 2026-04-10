@@ -26,7 +26,7 @@ export async function loadArticles(q, category, company) {
   if (q) url += '&q=' + encodeURIComponent(q);
   if (category) url += '&category=' + encodeURIComponent(category);
   if (company) url += '&company=' + encodeURIComponent(company);
-  const articles = await fetch(url).then(r => r.json());
+  const articles = await fetch(url).then(r => { if (!r.ok) throw new Error(r.status + ''); return r.json(); }).catch(() => []);
   el.innerHTML = articles.length
     ? articles.map(a => articleCard(a)).join('')
     : '<div class="loading">No articles found</div>';

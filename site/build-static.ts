@@ -87,6 +87,7 @@ if (SB_KEY) {
       `${SB_URL}/rest/v1/financial_ratios?select=*&order=company`,
       { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } }
     );
+    if (!res.ok) throw new Error(`Supabase returned ${res.status}: ${await res.text()}`);
     const ratios = await res.json();
     writeFileSync(join(PUBLIC, "financial-ratios.json"), JSON.stringify(ratios, null, 2));
     console.log(`Generated financial-ratios.json (${ratios.length} companies)`);
@@ -106,6 +107,7 @@ if (SB_KEY) {
       `${SB_URL}/rest/v1/weekly_summaries?select=*&order=week_end.desc&limit=1`,
       { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } }
     );
+    if (!res.ok) throw new Error(`Supabase returned ${res.status}: ${await res.text()}`);
     const summaries = await res.json();
     const latest = summaries?.[0] || null;
     writeFileSync(join(PUBLIC, "weekly-summary.json"), JSON.stringify(latest, null, 2));

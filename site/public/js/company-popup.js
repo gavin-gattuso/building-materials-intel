@@ -78,7 +78,8 @@ async function showPopup(card) {
   let articles = articleCache.get(companyName);
   if (!articles) {
     try {
-      articles = await fetch(`/api/articles?company=${encodeURIComponent(companyName)}&limit=3`).then(r => r.json());
+      const res = await fetch(`/api/articles?company=${encodeURIComponent(companyName)}&limit=3`);
+      articles = res.ok ? await res.json() : [];
       articleCache.set(companyName, articles);
     } catch {
       articles = [];

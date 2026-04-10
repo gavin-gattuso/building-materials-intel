@@ -10,8 +10,9 @@ import { join, basename } from "path";
 import matter from "gray-matter";
 import { createHash } from "crypto";
 
-const SUPABASE_URL = "https://pmjqymxdaiwfpfglwqux.supabase.co";
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const SUPABASE_URL = process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co";
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+if (!SUPABASE_KEY) { console.error("SUPABASE_SERVICE_ROLE_KEY required"); process.exit(1); }
 const KB = join(import.meta.dir, "..", "knowledge-base");
 const HEADERS = {
   "apikey": SUPABASE_KEY,

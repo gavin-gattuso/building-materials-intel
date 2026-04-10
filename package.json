@@ -7,14 +7,14 @@
     "site": "bun run site/server.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest",
-    "@vercel/node": "^3"
+    "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.82.0",
+    "@vercel/node": "^3",
     "@supabase/supabase-js": "^2",
     "docx": "^9.6.1",
     "gray-matter": "^4.0.3",

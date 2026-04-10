@@ -53,7 +53,7 @@ function renderAIResponse(data) {
 }
 
 export function initChat() {
-  fetch('/api/mode').then(r => r.json()).then(data => {
+  fetch('/api/mode').then(r => r.ok ? r.json() : { aiEnabled: false }).then(data => {
     chatMode = data.aiEnabled ? 'ai' : 'search';
     const desc = document.getElementById('chat-mode-desc');
     if (desc) {
@@ -105,6 +105,7 @@ async function sendChat() {
       body: JSON.stringify({ message: msg, history: chatHistory }),
     });
     document.getElementById('typing')?.remove();
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
     const data = await res.json();
 
     if (data.error) {

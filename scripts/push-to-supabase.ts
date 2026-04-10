@@ -144,7 +144,7 @@ async function migrateArticles() {
     const companies: string[] = meta.companies || [];
     const tags: string[] = meta.tags || [];
     tags.forEach((t) => allTags.add(t));
-    articleData.push({ slug, title, date: meta.date || "2026-01-01", source: meta.source, url: meta.url, category: meta.category, content, companies, tags });
+    articleData.push({ slug, title, date: meta.date || new Date().toISOString().split("T")[0], source: meta.source, url: meta.url, category: meta.category, content, companies, tags });
   }
 
   // Insert tags
