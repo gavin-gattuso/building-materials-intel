@@ -129,44 +129,46 @@ function loadCSS(): string {
 }
 
 /* ── Company segment/subsector mapping ── */
-const COMPANY_MAP: Record<string, { seg: string; sub: string; group: "materials" | "products" }> = {
-  CRH: { seg: "nonresidential", sub: "Aggregates & Cement", group: "materials" },
-  CEMEX: { seg: "residential", sub: "Aggregates & Cement", group: "materials" },
-  "Heidelberg Materials": { seg: "nonresidential", sub: "Aggregates & Cement", group: "materials" },
-  Holcim: { seg: "residential", sub: "Aggregates & Cement", group: "materials" },
-  "Martin Marietta": { seg: "nonresidential", sub: "Aggregates & Cement", group: "materials" },
-  "Taiheiyo Cement": { seg: "residential", sub: "Aggregates & Cement", group: "materials" },
-  "Vulcan Materials": { seg: "nonresidential", sub: "Aggregates & Cement", group: "materials" },
-  AGC: { seg: "nonresidential", sub: "Glass & Insulation", group: "materials" },
-  "Owens Corning": { seg: "residential", sub: "Glass & Insulation", group: "materials" },
-  "Saint-Gobain": { seg: "distribution", sub: "Glass & Insulation", group: "materials" },
-  Canfor: { seg: "residential", sub: "Wood & Lumber", group: "materials" },
-  Interfor: { seg: "residential", sub: "Wood & Lumber", group: "materials" },
-  "UFP Industries": { seg: "residential", sub: "Wood & Lumber", group: "materials" },
-  "West Fraser": { seg: "residential", sub: "Wood & Lumber", group: "materials" },
-  Weyerhaeuser: { seg: "residential", sub: "Wood & Lumber", group: "materials" },
-  ArcelorMittal: { seg: "nonresidential", sub: "Steel & Metals", group: "materials" },
-  Nucor: { seg: "nonresidential", sub: "Steel & Metals", group: "materials" },
-  "Steel Dynamics": { seg: "nonresidential", sub: "Steel & Metals", group: "materials" },
-  Wienerberger: { seg: "residential", sub: "Steel & Metals", group: "materials" },
-  "Builders FirstSource": { seg: "distribution", sub: "Building Envelope & Dist.", group: "products" },
-  QXO: { seg: "distribution", sub: "Building Envelope & Dist.", group: "products" },
-  "Carlisle Companies": { seg: "residential", sub: "Building Envelope & Dist.", group: "products" },
-  Kingspan: { seg: "residential", sub: "Building Envelope & Dist.", group: "products" },
-  "RPM International": { seg: "residential", sub: "Building Envelope & Dist.", group: "products" },
-  "ASSA ABLOY": { seg: "residential", sub: "Doors & Windows", group: "products" },
-  "JELD-WEN": { seg: "residential", sub: "Doors & Windows", group: "products" },
-  LIXIL: { seg: "residential", sub: "Doors & Windows", group: "products" },
-  "Sanwa Holdings": { seg: "residential", sub: "Doors & Windows", group: "products" },
-  "Advanced Drainage Systems": { seg: "nonresidential", sub: "Plumbing & Fixtures", group: "products" },
-  Geberit: { seg: "residential", sub: "Plumbing & Fixtures", group: "products" },
-  "Fortune Brands": { seg: "residential", sub: "Plumbing & Fixtures", group: "products" },
-  Masco: { seg: "residential", sub: "Plumbing & Fixtures", group: "products" },
-  "Carrier Global": { seg: "residential", sub: "HVAC & Climate", group: "products" },
-  "Daikin Industries": { seg: "residential", sub: "HVAC & Climate", group: "products" },
-  "Johnson Controls": { seg: "residential", sub: "HVAC & Climate", group: "products" },
-  "Trane Technologies": { seg: "residential", sub: "HVAC & Climate", group: "products" },
+/* display: short label used on charts/tables (matches the hand-built interactive report) */
+const COMPANY_MAP: Record<string, { display: string; seg: string; sub: string; group: "materials" | "products" }> = {
+  CRH: { display: "CRH", seg: "nonresidential", sub: "Aggregates & Cement", group: "materials" },
+  CEMEX: { display: "Cemex", seg: "residential", sub: "Aggregates & Cement", group: "materials" },
+  "Heidelberg Materials": { display: "Heidelberg", seg: "nonresidential", sub: "Aggregates & Cement", group: "materials" },
+  Holcim: { display: "Holcim", seg: "residential", sub: "Aggregates & Cement", group: "materials" },
+  "Martin Marietta": { display: "Martin Marietta", seg: "nonresidential", sub: "Aggregates & Cement", group: "materials" },
+  "Taiheiyo Cement": { display: "Taiheiyo", seg: "residential", sub: "Aggregates & Cement", group: "materials" },
+  "Vulcan Materials": { display: "Vulcan Materials", seg: "nonresidential", sub: "Aggregates & Cement", group: "materials" },
+  AGC: { display: "AGC", seg: "nonresidential", sub: "Glass & Insulation", group: "materials" },
+  "Owens Corning": { display: "Owens Corning", seg: "residential", sub: "Glass & Insulation", group: "materials" },
+  "Saint-Gobain": { display: "Saint-Gobain", seg: "distribution", sub: "Glass & Insulation", group: "materials" },
+  Canfor: { display: "Canfor", seg: "residential", sub: "Wood & Lumber", group: "materials" },
+  Interfor: { display: "Interfor", seg: "residential", sub: "Wood & Lumber", group: "materials" },
+  "UFP Industries": { display: "UFP Industries", seg: "residential", sub: "Wood & Lumber", group: "materials" },
+  "West Fraser": { display: "West Fraser", seg: "residential", sub: "Wood & Lumber", group: "materials" },
+  Weyerhaeuser: { display: "Weyerhaeuser", seg: "residential", sub: "Wood & Lumber", group: "materials" },
+  ArcelorMittal: { display: "ArcelorMittal", seg: "nonresidential", sub: "Steel & Metals", group: "materials" },
+  Nucor: { display: "Nucor", seg: "nonresidential", sub: "Steel & Metals", group: "materials" },
+  "Steel Dynamics": { display: "Steel Dynamics", seg: "nonresidential", sub: "Steel & Metals", group: "materials" },
+  Wienerberger: { display: "Wienerberger", seg: "residential", sub: "Steel & Metals", group: "materials" },
+  "Builders FirstSource": { display: "Builders FirstSource", seg: "distribution", sub: "Building Envelope & Dist.", group: "products" },
+  QXO: { display: "QXO", seg: "distribution", sub: "Building Envelope & Dist.", group: "products" },
+  "Carlisle Companies": { display: "Carlisle", seg: "residential", sub: "Building Envelope & Dist.", group: "products" },
+  Kingspan: { display: "Kingspan", seg: "residential", sub: "Building Envelope & Dist.", group: "products" },
+  "ASSA ABLOY": { display: "ASSA ABLOY", seg: "residential", sub: "Doors & Windows", group: "products" },
+  "JELD-WEN": { display: "JELD-WEN", seg: "residential", sub: "Doors & Windows", group: "products" },
+  LIXIL: { display: "LIXIL", seg: "residential", sub: "Doors & Windows", group: "products" },
+  "Sanwa Holdings": { display: "Sanwa", seg: "residential", sub: "Doors & Windows", group: "products" },
+  "Advanced Drainage Systems": { display: "Adv. Drainage Sys.", seg: "nonresidential", sub: "Plumbing & Fixtures", group: "products" },
+  Geberit: { display: "Geberit", seg: "residential", sub: "Plumbing & Fixtures", group: "products" },
+  "Fortune Brands": { display: "Fortune Brands", seg: "residential", sub: "Plumbing & Fixtures", group: "products" },
+  Masco: { display: "Masco", seg: "residential", sub: "Plumbing & Fixtures", group: "products" },
+  "Carrier Global": { display: "Carrier", seg: "residential", sub: "HVAC & Climate", group: "products" },
+  "Daikin Industries": { display: "Daikin", seg: "residential", sub: "HVAC & Climate", group: "products" },
+  "Johnson Controls": { display: "Johnson Controls", seg: "residential", sub: "HVAC & Climate", group: "products" },
+  "Trane Technologies": { display: "Trane", seg: "residential", sub: "HVAC & Climate", group: "products" },
 };
+/* Companies excluded: Home Depot, Lowe's, Installed Building Products, RPM International
+   (building materials segment data not separately reported) */
 
 function mapFinancials(financials: FinancialRow[]): { materials: string; products: string } {
   const mats: string[] = [];
@@ -176,7 +178,7 @@ function mapFinancials(financials: FinancialRow[]): { materials: string; product
     const mapping = COMPANY_MAP[f.company];
     if (!mapping) continue;
 
-    const entry = `{name:'${escJs(f.company)}',seg:'${mapping.seg}',sub:'${escJs(mapping.sub)}',revenue:${f.revenue_growth_yoy ?? "null"},cogs:${f.cogs_sales_pct ?? "null"},cogsD:${f.cogs_sales_yoy_delta ?? "null"},sga:${f.sga_sales_pct ?? "null"},sgaD:${f.sga_sales_yoy_delta ?? "null"},ebitda:${f.ebitda_margin_pct ?? "null"},ebitdaD:${f.ebitda_margin_yoy_delta ?? "null"}}`;
+    const entry = `{name:'${escJs(mapping.display)}',seg:'${mapping.seg}',sub:'${escJs(mapping.sub)}',revenue:${f.revenue_growth_yoy ?? "null"},cogs:${f.cogs_sales_pct ?? "null"},cogsD:${f.cogs_sales_yoy_delta ?? "null"},sga:${f.sga_sales_pct ?? "null"},sgaD:${f.sga_sales_yoy_delta ?? "null"},ebitda:${f.ebitda_margin_pct ?? "null"},ebitdaD:${f.ebitda_margin_yoy_delta ?? "null"}}`;
 
     if (mapping.group === "materials") mats.push(entry);
     else prods.push(entry);
@@ -204,7 +206,7 @@ function buildCompanyTableRows(financials: FinancialRow[]): string {
       const ebitda = f.ebitda_margin_pct != null ? f.ebitda_margin_pct.toFixed(1) + "%" : "n/a";
       const ebitdaD = f.ebitda_margin_yoy_delta != null ? yoyBubble(f.ebitda_margin_yoy_delta, false) : "";
 
-      return `        <tr><td><span class="seg-dot" style="${segStyle[mapping.seg] || ""}"></span></td><td>${esc(f.company)}</td><td>${rev}</td><td>${cogs} ${cogsD}</td><td>${sga} ${sgaD}</td><td>${ebitda} ${ebitdaD}</td></tr>`;
+      return `        <tr><td><span class="seg-dot" style="${segStyle[mapping.seg] || ""}"></span></td><td>${esc(mapping.display)}</td><td>${rev}</td><td>${cogs} ${cogsD}</td><td>${sga} ${sgaD}</td><td>${ebitda} ${ebitdaD}</td></tr>`;
     })
     .join("\n");
 }
@@ -526,6 +528,7 @@ ${buildCompanyTableRows(financials)}
       </tbody>
     </table>
     </div>
+    <p class="chart-caption table-footnote">35 of 39 tracked companies shown. Home Depot, Lowe&rsquo;s, Installed Building Products, and RPM International are excluded as their building materials segment data is not separately reported. * QXO metrics distorted by Beacon Roofing Supply acquisition (~$11B, Q1 2025). ** Owens Corning revenue growth reflects Masonite acquisition ($3.9B, closed Nov 2024).</p>
   </div>
 </section>
 
