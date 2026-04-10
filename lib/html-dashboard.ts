@@ -491,7 +491,7 @@ ${driverRows}
 ${drivers
   .map((d, i) => {
     const id = `sec-driver-${i}`;
-    const heading = `${i + 1}. ${esc(d.driver)}`;
+    const heading = esc(d.driver);
     const bullets = (d.dataPoints || []).map((dp) => `<li>${esc(dp)}</li>`).join("\n          ");
     return `
 <section class="report-section" id="${id}">
