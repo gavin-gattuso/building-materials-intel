@@ -33,7 +33,6 @@ export async function loadHome() {
   ]);
 
   // Weekly AI summary
-  const sumEl = document.getElementById('home-ai-summary');
   if (sumEl && weeklySummary && weeklySummary.summary) {
     const wStart = new Date(weeklySummary.week_start + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     const wEnd = new Date(weeklySummary.week_end + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -47,7 +46,6 @@ export async function loadHome() {
   }
 
   // Market Drivers
-  const driversEl = document.getElementById('home-drivers');
   if (driversEl && drivers.length) {
     driversEl.innerHTML = drivers.map(d => {
       const signal = (d.frontmatter.current_signal || '').toLowerCase();
@@ -68,7 +66,6 @@ export async function loadHome() {
   });
 
   // Earnings calendar
-  const earningsEl = document.getElementById('home-earnings');
   if (earningsEl) {
     earningsEl.innerHTML = earningsCalendar.length
       ? earningsCalendar.map(e => {
