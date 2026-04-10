@@ -741,12 +741,17 @@
     </div>
 
     <div class="report-gen">
-      <h3>Generate Custom Report</h3>
-      <p class="rg-sub">AI-powered Building Materials intelligence report for any date range. Exports as Word document.</p>
+      <h3>Interactive Dashboard Report</h3>
+      <p class="rg-sub">Self-contained HTML dashboard with all charts, data, and print-to-PDF. Opens in any browser — no installation needed.</p>
+      <div class="rg-row">
+        <a href="/reports/AV_Interactive_Dashboard_2025YTD.html" download class="rg-btn" style="text-decoration:none;text-align:center" title="Download the interactive HTML dashboard report">Download Interactive Report</a>
+      </div>
+      <h3 style="margin-top:20px">Generate Custom Report</h3>
+      <p class="rg-sub">AI-powered Building Materials intelligence report for any date range.</p>
       <div class="rg-row">
         <div><label>Start Date</label><input type="date" id="rg-start"></div>
         <div><label>End Date</label><input type="date" id="rg-end"></div>
-        <button class="rg-btn" id="rg-btn" onclick="window.generateReport()" title="Generate an AI-powered Word document covering all sections and market drivers for the selected date range">Generate Report</button>
+        <button class="rg-btn" id="rg-btn" onclick="window.generateReport()" title="Generate an AI-powered report covering all sections and market drivers for the selected date range">Generate Report</button>
       </div>
       <div class="rg-progress" id="rg-progress" style="display:none"></div>
     </div>

@@ -27,13 +27,14 @@ export async function loadReportDownloads() {
       return;
     }
     el.innerHTML = reports.map(r => {
-      const sizeMB = (r.size / (1024 * 1024)).toFixed(1);
+      const sizeMB = r.size > 1024*1024 ? (r.size / (1024 * 1024)).toFixed(1) + ' MB' : Math.round(r.size / 1024) + ' KB';
       const date = new Date(r.modified).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-      return `<a class="report-card" href="/reports/${encodeURIComponent(r.filename)}" target="_blank" title="Download ${escHtml(r.name)} (${sizeMB} MB PDF)">
-        <div class="report-card-icon">PDF</div>
+      const ext = r.filename.endsWith('.html') ? 'HTML' : 'PDF';
+      return `<a class="report-card" href="/reports/${encodeURIComponent(r.filename)}" ${r.filename.endsWith('.html') ? 'download' : 'target="_blank"'} title="Download ${escHtml(r.name)} (${sizeMB})">
+        <div class="report-card-icon" ${ext==='HTML'?'style="background:var(--accent-bg,#E8F5E9);color:var(--av-mid,#2E7D52)"':''}>${ext}</div>
         <div class="report-card-info">
           <div class="report-card-title">${escHtml(r.name)}</div>
-          <div class="report-card-meta">${sizeMB} MB &middot; ${date}</div>
+          <div class="report-card-meta">${sizeMB} &middot; ${date}</div>
         </div>
       </a>`;
     }).join('');
