@@ -61,7 +61,6 @@ Run at least 13 targeted web searches across these key themes:
 - **Tier 1 — Major News:** Reuters, Bloomberg, WSJ, Financial Times, NYT, Washington Post, CNBC, Forbes, Fortune, AP
 - **Tier 2 — Industry/Trade:** Construction Dive, ENR, Builder Magazine, LBM Journal, HBS Dealer, Roofing Contractor, Building Products Digest, Pro Builder, Remodeling Magazine
 - **Tier 3 — Business/Research:** Bain, McKinsey, Deloitte, PwC, KPMG, NAHB, AGC, S&P Global, Dodge Construction Network, ConstructConnect
-- **Tier 4 — Tech/Science:** TechCrunch, MIT Technology Review, ScienceDaily
 
 If a story only appears on sources outside this whitelist, **skip it**.
 

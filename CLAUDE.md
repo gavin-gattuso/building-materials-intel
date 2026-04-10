@@ -86,14 +86,13 @@ The main API (`api/index.ts`) handles all endpoints except build-report:
 **HVAC & Climate:** Carrier Global, Daikin Industries, Johnson Controls, Trane Technologies
 **Retail & Distribution:** Home Depot, Lowe's
 
-## 9-Tier Source Whitelist
+## 8-Tier Source Whitelist
 1. Major News (Reuters, Bloomberg, WSJ, FT, NYT, WaPo, BBC, CNBC, Forbes, Fortune, AP)
-2. Top Publications (TechCrunch, Verge, Wired, Ars Technica, MIT Tech Review, VentureBeat, ZDNet, CNET)
-3. Industry-Specific (Construction Dive, BD+C, ENR, Remodeling Magazine, JLC, ProBuilder)
-4. Company IR Pages (all 39 companies' official investor relations sites)
-5. Associations & Research (NAHB, ABC, PCA, AISI, AGC, Construction Analytics, AIA, Conference Board, S&P Global Ratings)
-6. Government & Data (Census, BLS/PPI, BEA, FRED, Federal Reserve, USGS, Procore, BusinessWire/PR Newswire/GlobeNewsWire)
-7. Financial Analysis (Yahoo Finance, Seeking Alpha, MarketScreener -- limited to these three)
-8. Consulting Firms (Bain, Deloitte, PwC, KPMG, FMI Corp, Capstone Partners)
-9. Construction Niche (LBM Journal, Builder Online, Steel Market Update, Fastmarkets, For Construction Pros, ConstructConnect, Concrete Products, Pit & Quarry, Rock Products, CemNet, HousingWire, Data Center Dynamics, Roofing Contractor)
+2. Industry-Specific (Construction Dive, BD+C, ENR, Remodeling Magazine, JLC, ProBuilder)
+3. Company IR Pages (all 39 companies' official investor relations sites)
+4. Associations & Research (NAHB, ABC, PCA, AISI, AGC, Construction Analytics, AIA, Conference Board, S&P Global Ratings)
+5. Government & Data (Census, BLS/PPI, BEA, FRED, Federal Reserve, USGS, Procore, BusinessWire/PR Newswire/GlobeNewsWire)
+6. Financial Analysis (Yahoo Finance, Seeking Alpha, MarketScreener -- limited to these three)
+7. Consulting Firms (Bain, Deloitte, PwC, KPMG, FMI Corp, Capstone Partners)
+8. Construction Niche (LBM Journal, Builder Online, Steel Market Update, Fastmarkets, For Construction Pros, ConstructConnect, Concrete Products, Pit & Quarry, Rock Products, CemNet, HousingWire, Data Center Dynamics, Roofing Contractor)
 

@@ -27,7 +27,7 @@ const jsonMode = process.argv.includes("--json");
 const statsMode = process.argv.includes("--stats");
 
 // ---------------------------------------------------------------------------
-// 9-Tier Source Whitelist  (domain-based matching)
+// 8-Tier Source Whitelist  (domain-based matching)
 // ---------------------------------------------------------------------------
 
 interface SourceTierEntry {
@@ -53,19 +53,6 @@ const SOURCE_TIERS: Record<number, { label: string; sources: SourceTierEntry[] }
     ],
   },
   2: {
-    label: "Top Publications",
-    sources: [
-      { name: "TechCrunch", domains: ["techcrunch.com"] },
-      { name: "The Verge", domains: ["theverge.com"] },
-      { name: "Wired", domains: ["wired.com"] },
-      { name: "Ars Technica", domains: ["arstechnica.com"] },
-      { name: "MIT Technology Review", domains: ["technologyreview.com"] },
-      { name: "VentureBeat", domains: ["venturebeat.com"] },
-      { name: "ZDNet", domains: ["zdnet.com"] },
-      { name: "CNET", domains: ["cnet.com"] },
-    ],
-  },
-  3: {
     label: "Industry-Specific",
     sources: [
       { name: "Construction Dive", domains: ["constructiondive.com"] },
@@ -79,13 +66,13 @@ const SOURCE_TIERS: Record<number, { label: string; sources: SourceTierEntry[] }
       { name: "Supply Chain Dive", domains: ["supplychaindive.com"] },
     ],
   },
-  4: {
+  3: {
     label: "Company IR Pages",
     sources: [
       { name: "Company IR", domains: ["investor", "ir.", "investors."] },
     ],
   },
-  5: {
+  4: {
     label: "Associations & Research",
     sources: [
       { name: "NAHB", domains: ["nahb.org"] },
@@ -101,7 +88,7 @@ const SOURCE_TIERS: Record<number, { label: string; sources: SourceTierEntry[] }
       { name: "ConstructConnect", domains: ["constructconnect.com"] },
     ],
   },
-  6: {
+  5: {
     label: "Government & Data",
     sources: [
       { name: "Census Bureau", domains: ["census.gov"] },
@@ -116,7 +103,7 @@ const SOURCE_TIERS: Record<number, { label: string; sources: SourceTierEntry[] }
       { name: "GlobeNewsWire", domains: ["globenewswire.com"] },
     ],
   },
-  7: {
+  6: {
     label: "Financial Analysis",
     sources: [
       { name: "Yahoo Finance", domains: ["finance.yahoo.com", "yahoo.com/finance"] },
@@ -127,7 +114,7 @@ const SOURCE_TIERS: Record<number, { label: string; sources: SourceTierEntry[] }
       { name: "IndexBox", domains: ["indexbox.io"] },
     ],
   },
-  8: {
+  7: {
     label: "Consulting Firms",
     sources: [
       { name: "Bain", domains: ["bain.com"] },
@@ -139,7 +126,7 @@ const SOURCE_TIERS: Record<number, { label: string; sources: SourceTierEntry[] }
       { name: "McKinsey", domains: ["mckinsey.com"] },
     ],
   },
-  9: {
+  8: {
     label: "Construction Niche",
     sources: [
       { name: "LBM Journal", domains: ["lbmjournal.com"] },
