@@ -32,7 +32,127 @@
     --font-heading: 'Gelasio', Georgia, serif;
     --font-body: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
+
+  /* Dark mode overrides */
+  [data-theme="dark"] {
+    --primary: #4ade80;
+    --primary-dark: #16664b;
+    --primary-light: #6ee7a0;
+    --bg: #1a1b1e;
+    --bg-alt: #1e1f23;
+    --surface: #25262b;
+    --border: #373a40;
+    --text: #c1c2c5;
+    --text-secondary: #909296;
+    --text-muted: #5c5f66;
+    --accent: #4ade80;
+    --success-bg: #1a2e1f;
+    --success-text: #4ade80;
+    --warning-bg: #2e2516;
+    --warning-text: #fbbf24;
+    --info-bg: #162640;
+    --info-text: #60a5fa;
+    --danger-bg: #2e1a1a;
+    --danger-text: #f87171;
+    --dark: #141517;
+    --shadow: 0 2px 8px rgba(0,0,0,0.25);
+    --shadow-hover: 0 6px 20px rgba(74,222,128,0.12);
+  }
+  [data-theme="dark"] .header { background: #1e1f23; }
+  [data-theme="dark"] .article-item:hover { background: #2c2d32; }
+  [data-theme="dark"] .article-item { border-bottom-color: var(--border); }
+  [data-theme="dark"] .earnings-cal-item { border-bottom-color: var(--border); }
+  [data-theme="dark"] .earnings-cal-item:hover { background: #2c2d32; }
+  [data-theme="dark"] .ratio-row { border-bottom-color: var(--border); }
+  [data-theme="dark"] .ratio-row:hover { background: #2c2d32; }
+  [data-theme="dark"] .ratio-bar-wrap { background: #373a40; }
+  [data-theme="dark"] .search-result-excerpts mark { background: #1a3a1f; color: #4ade80; }
+  [data-theme="dark"] .chat-bubble code { background: #1a1b1e; }
+  [data-theme="dark"] .feedback-overlay { background: rgba(0,0,0,0.6); }
+  [data-theme="dark"] .report-gen input[type="date"] { background: #1a1b1e; color: var(--text); border-color: var(--border); }
+  [data-theme="dark"] .filter-select { color: var(--text); background: var(--surface); }
+  [data-theme="dark"] .driver-signal.up, [data-theme="dark"] .driver-signal.worsening { background: var(--danger-bg); }
+  [data-theme="dark"] .driver-signal.down, [data-theme="dark"] .driver-signal.easing, [data-theme="dark"] .driver-signal.improving, [data-theme="dark"] .driver-signal.expanding { background: var(--success-bg); }
+  [data-theme="dark"] .driver-signal.tightening, [data-theme="dark"] .driver-signal.constrained, [data-theme="dark"] .driver-signal.mixed, [data-theme="dark"] .driver-signal.cautious { background: var(--warning-bg); }
+  [data-theme="dark"] .driver-signal.stable { background: var(--info-bg); }
+  [data-theme="dark"] .driver-signal.weakening { background: var(--danger-bg); }
+  [data-theme="dark"] .detail-content th { background: #1e1f23; }
+  [data-theme="dark"] .chat-bubble th { background: #1e1f23; }
+  [data-theme="dark"] .footer { background: #111214; }
+  [data-theme="dark"] .footer, [data-theme="dark"] .footer a { color: rgba(255,255,255,0.4); }
+  [data-theme="dark"] .header-logo img { filter: brightness(0) invert(1) opacity(0.85); }
+  [data-theme="dark"] .ratios-period-select select { background: var(--surface); color: var(--text); border-color: var(--border); }
+  [data-theme="dark"] .ratios-key .key-item:hover { background: rgba(255,255,255,0.06); }
+  [data-theme="dark"] .ratios-key .key-item.active { background: rgba(255,255,255,0.1); }
+  [data-theme="dark"] .company-popup { box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+  [data-theme="dark"] .chat-widget { box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+  [data-theme="dark"] .chat-fab { box-shadow: 0 4px 12px rgba(74,222,128,0.25); }
+  [data-theme="dark"] .chat-fab:hover { box-shadow: 0 6px 20px rgba(74,222,128,0.35); }
+  [data-theme="dark"] .detail-content table th { background: #1e1f23; }
+  [data-theme="dark"] .article-meta .cat { background: var(--bg); }
+  [data-theme="dark"] .ratio-delta .delta-tooltip { background: #000; }
+
+  /* Dark mode toggle */
+  .theme-toggle { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 16px; color: var(--text-secondary); margin-left: 12px; transition: all 0.2s; flex-shrink: 0; display: flex; align-items: center; height: 32px; }
+  .theme-toggle:hover { border-color: var(--primary); color: var(--primary); }
+
+  /* Skeleton loading */
+  @keyframes skeleton-shimmer {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
+  .skeleton {
+    background: linear-gradient(90deg, var(--border) 25%, transparent 50%, var(--border) 75%);
+    background-size: 800px 100%;
+    animation: skeleton-shimmer 1.5s infinite ease-in-out;
+    border-radius: 4px;
+  }
+  .skeleton-text {
+    height: 14px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--border) 25%, transparent 50%, var(--border) 75%);
+    background-size: 800px 100%;
+    animation: skeleton-shimmer 1.5s infinite ease-in-out;
+  }
+  .skeleton-text:last-child { margin-bottom: 0; }
+  .skeleton-text.w-75 { width: 75%; }
+  .skeleton-text.w-60 { width: 60%; }
+  .skeleton-text.w-50 { width: 50%; }
+  .skeleton-text.w-40 { width: 40%; }
+  .skeleton-text.w-90 { width: 90%; }
+  .skeleton-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 24px;
+    min-height: 80px;
+  }
+  .skeleton-card .skeleton-text {
+    height: 12px;
+    margin-bottom: 8px;
+  }
+  .skeleton-card .skeleton-title {
+    height: 18px;
+    width: 65%;
+    margin-bottom: 12px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--border) 25%, transparent 50%, var(--border) 75%);
+    background-size: 800px 100%;
+    animation: skeleton-shimmer 1.5s infinite ease-in-out;
+  }
+  .skeleton-article {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .skeleton-article .skeleton-meta { display: flex; gap: 12px; margin-bottom: 8px; }
+  .skeleton-article .skeleton-meta .skeleton { height: 12px; }
+  .skeleton-row { display: flex; align-items: center; gap: 8px; padding: 8px 4px; border-bottom: 1px solid var(--border); }
+  .skeleton-row .skeleton { height: 20px; border-radius: 3px; }
+  .skeleton-digest { padding: 20px 24px; }
+  .skeleton-digest .skeleton-text { margin-bottom: 12px; }
+
   body { font-family: var(--font-body); background: var(--bg); color: var(--text); line-height: 1.6; font-size: 14px; -webkit-font-smoothing: antialiased; }
   a { color: var(--primary); text-decoration: none; }
   a:hover { text-decoration: underline; }
@@ -497,7 +617,16 @@
     .ratios-panels { grid-template-columns: 1fr; }
     .ratio-company { width: 110px; }
   }
+  /* Chart.js trend chart area */
+  .ratios-chart-area { margin-bottom: 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 16px 12px; }
+  .ratios-chart-area h3 { font-family: var(--font-heading); font-size: 15px; color: var(--primary-dark); margin-bottom: 12px; text-align: center; }
+  .ratios-chart-area canvas { width: 100% !important; max-height: 480px; }
+  /* Peer comparison mini-chart in company overlay */
+  .peer-chart-section { margin-top: 16px; }
+  .peer-chart-section h4 { font-family: var(--font-heading); font-size: 14px; color: var(--primary-dark); margin-bottom: 8px; }
+  .peer-chart-section canvas { width: 100% !important; max-height: 220px; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 </head>
 <body>
 
@@ -514,6 +643,7 @@
     <a data-page="drivers-concepts" title="7 market health drivers & analytical frameworks">Drivers &amp; Concepts</a>
     <a data-page="reports" title="Published reports & custom report generator">Reports</a>
     <a data-page="articles" title="Search and filter 350+ tracked articles">Articles</a>
+    <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">&#9789;</button>
   </div>
 </div>
 
@@ -562,8 +692,25 @@
     </div>
     <div class="ratios-controls" id="ratios-metric-btns"></div>
     <div class="ratios-key" id="ratios-key"></div>
+    <div class="ratios-chart-area" id="ratios-chart-area">
+      <h3 id="ratios-chart-title">Revenue (LTM BUSD)</h3>
+      <canvas id="ratios-chart-canvas"></canvas>
+    </div>
     <div class="ratios-panels" id="ratios-panels">
-      <div class="loading">Loading financial data...</div>
+      <div>
+        <div class="skeleton-row"><div class="skeleton" style="width:120px;height:14px"></div><div class="skeleton" style="flex:1;height:20px"></div><div class="skeleton" style="width:50px;height:14px"></div></div>
+        <div class="skeleton-row"><div class="skeleton" style="width:100px;height:14px"></div><div class="skeleton" style="flex:1;height:20px"></div><div class="skeleton" style="width:50px;height:14px"></div></div>
+        <div class="skeleton-row"><div class="skeleton" style="width:130px;height:14px"></div><div class="skeleton" style="flex:1;height:20px"></div><div class="skeleton" style="width:50px;height:14px"></div></div>
+        <div class="skeleton-row"><div class="skeleton" style="width:110px;height:14px"></div><div class="skeleton" style="flex:1;height:20px"></div><div class="skeleton" style="width:50px;height:14px"></div></div>
+        <div class="skeleton-row"><div class="skeleton" style="width:90px;height:14px"></div><div class="skeleton" style="flex:1;height:20px"></div><div class="skeleton" style="width:50px;height:14px"></div></div>
+      </div>
+      <div>
+        <div class="skeleton-row"><div class="skeleton" style="width:120px;height:14px"></div><div class="skeleton" style="flex:1;height:20px"></div><div class="skeleton" style="width:50px;height:14px"></div></div>
+        <div class="skeleton-row"><div class="skeleton" style="width:100px;height:14px"></div><div class="skeleton" style="flex:1;height:20px"></div><div class="skeleton" style="width:50px;height:14px"></div></div>
+        <div class="skeleton-row"><div class="skeleton" style="width:130px;height:14px"></div><div class="skeleton" style="flex:1;height:20px"></div><div class="skeleton" style="width:50px;height:14px"></div></div>
+        <div class="skeleton-row"><div class="skeleton" style="width:110px;height:14px"></div><div class="skeleton" style="flex:1;height:20px"></div><div class="skeleton" style="width:50px;height:14px"></div></div>
+        <div class="skeleton-row"><div class="skeleton" style="width:90px;height:14px"></div><div class="skeleton" style="flex:1;height:20px"></div><div class="skeleton" style="width:50px;height:14px"></div></div>
+      </div>
     </div>
     <div class="detail-source">Source: Yahoo Finance, Applied Value analysis</div>
   </div>
@@ -605,12 +752,15 @@
     </div>
 
     <div class="report-downloads" id="report-downloads">
-      <div class="loading">Loading reports...</div>
+      <div class="skeleton-card"><div class="skeleton-title"></div><div class="skeleton-text w-75"></div><div class="skeleton-text w-50"></div></div>
+      <div class="skeleton-card"><div class="skeleton-title"></div><div class="skeleton-text w-75"></div><div class="skeleton-text w-50"></div></div>
     </div>
     <div class="section-title" style="margin-top:32px">AV Report Sections</div>
     <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px">Intelligence coverage mapped to the 9 sections of the Applied Value semi-annual report</p>
     <div class="coverage-grid" id="coverage-grid">
-      <div class="loading">Loading report sections...</div>
+      <div class="skeleton-card"><div class="skeleton-text w-75"></div><div class="skeleton-text w-40"></div></div>
+      <div class="skeleton-card"><div class="skeleton-text w-60"></div><div class="skeleton-text w-40"></div></div>
+      <div class="skeleton-card"><div class="skeleton-text w-90"></div><div class="skeleton-text w-40"></div></div>
     </div>
     <div id="report-section-detail" style="display:none">
       <div class="detail-back" onclick="document.getElementById('report-section-detail').style.display='none';document.getElementById('coverage-grid').style.display=''" title="Return to report sections overview">&larr; Back to sections</div>
@@ -678,6 +828,20 @@
 </div>
 
 
+<script>
+// Dark mode: apply before render to prevent flash
+(function() {
+  var stored = localStorage.getItem('theme');
+  var theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+  // Update toggle icon once DOM is ready
+  document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.innerHTML = theme === 'dark' ? '&#9728;' : '&#9789;';
+  });
+})();
+</script>
+
 <script type="module">
 import { navigateTo, closeDetail, renderMd } from './js/utils.js';
 import { loadArticles, loadArticleFilters, articleCard } from './js/dashboard.js';
@@ -702,6 +866,24 @@ window.toggleFavorite = toggleFavorite;
 // Brand header click → home
 document.querySelector('.header-title').addEventListener('click', () => navigateTo('home'));
 document.querySelector('.header-logo').addEventListener('click', () => navigateTo('home'));
+
+// Dark mode toggle
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  document.getElementById('theme-toggle').innerHTML = next === 'dark' ? '\u2600' : '\u263D';
+});
+// Also listen for OS preference changes when no stored preference
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+  if (!localStorage.getItem('theme')) {
+    const theme = e.matches ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+    document.getElementById('theme-toggle').innerHTML = theme === 'dark' ? '\u2600' : '\u263D';
+  }
+});
 
 // Navigation
 document.querySelectorAll('.header-nav a').forEach(item => {

@@ -1,8 +1,11 @@
 ---
 title: The Home Depot Inc.
+aliases: [Home Depot, The Home Depot, HD]
 created: 2026-04-06
-last_updated: 2026-04-06
+last_updated: 2026-04-09
 ticker: HD
+sector: Retail & Distribution
+subsector: Home Improvement Retail
 backlinks: [home-depot-q4-2025-earnings, home-depot-gms-srs-pro-expansion, bain-building-products-ma-report-2026]
 ---
 

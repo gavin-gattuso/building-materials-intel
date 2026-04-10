@@ -1,5 +1,6 @@
 import { escHtml, renderMd, closeDetail } from './utils.js';
 import { isFavorite, renderFavoritesSection } from './favorites.js';
+import { renderPeerComparisonChart, getRatiosData } from './financial.js';
 
 export function renderCompanyCards(containerId, companies, segmentMap) {
   const el = document.getElementById(containerId);
@@ -121,7 +122,7 @@ async function openCompanyDetail(page) {
       ${subsector ? '<span>' + escHtml(subsector) + '</span>' : ''}
     </div>
   `;
-  document.getElementById('detail-content').innerHTML = '<div class="loading">Loading company data...</div>';
+  document.getElementById('detail-content').innerHTML = '<div style="padding:24px"><div class="skeleton-text w-40" style="height:20px;margin-bottom:16px"></div><div class="skeleton-text w-90"></div><div class="skeleton-text w-75"></div><div class="skeleton-text w-60"></div><div style="margin-top:24px"><div class="skeleton-text w-40" style="height:20px;margin-bottom:16px"></div><div class="skeleton-row"><div class="skeleton" style="width:140px;height:14px"></div><div class="skeleton" style="flex:1;height:20px"></div><div class="skeleton" style="width:55px;height:14px"></div></div><div class="skeleton-row"><div class="skeleton" style="width:120px;height:14px"></div><div class="skeleton" style="flex:1;height:20px"></div><div class="skeleton" style="width:55px;height:14px"></div></div><div class="skeleton-row"><div class="skeleton" style="width:100px;height:14px"></div><div class="skeleton" style="flex:1;height:20px"></div><div class="skeleton" style="width:55px;height:14px"></div></div></div></div>';
   document.getElementById('detail-overlay').classList.add('open');
   document.getElementById('detail-overlay').scrollTop = 0;
 
@@ -153,9 +154,19 @@ async function openCompanyDetail(page) {
       return `<tr><td>${m.label}</td><td><strong>${val}</strong></td><td>${deltaHtml}</td></tr>`;
     }).join('');
 
+    // Peer comparison chart
+    let peerChartHtml = '';
+    try {
+      const allRatios = getRatiosData();
+      if (allRatios && allRatios.length) {
+        peerChartHtml = renderPeerComparisonChart(page.title, ratios, allRatios);
+      }
+    } catch { /* Chart.js may not be loaded */ }
+
     financialHtml = `<div class="company-detail-section">
       <h3>Financial Snapshot <span class="detail-period">${latest.period}</span></h3>
       <table class="company-financials-table">${rows}</table>
+      ${peerChartHtml}
       <div class="detail-source">Source: Yahoo Finance</div>
     </div>`;
   }

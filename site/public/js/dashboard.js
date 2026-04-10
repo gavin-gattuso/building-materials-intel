@@ -17,12 +17,17 @@ export function articleCard(a) {
 }
 
 export async function loadArticles(q, category, company) {
+  const el = document.getElementById('all-articles');
+  // Show skeleton while loading
+  el.innerHTML = Array.from({length: 6}, () =>
+    '<div class="skeleton-article"><div class="skeleton-meta"><div class="skeleton" style="width:80px;height:12px"></div><div class="skeleton" style="width:60px;height:12px"></div><div class="skeleton" style="width:100px;height:12px"></div></div><div class="skeleton-text w-75"></div><div class="skeleton-text w-50"></div></div>'
+  ).join('');
   let url = '/api/articles?limit=100';
   if (q) url += '&q=' + encodeURIComponent(q);
   if (category) url += '&category=' + encodeURIComponent(category);
   if (company) url += '&company=' + encodeURIComponent(company);
   const articles = await fetch(url).then(r => r.json());
-  document.getElementById('all-articles').innerHTML = articles.length
+  el.innerHTML = articles.length
     ? articles.map(a => articleCard(a)).join('')
     : '<div class="loading">No articles found</div>';
 }

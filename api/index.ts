@@ -3,10 +3,32 @@ import { createClient } from "@supabase/supabase-js";
 import { expandTerms, extractExcerpts, scoreEntry } from "../lib/search.js";
 import { buildSmartSearchResponse, buildSearchContext, buildSourceList, SYSTEM_PROMPT_PREFIX } from "../lib/chat.js";
 
-const supabase = createClient(
-  (process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co").trim(),
-  (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim()
-);
+const SUPABASE_URL = (process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co").trim();
+const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
+if (!SUPABASE_KEY) console.warn("WARNING: SUPABASE_SERVICE_ROLE_KEY is not set — API queries will fail");
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const ALLOWED_ORIGINS = [
+  "https://building-materials-intel.vercel.app",
+  "https://av-newsletter-hub.vercel.app",
+  "http://localhost:3000",
+];
+
+// Simple in-memory rate limiter for AI endpoints
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT = 10; // max requests per window
+const RATE_WINDOW = 60_000; // 1 minute
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW });
+    return false;
+  }
+  entry.count++;
+  return entry.count > RATE_LIMIT;
+}
 
 // ---------- Data access ----------
 
@@ -229,7 +251,9 @@ async function searchKB(query: string, limit = 20) {
 // ---------- Router ----------
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const origin = req.headers.origin || "";
+  const corsOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  res.setHeader("Access-Control-Allow-Origin", corsOrigin);
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.status(200).end();
@@ -327,6 +351,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // /api/articles
     if (path === "articles") {
+      res.setHeader("Cache-Control", "public, max-age=60, s-maxage=120");
       const q = req.query.q as string | undefined;
       const category = req.query.category as string | undefined;
       const company = req.query.company as string | undefined;
@@ -432,6 +457,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // /api/chat
     if (path === "chat") {
       if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+      const clientIp = (req.headers["x-forwarded-for"] as string || "unknown").split(",")[0].trim();
+      if (isRateLimited(clientIp)) return res.status(429).json({ error: "Too many requests. Try again in a minute." });
       const { message, history } = req.body;
       const results = await searchKB(message, 15);
 
@@ -460,6 +487,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // /api/synthesize-section — AI synthesis for one report section
     if (path === "synthesize-section") {
       if (req.method !== "POST") return res.status(405).json({ error: "POST required" });
+      const clientIp2 = (req.headers["x-forwarded-for"] as string || "unknown").split(",")[0].trim();
+      if (isRateLimited(clientIp2)) return res.status(429).json({ error: "Too many requests. Try again in a minute." });
       const { startDate, endDate, section, sectionType } = req.body;
       if (!startDate || !endDate || !section) return res.status(400).json({ error: "startDate, endDate, section required" });
 
@@ -539,6 +568,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // /api/executive-summary — synthesize executive summary from section summaries
     if (path === "executive-summary") {
       if (req.method !== "POST") return res.status(405).json({ error: "POST required" });
+      const clientIp3 = (req.headers["x-forwarded-for"] as string || "unknown").split(",")[0].trim();
+      if (isRateLimited(clientIp3)) return res.status(429).json({ error: "Too many requests. Try again in a minute." });
       const { startDate, endDate, sectionSummaries } = req.body;
 
       if (!process.env.ANTHROPIC_API_KEY) {
@@ -590,6 +621,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(404).json({ error: "Not found" });
   } catch (err: any) {
     console.error("API error:", err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: "Internal server error" });
   }
 }

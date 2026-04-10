@@ -13,6 +13,7 @@ let ratiosData = [];
 let ratioFlags = {};
 let activeMetric = 'revenue_ltm';
 let activeSegmentFilter = null;
+let trendChart = null;
 
 function updateKeyHighlights() {
   document.querySelectorAll('#ratios-key .key-item').forEach(item => {
@@ -37,6 +38,267 @@ async function loadRatioFlags(period) {
     }
   } catch { ratioFlags = {}; }
 }
+
+/* ── Chart.js Trend Chart ────────────────────────────────────── */
+
+function renderTrendChart() {
+  const period = document.getElementById('ratios-period').value;
+  let filtered = ratiosData.filter(d => d.period === period);
+  const metric = RATIO_METRICS.find(m => m.key === activeMetric);
+
+  if (activeSegmentFilter) {
+    filtered = filtered.filter(c => c.segment === activeSegmentFilter);
+  }
+
+  // Sort by metric value descending (nulls at end)
+  filtered = [...filtered].sort((a, b) => {
+    const va = a[metric.key], vb = b[metric.key];
+    if (va == null && vb == null) return 0;
+    if (va == null) return 1;
+    if (vb == null) return -1;
+    return vb - va;
+  }).filter(c => c[metric.key] != null);
+
+  // Update title
+  const titleEl = document.getElementById('ratios-chart-title');
+  if (titleEl) titleEl.textContent = metric.label + ' \u2014 ' + period;
+
+  const canvas = document.getElementById('ratios-chart-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  // Destroy previous chart
+  if (trendChart) { trendChart.destroy(); trendChart = null; }
+
+  if (filtered.length === 0) {
+    canvas.style.display = 'none';
+    return;
+  }
+  canvas.style.display = '';
+
+  const labels = filtered.map(c => c.company);
+  const values = filtered.map(c => c[metric.key]);
+  const bgColors = filtered.map(c => SEGMENT_COLORS[c.segment] || '#888');
+  const borderColors = bgColors.map(c => c);
+
+  // Build delta lookup for tooltips
+  const deltaMap = {};
+  if (metric.hasDelta && metric.deltaKey) {
+    filtered.forEach(c => { deltaMap[c.company] = c[metric.deltaKey]; });
+  } else if (metric.allowNeg) {
+    filtered.forEach(c => { deltaMap[c.company] = c[metric.key]; });
+  }
+
+  // Compute dynamic height: 28px per bar, min 200px
+  const barHeight = 28;
+  const chartHeight = Math.max(200, filtered.length * barHeight + 60);
+  canvas.parentElement.style.maxHeight = 'none';
+  canvas.style.maxHeight = chartHeight + 'px';
+  canvas.height = chartHeight;
+
+  trendChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: bgColors.map(c => c + 'cc'),
+        borderColor: borderColors,
+        borderWidth: 1,
+        borderRadius: 3,
+        barPercentage: 0.75,
+        categoryPercentage: 0.85,
+      }],
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: { right: 16, left: 4 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1e1f24',
+          titleFont: { family: 'Montserrat', size: 13, weight: '600' },
+          bodyFont: { family: 'Montserrat', size: 12 },
+          padding: 10,
+          cornerRadius: 6,
+          callbacks: {
+            label(ctx) {
+              const val = ctx.raw;
+              const company = ctx.label;
+              const fmtVal = metric.unit === 'BUSD' ? `$${val.toFixed(1)}B` : `${val.toFixed(1)}%`;
+              const parts = [fmtVal];
+              const delta = deltaMap[company];
+              if (delta != null && metric.hasDelta) {
+                parts.push(`YoY \u0394: ${delta > 0 ? '+' : ''}${delta.toFixed(1)}pp`);
+              }
+              return parts.join('  |  ');
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(0,0,0,0.04)', drawTicks: false },
+          border: { display: false },
+          ticks: {
+            font: { family: 'Montserrat', size: 11 },
+            color: '#4a4d50',
+            callback(v) {
+              return metric.unit === 'BUSD' ? '$' + v + 'B' : v + '%';
+            },
+          },
+        },
+        y: {
+          grid: { display: false },
+          border: { display: false },
+          ticks: {
+            font: { family: 'Montserrat', size: 11, weight: '500' },
+            color: '#303133',
+          },
+        },
+      },
+      onClick(_evt, elements) {
+        if (elements.length > 0) {
+          const idx = elements[0].index;
+          const company = filtered[idx].company;
+          if (window.openCompanyByName) window.openCompanyByName(company);
+        }
+      },
+      onHover(evt, elements) {
+        evt.native.target.style.cursor = elements.length ? 'pointer' : 'default';
+      },
+    },
+  });
+}
+
+
+/* ── Peer Comparison Mini-Chart (company detail overlay) ───── */
+
+let peerChart = null;
+
+export function renderPeerComparisonChart(companyName, ratios, allRatios) {
+  // Find the company's segment
+  const companyData = allRatios.find(r => r.company === companyName);
+  if (!companyData) return '';
+
+  const segment = companyData.segment;
+  const period = companyData.period;
+
+  // Get segment peers for same period
+  const peers = allRatios.filter(r => r.segment === segment && r.period === period && r.company !== companyName);
+  if (peers.length === 0) return '';
+
+  const peerMetrics = [
+    { key: 'revenue_ltm', label: 'Revenue (B)', unit: 'B', prefix: '$' },
+    { key: 'ebitda_margin_pct', label: 'EBITDA Margin', unit: '%' },
+    { key: 'revenue_growth_yoy', label: 'Growth YoY', unit: '%' },
+  ];
+
+  // Compute segment averages
+  const segAvg = {};
+  for (const m of peerMetrics) {
+    const vals = peers.map(p => p[m.key]).filter(v => v != null);
+    segAvg[m.key] = vals.length ? vals.reduce((s, v) => s + v, 0) / vals.length : null;
+  }
+
+  const available = peerMetrics.filter(m => companyData[m.key] != null && segAvg[m.key] != null);
+  if (available.length === 0) return '';
+
+  const canvasId = 'peer-chart-canvas-' + Date.now();
+  const segLabel = SEGMENT_LABELS[segment] || segment;
+
+  // Defer chart creation until DOM is ready
+  setTimeout(() => {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    if (peerChart) { peerChart.destroy(); peerChart = null; }
+
+    const labels = available.map(m => m.label);
+    const companyVals = available.map(m => companyData[m.key]);
+    const avgVals = available.map(m => segAvg[m.key]);
+
+    peerChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: companyName,
+            data: companyVals,
+            backgroundColor: '#16664bcc',
+            borderColor: '#16664b',
+            borderWidth: 1,
+            borderRadius: 3,
+            barPercentage: 0.6,
+          },
+          {
+            label: segLabel + ' Avg',
+            data: avgVals,
+            backgroundColor: '#9e9e9eaa',
+            borderColor: '#9e9e9e',
+            borderWidth: 1,
+            borderRadius: 3,
+            barPercentage: 0.6,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { top: 4 } },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: { family: 'Montserrat', size: 11 },
+              boxWidth: 12,
+              padding: 12,
+            },
+          },
+          tooltip: {
+            backgroundColor: '#1e1f24',
+            titleFont: { family: 'Montserrat', size: 12, weight: '600' },
+            bodyFont: { family: 'Montserrat', size: 11 },
+            padding: 8,
+            cornerRadius: 6,
+            callbacks: {
+              label(ctx) {
+                const m = available[ctx.dataIndex];
+                const v = ctx.raw;
+                const fmtVal = m.prefix ? `${m.prefix}${v.toFixed(1)}${m.unit}` : `${v.toFixed(1)}${m.unit}`;
+                return ctx.dataset.label + ': ' + fmtVal;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            border: { display: false },
+            ticks: { font: { family: 'Montserrat', size: 11 }, color: '#4a4d50' },
+          },
+          y: {
+            grid: { color: 'rgba(0,0,0,0.04)', drawTicks: false },
+            border: { display: false },
+            ticks: { font: { family: 'Montserrat', size: 10 }, color: '#4a4d50' },
+          },
+        },
+      },
+    });
+  }, 50);
+
+  return `<div class="peer-chart-section">
+    <h4>vs ${escHtml(segLabel)} Peers</h4>
+    <div style="position:relative;height:200px"><canvas id="${canvasId}"></canvas></div>
+  </div>`;
+}
+
+
+/* ── CSS Bar Chart (existing secondary view) ─────────────────── */
 
 function buildRatioChart(companies, metric) {
   if (activeSegmentFilter) {
@@ -169,6 +431,13 @@ function renderRatios() {
       ${buildRatioChart(products, metric)}
     </div>
   `;
+
+  // Render interactive trend chart
+  renderTrendChart();
+}
+
+export function getRatiosData() {
+  return ratiosData;
 }
 
 export async function loadFinancialRatios() {

@@ -1,8 +1,11 @@
 ---
 title: Lowe's Companies Inc.
+aliases: [Lowe's, Lowes, LOW]
 created: 2026-04-06
-last_updated: 2026-04-06
+last_updated: 2026-04-09
 ticker: LOW
+sector: Retail & Distribution
+subsector: Home Improvement Retail
 backlinks: [lowes-q4-2025-earnings, lowes-fbm-integration-pro-strategy, bain-building-products-ma-report-2026]
 ---
 

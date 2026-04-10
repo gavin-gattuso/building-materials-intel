@@ -1,7 +1,8 @@
 ---
 title: AGC Inc.
+aliases: [AGC, Asahi Glass, Asahi Glass Co., AGC Group]
 created: 2026-04-06
-last_updated: 2026-04-06
+last_updated: 2026-04-09
 ticker: 5201.T
 sector: Building Materials
 subsector: Glass & Insulation

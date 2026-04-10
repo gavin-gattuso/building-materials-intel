@@ -69,7 +69,7 @@ async function showPopup(card) {
   // Create popup immediately with revenue, then load articles
   const popup = document.createElement('div');
   popup.className = 'company-popup';
-  popup.innerHTML = `${revenueHtml}<div class="popup-divider"></div><div class="popup-news"><div class="popup-loading">Loading news...</div></div>`;
+  popup.innerHTML = `${revenueHtml}<div class="popup-divider"></div><div class="popup-news"><div class="skeleton-text w-90" style="height:12px"></div><div class="skeleton-text w-75" style="height:12px"></div><div class="skeleton-text w-60" style="height:12px"></div></div>`;
   document.body.appendChild(popup);
   activePopup = popup;
   positionPopup(popup, card);

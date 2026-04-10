@@ -153,6 +153,11 @@ const earningsSchedule = [
   { company: "Daikin Industries", ticker: "6367.T", date: "2026-05-12", quarter: "FY2026" },
   { company: "Johnson Controls", ticker: "JCI", date: "2026-05-01", quarter: "Q2 FY2026" },
   { company: "Trane Technologies", ticker: "TT", date: "2026-04-29", quarter: "Q1 2026" },
+  // Previously missing companies
+  { company: "Home Depot", ticker: "HD", date: "2026-02-25", quarter: "Q4 FY2025" },
+  { company: "Lowe's", ticker: "LOW", date: "2026-02-26", quarter: "Q4 FY2025" },
+  { company: "RPM International", ticker: "RPM", date: "2026-04-08", quarter: "Q3 FY2026" },
+  { company: "Installed Building Products", ticker: "IBP", date: "2026-02-20", quarter: "Q4 FY2025" },
 ];
 
 async function main() {

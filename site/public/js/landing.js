@@ -12,6 +12,14 @@ function signalArrow(s) {
 }
 
 export async function loadHome() {
+  // Show skeleton placeholders while fetching
+  const sumEl = document.getElementById('home-ai-summary');
+  if (sumEl) sumEl.innerHTML = '<div class="weekly-ai-summary"><div class="skeleton-text w-40" style="height:16px;margin-bottom:14px"></div><div class="skeleton-text w-90"></div><div class="skeleton-text w-75"></div><div class="skeleton-text w-60"></div><div class="skeleton-text w-50"></div></div>';
+  const driversEl = document.getElementById('home-drivers');
+  if (driversEl) driversEl.innerHTML = Array.from({length: 7}, () => '<div class="driver-overview-item" style="pointer-events:none"><div class="skeleton" style="width:28px;height:28px;border-radius:50%"></div><div class="skeleton" style="width:80px;height:14px"></div></div>').join('');
+  const earningsEl = document.getElementById('home-earnings');
+  if (earningsEl) earningsEl.innerHTML = Array.from({length: 4}, () => '<div class="earnings-cal-item" style="pointer-events:none"><div class="skeleton" style="width:140px;height:14px"></div><div class="skeleton" style="width:40px;height:14px"></div><div class="skeleton" style="width:80px;height:14px"></div></div>').join('');
+
   const [companies, tracked, drivers, earningsCalendar, weeklySummary] = await Promise.all([
     fetch('/api/wiki?type=company').then(r => r.json()).catch(() => []),
     fetch('/api/tracked-companies').then(r => r.json()).catch(() => []),

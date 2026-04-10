@@ -3,7 +3,7 @@ date: 2026-02-15
 source: IndexBox
 url: https://www.indexbox.io/blog/building-materials-sector-reports-mixed-q4-results/
 category: Earnings & Financials
-companies: [Armstrong World, Carlisle, Builders FirstSource, Vulcan Materials, Martin Marietta, Lowes, Home Depot, Installed Building Products]
+companies: [Armstrong World, Carlisle, Builders FirstSource, Vulcan Materials, Martin Marietta, Lowe's, Home Depot, Installed Building Products]
 tags: [earnings, Q4 2025, building materials sector, revenue, EPS]
 ---
 

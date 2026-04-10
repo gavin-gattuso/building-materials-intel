@@ -1,7 +1,8 @@
 ---
 title: CEMEX S.A.B. de C.V.
+aliases: [CEMEX, Cemex]
 created: 2026-04-06
-last_updated: 2026-04-06
+last_updated: 2026-04-09
 ticker: CX
 sector: Building Materials
 subsector: Cement & Aggregates

@@ -1,8 +1,10 @@
 ---
 title: Installed Building Products Inc.
 created: 2026-04-06
-last_updated: 2026-04-06
+last_updated: 2026-04-09
 ticker: IBP
+sector: Building Products & Distribution
+subsector: Insulation Installation Services
 backlinks: [ibp-record-q4-earnings-acquisitions, q4-2025-building-materials-earnings-preview]
 ---
 

@@ -1,7 +1,8 @@
 ---
 title: West Fraser Timber
+aliases: [West Fraser, WFG]
 created: 2026-04-06
-last_updated: 2026-04-06
+last_updated: 2026-04-09
 ticker: WFG
 sector: Building Materials
 subsector: Lumber & Wood Products
