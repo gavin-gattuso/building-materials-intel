@@ -345,6 +345,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   let reviewQueued = 0;
   const supplementalGaps: string[] = [];
 
+  // ── Daily run-lock (idempotency across dual triggers) ──
+  // Attempt to claim today's run. Unique-constraint violation = another
+  // invocation has already started or completed; skip cleanly.
+  const { error: lockErr } = await supabase
+    .from("daily_run_lock")
+    .insert({ run_date: today, status: "in_progress" });
+  if (lockErr) {
+    const msg = (lockErr.message || "").toLowerCase();
+    if (msg.includes("duplicate") || msg.includes("unique") || (lockErr as any).code === "23505") {
+      return res.status(200).json({
+        ok: true,
+        skipped: true,
+        reason: "Run already in progress or complete for today — skipping",
+        date: today,
+      });
+    }
+    // Non-lock error inserting row — proceed but log it; do not block ingest.
+    log.push(`Run-lock insert failed (non-fatal): ${lockErr.message}`);
+  }
+
   try {
     // Step 1: Get news via Google News RSS
     const FEEDS = [
@@ -774,8 +794,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    // Mark run complete
+    await supabase
+      .from("daily_run_lock")
+      .update({ status: "complete", completed_at: new Date().toISOString(), articles_inserted: archived })
+      .eq("run_date", today);
+
     return res.json({ ok: true, date: today, archived, skipped, rejected, linked, reviewQueued, log });
   } catch (err: any) {
+    await supabase
+      .from("daily_run_lock")
+      .update({ status: "failed", completed_at: new Date().toISOString(), articles_inserted: archived })
+      .eq("run_date", today);
     return res.status(500).json({ error: err.message, log });
   }
 }
