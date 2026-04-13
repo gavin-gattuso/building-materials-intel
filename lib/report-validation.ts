@@ -475,6 +475,19 @@ export function renderProvenanceHTML(provenance: ProvenanceData): string {
   }
   html += `</table>`;
 
+  // Data source notes — explicit list of every fallback, for auditor convenience
+  const fallbacks = provenance.financialSources.filter(s => s.source === "yahoo_finance_fallback");
+  if (fallbacks.length > 0) {
+    html += `<h3 style="color:#215D44;font-size:14px;margin:12px 0 8px">Data Source Notes</h3>`;
+    html += `<p style="font-family:Arial;font-size:11px;margin:4px 0"><strong>† Yahoo Finance fallback used for ${fallbacks.length} compan${fallbacks.length === 1 ? "y" : "ies"}</strong> (Capital IQ unavailable for the reported period). All five tracked metrics (Revenue YoY, COGS/Sales, SG&amp;A/Sales, EBITDA Margin, plus YoY deltas) for these companies should be treated as unverified unless the <code>manually_verified</code> flag is set.</p>`;
+    html += `<table style="font-family:Arial;font-size:11px;border-collapse:collapse;width:100%;margin-top:8px">`;
+    html += `<tr style="background:#FFF3E0"><th style="padding:4px 8px;text-align:left">Company</th><th style="padding:4px 8px;text-align:left">Pull Date</th><th style="padding:4px 8px;text-align:center">Verified</th></tr>`;
+    for (const fb of fallbacks) {
+      html += `<tr><td style="padding:2px 8px;border-bottom:1px solid #eee">${fb.company}</td><td style="padding:2px 8px;border-bottom:1px solid #eee">${fb.pullDate?.split("T")[0] || "—"}</td><td style="padding:2px 8px;border-bottom:1px solid #eee;text-align:center">${fb.verified ? "✓" : "—"}</td></tr>`;
+    }
+    html += `</table>`;
+  }
+
   // Model & prompt versions
   html += `<h3 style="color:#215D44;font-size:14px;margin:12px 0 8px">AI Model &amp; Prompt Versions</h3>`;
   html += `<p style="font-family:Arial;font-size:11px;margin:4px 0"><strong>Models:</strong> ${provenance.modelVersions.join(", ") || "N/A"}</p>`;

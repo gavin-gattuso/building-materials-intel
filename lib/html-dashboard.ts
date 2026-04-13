@@ -36,6 +36,14 @@ export interface FinancialRow {
   sga_sales_yoy_delta: number | null;
   ebitda_margin_pct: number | null;
   ebitda_margin_yoy_delta: number | null;
+  data_source?: string | null;
+}
+
+/** Yahoo Finance fallback marker — rendered next to any figure sourced from
+ * yahoo_finance_fallback so the reader knows Capital IQ was unavailable. */
+export const FALLBACK_MARKER = "†";
+export function isFallback(row: FinancialRow): boolean {
+  return row.data_source === "yahoo_finance_fallback";
 }
 
 /** Keep only the latest-period row per company */
@@ -215,8 +223,9 @@ function buildCompanyTableRows(financials: FinancialRow[]): string {
       const sgaD = f.sga_sales_yoy_delta != null ? yoyBubble(f.sga_sales_yoy_delta, true) : "";
       const ebitda = f.ebitda_margin_pct != null ? f.ebitda_margin_pct.toFixed(1) + "%" : "n/a";
       const ebitdaD = f.ebitda_margin_yoy_delta != null ? yoyBubble(f.ebitda_margin_yoy_delta, false) : "";
+      const dagger = isFallback(f) ? `<sup title="Data sourced from Yahoo Finance fallback">${FALLBACK_MARKER}</sup>` : "";
 
-      return `        <tr><td><span class="seg-dot" style="${segStyle[mapping.seg] || ""}"></span></td><td>${esc(mapping.display)}</td><td>${rev}</td><td>${cogs} ${cogsD}</td><td>${sga} ${sgaD}</td><td>${ebitda} ${ebitdaD}</td></tr>`;
+      return `        <tr><td><span class="seg-dot" style="${segStyle[mapping.seg] || ""}"></span></td><td>${esc(mapping.display)}${dagger}</td><td>${rev}</td><td>${cogs} ${cogsD}</td><td>${sga} ${sgaD}</td><td>${ebitda} ${ebitdaD}</td></tr>`;
     })
     .join("\n");
 }
@@ -575,7 +584,7 @@ ${buildCompanyTableRows(financials)}
       </tbody>
     </table>
     </div>
-    <p class="chart-caption table-footnote">35 of 39 tracked companies shown. Home Depot, Lowe&rsquo;s, Installed Building Products, and RPM International are excluded as their building materials segment data is not separately reported. * QXO metrics distorted by Beacon Roofing Supply acquisition (~$11B, Q1 2025). ** Owens Corning revenue growth reflects Masonite acquisition ($3.9B, closed Nov 2024).</p>
+    <p class="chart-caption table-footnote">35 of 39 tracked companies shown. Home Depot, Lowe&rsquo;s, Installed Building Products, and RPM International are excluded as their building materials segment data is not separately reported. * QXO metrics distorted by Beacon Roofing Supply acquisition (~$11B, Q1 2025). ** Owens Corning revenue growth reflects Masonite acquisition ($3.9B, closed Nov 2024).${financials.some(isFallback) ? ` <strong>${FALLBACK_MARKER} Data sourced from Yahoo Finance (Capital IQ unavailable for this period).</strong>` : ""}</p>
   </div>
 </section>
 

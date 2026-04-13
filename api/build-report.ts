@@ -306,7 +306,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (supabase) {
       const { data } = await supabase
         .from("financial_ratios")
-        .select("company, ticker, segment, category, period, revenue_growth_yoy, cogs_sales_pct, cogs_sales_yoy_delta, sga_sales_pct, sga_sales_yoy_delta, ebitda_margin_pct, ebitda_margin_yoy_delta")
+        .select("company, ticker, segment, category, period, revenue_growth_yoy, cogs_sales_pct, cogs_sales_yoy_delta, sga_sales_pct, sga_sales_yoy_delta, ebitda_margin_pct, ebitda_margin_yoy_delta, data_source")
         .order("company");
       financials = data || [];
     }
