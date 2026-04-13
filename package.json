@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "site": "bun run site/server.ts"
+    "site": "bun run site/server.ts",
+    "lint:prompts": "bun run scripts/lint-prompts.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"

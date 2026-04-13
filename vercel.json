@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm install && npx bun site/build-static.ts",
+  "buildCommand": "npm install && npx bun scripts/lint-prompts.ts && npx bun site/build-static.ts",
   "outputDirectory": "site/public",
   "crons": [
     { "path": "/api/daily-scan?key=cron", "schedule": "0 4 * * *" },
