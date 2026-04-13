@@ -10,6 +10,7 @@
  */
 
 import { createClient } from "@supabase/supabase-js";
+import { classifySeverity, stripHtml, sendNumericCorrectionAlert } from "../lib/correction-severity";
 
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co";
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
@@ -58,7 +59,7 @@ async function main() {
   // Fetch recent Tier 1-2 articles
   const { data: articles } = await supabase
     .from("articles")
-    .select("id, slug, title, url, date, correction_flag")
+    .select("id, slug, title, url, date, correction_flag, full_text")
     .gte("date", fourteenDaysAgo)
     .eq("correction_flag", false);
 
@@ -94,19 +95,23 @@ async function main() {
 
       // Compare with stored title
       const delta = stringSimilarityDelta(article.title, pageTitle);
+      const pageBody = stripHtml(html);
+      const severity = classifySeverity(article.title, pageTitle, article.full_text, pageBody);
+      const triggered = delta > 0.3 || severity === "numeric" || severity === "structural";
 
-      if (delta > 0.3) {
-        console.log(`  CORRECTION DETECTED: ${article.slug}`);
+      if (triggered) {
+        console.log(`  CORRECTION DETECTED: ${article.slug} [severity=${severity}]`);
         console.log(`    Stored: "${article.title}"`);
         console.log(`    Current: "${pageTitle}"`);
-        console.log(`    Delta: ${(delta * 100).toFixed(1)}%\n`);
+        console.log(`    Title delta: ${(delta * 100).toFixed(1)}%\n`);
 
         // Flag the article
         await supabase
           .from("articles")
           .update({
             correction_flag: true,
-            correction_notes: `Title changed from "${article.title}" to "${pageTitle}" (${(delta * 100).toFixed(1)}% delta). Detected ${now.toISOString()}.`,
+            change_severity: severity,
+            correction_notes: `Severity: ${severity}. Title changed from "${article.title}" to "${pageTitle}" (${(delta * 100).toFixed(1)}% delta). Detected ${now.toISOString()}.`,
             report_ready: false,
             report_ready_reason: "correction_detected",
             last_verified: now.toISOString(),
@@ -118,10 +123,15 @@ async function main() {
           queue_type: "correction_detected",
           reference_id: article.id,
           reference_table: "articles",
-          priority: 1,
+          priority: severity === "numeric" ? 1 : 2,
           review_status: "pending",
-          auto_context: `Article "${article.title}" appears to have been corrected. The page title changed to "${pageTitle}" (${(delta * 100).toFixed(1)}% change). Review the article content and update the summary if needed.`,
+          auto_context: `Article "${article.title}" appears to have been corrected. Severity: ${severity}. Page title changed to "${pageTitle}" (${(delta * 100).toFixed(1)}% change).`,
         });
+
+        // Immediate alert on numeric corrections
+        if (severity === "numeric") {
+          await sendNumericCorrectionAlert(article.title, article.url, article.slug, (m) => console.log(`    ${m}`));
+        }
 
         corrections++;
       } else {
