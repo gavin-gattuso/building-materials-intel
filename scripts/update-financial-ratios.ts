@@ -22,10 +22,20 @@ import {
   fetchCompanyFinancials,
   detectAnomalies,
   isCapIQConfigured,
+  DEFAULT_ANOMALY_THRESHOLDS,
   type CapIQFinancials,
   type AnomalyFlag,
+  type AnomalyThresholds,
   type FetchResult,
 } from "../services/financial-data/capiq-client";
+import anomalyThresholdsConfig from "../config/anomaly-thresholds.json" assert { type: "json" };
+
+/** Resolve per-segment thresholds from config, falling back to default. */
+function thresholdsForSegment(segment: string | null | undefined): AnomalyThresholds {
+  if (!segment) return DEFAULT_ANOMALY_THRESHOLDS;
+  const cfg = (anomalyThresholdsConfig as Record<string, AnomalyThresholds>)[segment];
+  return cfg || DEFAULT_ANOMALY_THRESHOLDS;
+}
 
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co";
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
@@ -203,6 +213,28 @@ async function main() {
       .order("updated_at", { ascending: false })
       .limit(1);
 
+    // Resolve segment — prefer the existing period row's segment; fall back to
+    // any prior-period row for the same ticker.
+    let segment: string | null = null;
+    if (existingRecord) {
+      const { data: segRow } = await supabase
+        .from("financial_ratios")
+        .select("segment")
+        .eq("ticker", entry.ticker)
+        .eq("period", period)
+        .maybeSingle();
+      segment = segRow?.segment || null;
+    }
+    if (!segment) {
+      const { data: segRow } = await supabase
+        .from("financial_ratios")
+        .select("segment")
+        .eq("ticker", entry.ticker)
+        .limit(1);
+      segment = segRow?.[0]?.segment || null;
+    }
+    const thresholds = thresholdsForSegment(segment);
+
     const prev = prevData?.[0] || null;
     const cogs_delta = financials.cogs_sales_pct != null && prev?.cogs_sales_pct != null
       ? Math.round((financials.cogs_sales_pct - prev.cogs_sales_pct) * 10) / 10 : null;
@@ -221,7 +253,7 @@ async function main() {
         ? (prev.ebitda_margin_pct / 100) * prev.revenue_ltm : undefined,
       fcf_ltm: undefined,
     };
-    const anomalies = detectAnomalies(financials, previousFinancials);
+    const anomalies = detectAnomalies(financials, previousFinancials, thresholds);
     allAnomalies.push(...anomalies);
 
     const updateData = {

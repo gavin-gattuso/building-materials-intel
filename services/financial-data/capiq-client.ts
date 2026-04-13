@@ -454,20 +454,37 @@ export interface AnomalyFlag {
   direction: "above" | "below";
 }
 
+/** Per-segment anomaly thresholds (from config/anomaly-thresholds.json). */
+export interface AnomalyThresholds {
+  revenue_change_pct: number;
+  margin_change_pp: number;
+  leverage_change: number;
+  fcf_change_pct: number;
+}
+
+export const DEFAULT_ANOMALY_THRESHOLDS: AnomalyThresholds = {
+  revenue_change_pct: 15,
+  margin_change_pp: 2,
+  leverage_change: 0.5,
+  fcf_change_pct: 30,
+};
+
 /**
  * Enhanced anomaly detection with type-specific thresholds.
+ * Pass `thresholds` to override defaults on a per-segment basis.
  */
 export function detectAnomalies(
   current: CapIQFinancials,
-  previous: Partial<CapIQFinancials> | null
+  previous: Partial<CapIQFinancials> | null,
+  thresholds: AnomalyThresholds = DEFAULT_ANOMALY_THRESHOLDS
 ): AnomalyFlag[] {
   if (!previous) return [];
 
   const flags: AnomalyFlag[] = [];
   const base = { company: current.company, ticker: current.ticker };
 
-  // Revenue anomaly: >15% YoY change
-  if (current.revenue_growth_yoy != null && Math.abs(current.revenue_growth_yoy) > 15) {
+  // Revenue anomaly
+  if (current.revenue_growth_yoy != null && Math.abs(current.revenue_growth_yoy) > thresholds.revenue_change_pct) {
     flags.push({
       ...base,
       anomaly_type: "revenue_anomaly",
@@ -475,15 +492,15 @@ export function detectAnomalies(
       current_value: current.revenue_growth_yoy,
       previous_value: previous.revenue_ltm ?? 0,
       delta: current.revenue_growth_yoy,
-      threshold: 15,
+      threshold: thresholds.revenue_change_pct,
       direction: current.revenue_growth_yoy > 0 ? "above" : "below",
     });
   }
 
-  // Margin anomaly: >2 percentage point change in EBITDA margin
+  // EBITDA margin anomaly
   if (current.ebitda_margin_pct != null && previous.ebitda_margin_pct != null) {
     const marginDelta = current.ebitda_margin_pct - previous.ebitda_margin_pct;
-    if (Math.abs(marginDelta) > 2.0) {
+    if (Math.abs(marginDelta) > thresholds.margin_change_pp) {
       flags.push({
         ...base,
         anomaly_type: "margin_anomaly",
@@ -491,16 +508,16 @@ export function detectAnomalies(
         current_value: current.ebitda_margin_pct,
         previous_value: previous.ebitda_margin_pct,
         delta: marginDelta,
-        threshold: 2.0,
+        threshold: thresholds.margin_change_pp,
         direction: marginDelta > 0 ? "above" : "below",
       });
     }
   }
 
-  // Gross margin anomaly
+  // Gross margin anomaly (same pp threshold as EBITDA)
   if (current.gross_margin_pct != null && previous.gross_margin_pct != null) {
     const gmDelta = current.gross_margin_pct - previous.gross_margin_pct;
-    if (Math.abs(gmDelta) > 2.0) {
+    if (Math.abs(gmDelta) > thresholds.margin_change_pp) {
       flags.push({
         ...base,
         anomaly_type: "margin_anomaly",
@@ -508,19 +525,19 @@ export function detectAnomalies(
         current_value: current.gross_margin_pct,
         previous_value: previous.gross_margin_pct,
         delta: gmDelta,
-        threshold: 2.0,
+        threshold: thresholds.margin_change_pp,
         direction: gmDelta > 0 ? "above" : "below",
       });
     }
   }
 
-  // Debt anomaly: Net Debt/EBITDA changes by >0.5x
+  // Debt / leverage anomaly (Net Debt / EBITDA turns)
   if (current.net_debt != null && current.ebitda_ltm != null && current.ebitda_ltm > 0 &&
       previous.net_debt != null && previous.ebitda_ltm != null && previous.ebitda_ltm > 0) {
     const currentLeverage = current.net_debt / (current.ebitda_ltm * 1e9);
     const prevLeverage = previous.net_debt / (previous.ebitda_ltm! * 1e9);
     const leverageDelta = currentLeverage - prevLeverage;
-    if (Math.abs(leverageDelta) > 0.5) {
+    if (Math.abs(leverageDelta) > thresholds.leverage_change) {
       flags.push({
         ...base,
         anomaly_type: "debt_anomaly",
@@ -528,16 +545,16 @@ export function detectAnomalies(
         current_value: Math.round(currentLeverage * 10) / 10,
         previous_value: Math.round(prevLeverage * 10) / 10,
         delta: Math.round(leverageDelta * 10) / 10,
-        threshold: 0.5,
+        threshold: thresholds.leverage_change,
         direction: leverageDelta > 0 ? "above" : "below",
       });
     }
   }
 
-  // FCF anomaly: >30% change in free cash flow
+  // FCF anomaly
   if (current.fcf_ltm != null && previous.fcf_ltm != null && previous.fcf_ltm !== 0) {
     const fcfChange = ((current.fcf_ltm - previous.fcf_ltm) / Math.abs(previous.fcf_ltm)) * 100;
-    if (Math.abs(fcfChange) > 30) {
+    if (Math.abs(fcfChange) > thresholds.fcf_change_pct) {
       flags.push({
         ...base,
         anomaly_type: "fcf_anomaly",
@@ -545,7 +562,7 @@ export function detectAnomalies(
         current_value: current.fcf_ltm,
         previous_value: previous.fcf_ltm,
         delta: Math.round(fcfChange * 10) / 10,
-        threshold: 30,
+        threshold: thresholds.fcf_change_pct,
         direction: fcfChange > 0 ? "above" : "below",
       });
     }
