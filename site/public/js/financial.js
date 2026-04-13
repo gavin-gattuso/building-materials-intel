@@ -33,10 +33,33 @@ async function loadRatioFlags(period) {
   try {
     const flags = await fetch(`/api/financial-ratio-flags?period=${encodeURIComponent(period)}`).then(r => r.ok ? r.json() : []);
     ratioFlags = {};
+    let unverifiedCount = 0;
     for (const f of flags) {
       ratioFlags[`${f.company}|${f.metric}`] = f;
+      if (f.unverified) unverifiedCount++;
     }
-  } catch { ratioFlags = {}; }
+    renderUnverifiedBadge(unverifiedCount);
+  } catch { ratioFlags = {}; renderUnverifiedBadge(0); }
+}
+
+function renderUnverifiedBadge(count) {
+  // Surface unverified-ratio count as a small badge next to the period selector.
+  // No-op if the host element is missing; idempotent across reloads.
+  const host = document.getElementById('ratios-period');
+  if (!host || !host.parentNode) return;
+  let badge = document.getElementById('ratios-unverified-badge');
+  if (count <= 0) {
+    if (badge) badge.remove();
+    return;
+  }
+  if (!badge) {
+    badge = document.createElement('span');
+    badge.id = 'ratios-unverified-badge';
+    badge.style.cssText = 'display:inline-block;margin-left:10px;padding:2px 8px;background:#FFF3E0;border:1px solid #FFB74D;border-radius:12px;font-size:11px;color:#E65100;font-weight:600';
+    host.parentNode.insertBefore(badge, host.nextSibling);
+  }
+  badge.textContent = `⚠ ${count} unverified`;
+  badge.title = `${count} flagged ratio(s) for the most recent period have manually_verified = false. Verify before using in reports.`;
 }
 
 /* ── Chart.js Trend Chart ────────────────────────────────────── */

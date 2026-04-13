@@ -320,6 +320,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         let query = supabase.from("financial_ratios").select("*").order("company");
         if (period) query = query.eq("period", period);
         const { data: ratios } = await query;
+
+        // Compute the most-recent period across returned rows so we can mark
+        // any unverified rows from that period with `unverified: true`.
+        const mostRecentPeriod = (ratios || [])
+          .map((r: any) => r.period)
+          .filter(Boolean)
+          .sort()
+          .reverse()[0] || null;
+
         const flags: any[] = [];
         // Pre-fetch articles per company (one searchKB call each) to avoid N+1
         const companyArticleCache = new Map<string, any[]>();
@@ -341,10 +350,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const results = companyArticleCache.get(row.company) || [];
             const best = results[0];
             const excerpt = best ? (best.content || "").split("\n").find((l: string) => l.trim().length > 40)?.trim().slice(0, 200) || "" : "";
+            const isUnverified = row.manually_verified === false && row.period === mostRecentPeriod;
             flags.push({
               company: row.company, ticker: row.ticker, metric: t.field, metricLabel: t.label,
               value: val, unit: t.unit, direction,
               article: best ? { title: best.title, source: best.source, date: best.date, url: best.url, excerpt } : null,
+              ...(isUnverified ? { unverified: true } : {}),
+              verified_by: row.verified_by ?? null,
+              verified_at: row.verified_at ?? null,
             });
           }
         }
