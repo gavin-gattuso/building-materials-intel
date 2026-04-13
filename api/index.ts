@@ -635,7 +635,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (status) query = query.eq("review_status", status);
         if (type) query = query.eq("queue_type", type);
         const { data } = await query.limit(limit);
-        return res.json(data || []);
+        // Compute review_due_at inline: 48h SLA from created_at
+        const enriched = (data || []).map((item: any) => {
+          const createdMs = item.created_at ? Date.parse(item.created_at) : NaN;
+          const dueAt = Number.isFinite(createdMs) ? new Date(createdMs + 48 * 60 * 60 * 1000).toISOString() : null;
+          return { ...item, review_due_at: dueAt };
+        });
+        return res.json(enriched);
       }
       if (req.method === "POST") {
         // Update review status (approve, reject, modify, escalate)

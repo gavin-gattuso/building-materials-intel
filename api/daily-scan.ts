@@ -794,6 +794,64 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    // ── Stale review-queue check ──
+    // Items pending longer than 48h get a nightly nag email.
+    try {
+      const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+      const { data: overdue } = await supabase
+        .from("human_review_queue")
+        .select("id, queue_type, auto_context, reference_id, reference_table, created_at")
+        .eq("review_status", "pending")
+        .lt("created_at", cutoff)
+        .order("created_at") as { data: any[] | null };
+
+      if (overdue && overdue.length > 0) {
+        const RESEND_KEY = process.env.RESEND_API_KEY;
+        if (RESEND_KEY) {
+          // Enrich with article headline where possible
+          const articleIds = overdue
+            .filter(o => o.reference_table === "articles")
+            .map(o => o.reference_id);
+          const { data: articleRows } = articleIds.length
+            ? await supabase.from("articles").select("id, title").in("id", articleIds)
+            : { data: [] as any[] };
+          const titleById = new Map((articleRows || []).map((a: any) => [a.id, a.title]));
+
+          const rows = overdue.map(o => {
+            const ageHours = Math.round((Date.now() - Date.parse(o.created_at)) / 36e5);
+            const headline = titleById.get(o.reference_id) || (o.auto_context || "").slice(0, 120);
+            return `<tr><td style="padding:4px 8px;border-bottom:1px solid #eee">${o.queue_type}</td><td style="padding:4px 8px;border-bottom:1px solid #eee">${headline}</td><td style="padding:4px 8px;border-bottom:1px solid #eee;text-align:right">${ageHours}h</td></tr>`;
+          }).join("");
+
+          const alertHtml = `<div style="font-family:Arial,sans-serif;max-width:700px">
+            <h2 style="color:#BF360C">${overdue.length} review queue item${overdue.length === 1 ? "" : "s"} overdue</h2>
+            <p>The items below have been <strong>pending human review for more than 48 hours</strong>. They are blocking report-ready promotion and will not reach the bi-annual report until cleared.</p>
+            <table style="border-collapse:collapse;width:100%;font-size:12px"><thead><tr style="background:#163E2D;color:white"><th style="padding:6px 8px;text-align:left">Type</th><th style="padding:6px 8px;text-align:left">Article / Context</th><th style="padding:6px 8px;text-align:right">Age</th></tr></thead><tbody>${rows}</tbody></table>
+          </div>`;
+
+          try {
+            await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: { "Authorization": `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
+              body: JSON.stringify({
+                from: process.env.RESEND_FROM_EMAIL || "Jarvis AI <onboarding@resend.dev>",
+                to: ["gavin.gattuso@appliedvalue.com"],
+                subject: `[ACTION REQUIRED] ${overdue.length} review queue items overdue — ${today}`,
+                html: alertHtml,
+              }),
+            });
+            log.push(`Stale-queue alert sent (${overdue.length} items)`);
+          } catch (err: any) {
+            log.push(`Stale-queue alert failed (non-fatal): ${err.message}`);
+          }
+        }
+      } else {
+        log.push("Stale-queue check: no overdue items");
+      }
+    } catch (err: any) {
+      log.push(`Stale-queue check failed (non-fatal): ${err.message}`);
+    }
+
     // Mark run complete
     await supabase
       .from("daily_run_lock")
