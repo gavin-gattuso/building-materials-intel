@@ -177,7 +177,9 @@ export async function sendEmail(args: SendEmailArgs): Promise<SendEmailResult> {
   };
 
   let lastErr = "";
+  let attemptsMade = 0;
   for (let attempt = 1; attempt <= RETRY_DELAYS_MS.length + 1; attempt++) {
+    attemptsMade = attempt;
     try {
       const { ok, status, body } = await postOnce(payload, args.idempotencyKey);
       if (ok) {
@@ -197,8 +199,8 @@ export async function sendEmail(args: SendEmailArgs): Promise<SendEmailResult> {
     }
   }
 
-  // Retry exhausted — escalate for log drains
-  console.error(`[email:${args.type}] FAILED after retries: ${lastErr}`);
-  await logAttempt(args.type, to, args.subject, "failed", undefined, lastErr, args.idempotencyKey, RETRY_DELAYS_MS.length + 1);
-  return { status: "failed", attempts: RETRY_DELAYS_MS.length + 1, error: lastErr };
+  // Retry exhausted (or fast-failed on 4xx) — escalate for log drains
+  console.error(`[email:${args.type}] FAILED after ${attemptsMade} attempt(s): ${lastErr}`);
+  await logAttempt(args.type, to, args.subject, "failed", undefined, lastErr, args.idempotencyKey, attemptsMade);
+  return { status: "failed", attempts: attemptsMade, error: lastErr };
 }
