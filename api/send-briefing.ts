@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { sendEmail } from "../lib/email.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
@@ -17,27 +18,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: "subject and html required" });
   }
 
-  const recipient = to || "gavin.gattuso@appliedvalue.com";
-  const from = process.env.RESEND_FROM_EMAIL || "Jarvis AI <onboarding@resend.dev>";
+  const result = await sendEmail({
+    type: "briefing-passthrough",
+    subject,
+    html,
+    to,
+  });
 
-  try {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ from, to: [recipient], subject, html }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return res.status(response.status).json({ error: data });
-    }
-
-    return res.status(200).json({ ok: true, id: data.id });
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message });
-  }
+  if (result.status === "sent") return res.status(200).json({ ok: true, id: result.resendId });
+  if (result.status === "failed") return res.status(502).json({ error: result.error });
+  return res.status(200).json({ ok: true, skipped: result.status });
 }

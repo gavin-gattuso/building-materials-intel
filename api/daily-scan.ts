@@ -6,6 +6,7 @@ import {
   generateSummary,
   extractSourceExcerpts,
 } from "../lib/extraction.js";
+import { sendEmail, idempotencyKey } from "../lib/email.js";
 
 const SUPABASE_URL = (process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co").trim();
 const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
@@ -651,50 +652,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Zero-article alert: if ingestion inserted nothing, notify for manual investigation
     if (archived === 0) {
-      const RESEND_KEY = process.env.RESEND_API_KEY;
-      if (RESEND_KEY) {
-        try {
-          // Pull rejection counts from this run's window
-          const sinceIso = new Date(Date.now() - 30 * 60 * 1000).toISOString();
-          const { data: recentRejections } = await supabase
-            .from("rejected_articles")
-            .select("rejection_reason")
-            .gte("created_at", sinceIso);
-          const rejectionCounts: Record<string, number> = {};
-          for (const r of recentRejections || []) {
-            rejectionCounts[r.rejection_reason] = (rejectionCounts[r.rejection_reason] || 0) + 1;
-          }
-          const rejectionSummary = Object.entries(rejectionCounts)
-            .map(([k, v]) => `<li>${k}: ${v}</li>`).join("") || "<li>No rejections logged in the last 30 minutes.</li>";
-
-          const alertHtml = `<div style="font-family:Arial,sans-serif;max-width:600px">
-            <h2 style="color:#B71C1C">Nightly ingest returned 0 articles</h2>
-            <p><strong>Run timestamp:</strong> ${new Date().toISOString()}</p>
-            <p><strong>Date:</strong> ${today}</p>
-            <p><strong>Candidates from RSS:</strong> ${articles.length}</p>
-            <p><strong>Skipped (dupes):</strong> ${skipped} · <strong>Rejected:</strong> ${rejected}</p>
-            <h3>Rejection breakdown (last 30 min)</h3>
-            <ul>${rejectionSummary}</ul>
-            <p><strong>Manual investigation required.</strong></p>
-          </div>`;
-
-          await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
-            body: JSON.stringify({
-              from: process.env.RESEND_FROM_EMAIL || "Jarvis AI <onboarding@resend.dev>",
-              to: ["gavin.gattuso@appliedvalue.com"],
-              subject: `[ALERT] Nightly ingest returned 0 articles — ${today}`,
-              html: alertHtml,
-            }),
-          });
-          log.push("Zero-article alert sent");
-        } catch (err: any) {
-          log.push(`Zero-article alert failed (non-fatal): ${err.message}`);
-        }
-      } else {
-        log.push("Zero-article alert skipped: RESEND_API_KEY not set");
+      const sinceIso = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+      const { data: recentRejections } = await supabase
+        .from("rejected_articles")
+        .select("rejection_reason")
+        .gte("created_at", sinceIso);
+      const rejectionCounts: Record<string, number> = {};
+      for (const r of recentRejections || []) {
+        rejectionCounts[r.rejection_reason] = (rejectionCounts[r.rejection_reason] || 0) + 1;
       }
+      const rejectionSummary = Object.entries(rejectionCounts)
+        .map(([k, v]) => `<li>${k}: ${v}</li>`).join("") || "<li>No rejections logged in the last 30 minutes.</li>";
+
+      const alertHtml = `<div style="font-family:Arial,sans-serif;max-width:600px">
+        <h2 style="color:#B71C1C">Nightly ingest returned 0 articles</h2>
+        <p><strong>Run timestamp:</strong> ${new Date().toISOString()}</p>
+        <p><strong>Date:</strong> ${today}</p>
+        <p><strong>Candidates from RSS:</strong> ${articles.length}</p>
+        <p><strong>Skipped (dupes):</strong> ${skipped} · <strong>Rejected:</strong> ${rejected}</p>
+        <h3>Rejection breakdown (last 30 min)</h3>
+        <ul>${rejectionSummary}</ul>
+        <p><strong>Manual investigation required.</strong></p>
+      </div>`;
+
+      const zeroResult = await sendEmail({
+        type: "alert-zero-articles",
+        subject: `[ALERT] Nightly ingest returned 0 articles — ${today}`,
+        html: alertHtml,
+        idempotencyKey: idempotencyKey("alert-zero-articles", today),
+      });
+      log.push(`Zero-article alert: ${zeroResult.status}`);
     }
 
     // Step 3: Send email briefing (Phase 4.3 — enhanced with review queue section)
@@ -771,26 +758,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         html += `<div style="background:#eee;padding:12px 24px;font-size:11px;color:#999;border-radius:0 0 8px 8px">Compiled by Jarvis AI · <a href="https://building-materials-intel.vercel.app" style="color:#2E7D52">View Intelligence Platform</a></div>`;
         html += `</div>`;
 
-        // Send via Resend
-        const RESEND_KEY = process.env.RESEND_API_KEY;
-        if (RESEND_KEY) {
-          try {
-            const emailRes = await fetch("https://api.resend.com/emails", {
-              method: "POST",
-              headers: { "Authorization": `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
-              body: JSON.stringify({
-                from: process.env.RESEND_FROM_EMAIL || "Jarvis AI <onboarding@resend.dev>",
-                to: ["gavin.gattuso@appliedvalue.com"],
-                subject: `Daily Digest — ${archived} new articles — ${today}${totalPending > 0 ? ` (${totalPending} items pending review)` : ""}`,
-                html,
-              }),
-            });
-            const emailData = await emailRes.json();
-            log.push(emailRes.ok ? `Email sent: ${emailData.id}` : `Email failed: ${JSON.stringify(emailData)}`);
-          } catch (err: any) { log.push(`Email error: ${err.message}`); }
-        } else {
-          log.push("No RESEND_API_KEY — email skipped");
-        }
+        const digestResult = await sendEmail({
+          type: "digest",
+          subject: `Daily Digest — ${archived} new articles — ${today}${totalPending > 0 ? ` (${totalPending} items pending review)` : ""}`,
+          html,
+          idempotencyKey: idempotencyKey("digest", today),
+        });
+        log.push(`Digest email: ${digestResult.status}${digestResult.resendId ? ` (${digestResult.resendId})` : ""}${digestResult.error ? ` — ${digestResult.error}` : ""}`);
       }
     }
 
@@ -806,45 +780,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .order("created_at") as { data: any[] | null };
 
       if (overdue && overdue.length > 0) {
-        const RESEND_KEY = process.env.RESEND_API_KEY;
-        if (RESEND_KEY) {
-          // Enrich with article headline where possible
-          const articleIds = overdue
-            .filter(o => o.reference_table === "articles")
-            .map(o => o.reference_id);
-          const { data: articleRows } = articleIds.length
-            ? await supabase.from("articles").select("id, title").in("id", articleIds)
-            : { data: [] as any[] };
-          const titleById = new Map((articleRows || []).map((a: any) => [a.id, a.title]));
+        // Enrich with article headline where possible
+        const articleIds = overdue
+          .filter(o => o.reference_table === "articles")
+          .map(o => o.reference_id);
+        const { data: articleRows } = articleIds.length
+          ? await supabase.from("articles").select("id, title").in("id", articleIds)
+          : { data: [] as any[] };
+        const titleById = new Map((articleRows || []).map((a: any) => [a.id, a.title]));
 
-          const rows = overdue.map(o => {
-            const ageHours = Math.round((Date.now() - Date.parse(o.created_at)) / 36e5);
-            const headline = titleById.get(o.reference_id) || (o.auto_context || "").slice(0, 120);
-            return `<tr><td style="padding:4px 8px;border-bottom:1px solid #eee">${o.queue_type}</td><td style="padding:4px 8px;border-bottom:1px solid #eee">${headline}</td><td style="padding:4px 8px;border-bottom:1px solid #eee;text-align:right">${ageHours}h</td></tr>`;
-          }).join("");
+        const rows = overdue.map(o => {
+          const ageHours = Math.round((Date.now() - Date.parse(o.created_at)) / 36e5);
+          const headline = titleById.get(o.reference_id) || (o.auto_context || "").slice(0, 120);
+          return `<tr><td style="padding:4px 8px;border-bottom:1px solid #eee">${o.queue_type}</td><td style="padding:4px 8px;border-bottom:1px solid #eee">${headline}</td><td style="padding:4px 8px;border-bottom:1px solid #eee;text-align:right">${ageHours}h</td></tr>`;
+        }).join("");
 
-          const alertHtml = `<div style="font-family:Arial,sans-serif;max-width:700px">
-            <h2 style="color:#BF360C">${overdue.length} review queue item${overdue.length === 1 ? "" : "s"} overdue</h2>
-            <p>The items below have been <strong>pending human review for more than 48 hours</strong>. They are blocking report-ready promotion and will not reach the bi-annual report until cleared.</p>
-            <table style="border-collapse:collapse;width:100%;font-size:12px"><thead><tr style="background:#163E2D;color:white"><th style="padding:6px 8px;text-align:left">Type</th><th style="padding:6px 8px;text-align:left">Article / Context</th><th style="padding:6px 8px;text-align:right">Age</th></tr></thead><tbody>${rows}</tbody></table>
-          </div>`;
+        const alertHtml = `<div style="font-family:Arial,sans-serif;max-width:700px">
+          <h2 style="color:#BF360C">${overdue.length} review queue item${overdue.length === 1 ? "" : "s"} overdue</h2>
+          <p>The items below have been <strong>pending human review for more than 48 hours</strong>. They are blocking report-ready promotion and will not reach the bi-annual report until cleared.</p>
+          <table style="border-collapse:collapse;width:100%;font-size:12px"><thead><tr style="background:#163E2D;color:white"><th style="padding:6px 8px;text-align:left">Type</th><th style="padding:6px 8px;text-align:left">Article / Context</th><th style="padding:6px 8px;text-align:right">Age</th></tr></thead><tbody>${rows}</tbody></table>
+        </div>`;
 
-          try {
-            await fetch("https://api.resend.com/emails", {
-              method: "POST",
-              headers: { "Authorization": `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
-              body: JSON.stringify({
-                from: process.env.RESEND_FROM_EMAIL || "Jarvis AI <onboarding@resend.dev>",
-                to: ["gavin.gattuso@appliedvalue.com"],
-                subject: `[ACTION REQUIRED] ${overdue.length} review queue items overdue — ${today}`,
-                html: alertHtml,
-              }),
-            });
-            log.push(`Stale-queue alert sent (${overdue.length} items)`);
-          } catch (err: any) {
-            log.push(`Stale-queue alert failed (non-fatal): ${err.message}`);
-          }
-        }
+        const staleResult = await sendEmail({
+          type: "alert-stale-queue",
+          subject: `[ACTION REQUIRED] ${overdue.length} review queue items overdue — ${today}`,
+          html: alertHtml,
+          idempotencyKey: idempotencyKey("alert-stale-queue", today),
+        });
+        log.push(`Stale-queue alert (${overdue.length} items): ${staleResult.status}`);
       } else {
         log.push("Stale-queue check: no overdue items");
       }

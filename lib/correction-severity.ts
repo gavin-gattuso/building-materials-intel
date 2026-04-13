@@ -72,18 +72,15 @@ export function classifySeverity(
   return "cosmetic";
 }
 
-/** Send a Resend alert for a numeric-severity correction. Non-fatal on failure. */
+import { sendEmail, idempotencyKey } from "./email.js";
+
+/** Send an alert for a numeric-severity correction. Non-fatal on failure. */
 export async function sendNumericCorrectionAlert(
   articleTitle: string,
   articleUrl: string,
   slug: string,
   log: (msg: string) => void = () => {}
 ): Promise<void> {
-  const RESEND_KEY = process.env.RESEND_API_KEY;
-  if (!RESEND_KEY) {
-    log("Numeric correction alert skipped: RESEND_API_KEY not set");
-    return;
-  }
   const html = `<div style="font-family:Arial,sans-serif;max-width:600px">
     <h2 style="color:#B71C1C">Numeric figure changed in a published source</h2>
     <p>A Tier 1-2 article that is already in the knowledge base has been re-published with a <strong>different numeric figure</strong>. Because numeric corrections can propagate into the bi-annual report, this requires immediate human review.</p>
@@ -92,19 +89,12 @@ export async function sendNumericCorrectionAlert(
     <p><strong>Slug:</strong> ${slug}</p>
     <p>The article's <code>report_ready</code> flag has been cleared and it is queued for human review.</p>
   </div>`;
-  try {
-    await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { "Authorization": `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from: process.env.RESEND_FROM_EMAIL || "Jarvis AI <onboarding@resend.dev>",
-        to: ["gavin.gattuso@appliedvalue.com"],
-        subject: `[ALERT] Numeric correction detected — ${slug}`,
-        html,
-      }),
-    });
-    log(`Numeric correction alert sent for ${slug}`);
-  } catch (err: any) {
-    log(`Numeric correction alert failed (non-fatal): ${err.message}`);
-  }
+
+  const result = await sendEmail({
+    type: "alert-numeric-correction",
+    subject: `[ALERT] Numeric correction detected — ${slug}`,
+    html,
+    idempotencyKey: idempotencyKey("alert-numeric-correction", slug),
+  });
+  log(`Numeric correction alert for ${slug}: ${result.status}`);
 }
