@@ -629,6 +629,54 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     log.push(`Archived: ${archived}, Skipped (dupes): ${skipped}, Rejected: ${rejected}, Company links: ${linked}, Review queued: ${reviewQueued}`);
 
+    // Zero-article alert: if ingestion inserted nothing, notify for manual investigation
+    if (archived === 0) {
+      const RESEND_KEY = process.env.RESEND_API_KEY;
+      if (RESEND_KEY) {
+        try {
+          // Pull rejection counts from this run's window
+          const sinceIso = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+          const { data: recentRejections } = await supabase
+            .from("rejected_articles")
+            .select("rejection_reason")
+            .gte("created_at", sinceIso);
+          const rejectionCounts: Record<string, number> = {};
+          for (const r of recentRejections || []) {
+            rejectionCounts[r.rejection_reason] = (rejectionCounts[r.rejection_reason] || 0) + 1;
+          }
+          const rejectionSummary = Object.entries(rejectionCounts)
+            .map(([k, v]) => `<li>${k}: ${v}</li>`).join("") || "<li>No rejections logged in the last 30 minutes.</li>";
+
+          const alertHtml = `<div style="font-family:Arial,sans-serif;max-width:600px">
+            <h2 style="color:#B71C1C">Nightly ingest returned 0 articles</h2>
+            <p><strong>Run timestamp:</strong> ${new Date().toISOString()}</p>
+            <p><strong>Date:</strong> ${today}</p>
+            <p><strong>Candidates from RSS:</strong> ${articles.length}</p>
+            <p><strong>Skipped (dupes):</strong> ${skipped} · <strong>Rejected:</strong> ${rejected}</p>
+            <h3>Rejection breakdown (last 30 min)</h3>
+            <ul>${rejectionSummary}</ul>
+            <p><strong>Manual investigation required.</strong></p>
+          </div>`;
+
+          await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              from: process.env.RESEND_FROM_EMAIL || "Jarvis AI <onboarding@resend.dev>",
+              to: ["gavin.gattuso@appliedvalue.com"],
+              subject: `[ALERT] Nightly ingest returned 0 articles — ${today}`,
+              html: alertHtml,
+            }),
+          });
+          log.push("Zero-article alert sent");
+        } catch (err: any) {
+          log.push(`Zero-article alert failed (non-fatal): ${err.message}`);
+        }
+      } else {
+        log.push("Zero-article alert skipped: RESEND_API_KEY not set");
+      }
+    }
+
     // Step 3: Send email briefing (Phase 4.3 — enhanced with review queue section)
     if (archived > 0) {
       const { data: todayArticles } = await supabase
@@ -713,7 +761,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               body: JSON.stringify({
                 from: process.env.RESEND_FROM_EMAIL || "Jarvis AI <onboarding@resend.dev>",
                 to: ["gavin.gattuso@appliedvalue.com"],
-                subject: `Building Materials Daily Briefing - ${today}${totalPending > 0 ? ` (${totalPending} items pending review)` : ""}`,
+                subject: `Daily Digest — ${archived} new articles — ${today}${totalPending > 0 ? ` (${totalPending} items pending review)` : ""}`,
                 html,
               }),
             });
