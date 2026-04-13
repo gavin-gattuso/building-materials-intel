@@ -47,4 +47,42 @@ site/public/reports.json
 site/public/financial-ratios.json
 site/public/weekly-summary.json
 
-.vercel
+# Claude Code session state (machine-local; not portable)
+.claude/projects/
+.claude/settings.json
+.claude/scheduled_tasks.lock
+.claude/worktrees/
+
+# Playwright MCP debug artifacts (regenerated on each run)
+.playwright-mcp/
+
+# Screenshots and video recordings from report QA (debug artifacts, not shipped)
+/audit-*.png
+/audit2-*.png
+/report-*.png
+/report-*.pdf
+/report-cover.png
+/final-*.png
+/final-*.pdf
+/full-audit-*.png
+/test3-*.png
+/test-hover-*.png
+/test-print-*.pdf
+/wsj-*.png
+/rescale-*.png
+/upgrade-*.png
+/video-frame-*.png
+/dual-*.png
+/overlay-*.png
+/poc-drivers-full.png
+/standalone-verify.png
+/vercel-dashboard.png
+/HTMLPDFDownload.pdf
+/Screen Recording*.mp4
+/Q3*Wrapped.png
+
+# Scratch / temp files
+/tmp_logo.txt
+/kb_articles_local.txt
+/Miami
+/Miami.png

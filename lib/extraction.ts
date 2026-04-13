@@ -57,6 +57,12 @@ export interface SourceExcerptResult {
   model_version: string;
 }
 
+// Shared helper for every Anthropic call in this module. Versioned prompts
+// dispatched through this fetch (see config/prompt-versions.json):
+//   - extraction-v1.0        (used by extractStructuredData)
+//   - summary-standard-v1.0  (used by generateSummary, non-earnings)
+//   - summary-earnings-v1.0  (used by generateSummary, earnings)
+//   - source-excerpt-v1.0    (used by extractSourceExcerpts)
 async function callAnthropic(model: string, systemPrompt: string | undefined, userContent: string, maxTokens: number): Promise<string | null> {
   if (!ANTHROPIC_KEY) return null;
   try {
