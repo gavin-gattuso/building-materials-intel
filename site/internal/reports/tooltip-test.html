@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tooltip Approach Comparison Test</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.js"></script>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; }
+h2 { margin-top: 40px; }
+.test-row { display: flex; gap: 20px; margin: 20px 0; }
+.test-col { flex: 1; }
+.test-col h3 { font-size: 14px; margin-bottom: 8px; }
+canvas { background: #fafafa; border: 1px solid #ddd; }
+#results { margin-top: 20px; font-family: monospace; white-space: pre; background: #f5f5f5; padding: 15px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<h1>Tooltip Approach Comparison</h1>
+<p>4 approaches tested with automated hover on every bar. Each chart has 18 bars (same as the real report).</p>
+
+<div class="test-row">
+  <div class="test-col">
+    <h3>A: Current (300px, nearest/intersect:true)</h3>
+    <div style="height:300px;"><canvas id="chartA"></canvas></div>
+  </div>
+  <div class="test-col">
+    <h3>B: Taller chart (500px, nearest/intersect:true)</h3>
+    <div style="height:500px;"><canvas id="chartB"></canvas></div>
+  </div>
+</div>
+<div class="test-row">
+  <div class="test-col">
+    <h3>C: 300px + custom y-hitbox plugin (±padding)</h3>
+    <div style="height:300px;"><canvas id="chartC"></canvas></div>
+  </div>
+  <div class="test-col">
+    <h3>D: Taller (500px) + custom y-hitbox plugin</h3>
+    <div style="height:500px;"><canvas id="chartD"></canvas></div>
+  </div>
+</div>
+
+<div id="results">Tests not run yet. Call window.runTests() from console or Playwright.</div>
+
+<script>
+// Shared test data — 18 companies like the real report
+const labels = ['CRH','Cemex','Heidelberg','Martin Marietta','Taiheiyo','Vulcan','AGC','Owens Corning','Saint-Gobain','Canfor','Interfor','UFP','West Fraser','Weyerhaeuser','ArcelorMittal','Nucor','Steel Dynamics','Wienerberger'];
+const values = [4.8, -2.2, 4.0, 5.0, -2.1, 4.9, -1.9, 16.9, 1.7, 1.2, -4.3, -3.1, -10.3, -2.4, -5.6, 0.4, -4.2, 6.0];
+const colors = labels.map((_, i) => values[i] >= 0 ? '#1a5e3b' : '#4fa8d6');
+
+// Custom tooltip positioner
+Chart.Tooltip.positioners.cursor = function(elements, eventPosition) {
+  return { x: eventPosition.x, y: eventPosition.y };
+};
+
+// ---- APPROACH A: Current config (300px, nearest, intersect:true) ----
+const chartA = new Chart(document.getElementById('chartA'), {
+  type: 'bar',
+  data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0, barPercentage: 0.85, categoryPercentage: 0.9 }] },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    interaction: { mode: 'nearest', intersect: true },
+    plugins: { legend: { display: false }, tooltip: { position: 'cursor' } },
+    scales: { x: { ticks: { callback: v=>v+'%' } }, y: { ticks: { font: { size: 9 } } } }
+  }
+});
+
+// ---- APPROACH B: Taller chart (500px), same interaction ----
+const chartB = new Chart(document.getElementById('chartB'), {
+  type: 'bar',
+  data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0, barPercentage: 0.85, categoryPercentage: 0.9 }] },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    interaction: { mode: 'nearest', intersect: true },
+    plugins: { legend: { display: false }, tooltip: { position: 'cursor' } },
+    scales: { x: { ticks: { callback: v=>v+'%' } }, y: { ticks: { font: { size: 9 } } } }
+  }
+});
+
+// ---- Custom y-hitbox plugin ----
+// Instead of relying on Chart.js hit detection, this plugin intercepts
+// mouse events and manually finds the bar whose y-band the cursor is in,
+// then programmatically activates that bar's tooltip.
+const yHitboxPlugin = {
+  id: 'yHitbox',
+  beforeEvent(chart, args) {
+    const event = args.event;
+    if (event.type !== 'mousemove' && event.type !== 'mouseout') return;
+
+    if (event.type === 'mouseout') {
+      chart.tooltip.setActiveElements([], { x: 0, y: 0 });
+      chart.tooltip.update(true);
+      chart.draw();
+      args.changed = true;
+      return;
+    }
+
+    const y = event.y;
+    const x = event.x;
+    const chartArea = chart.chartArea;
+
+    // Only respond within chart area
+    if (x < chartArea.left || x > chartArea.right || y < chartArea.top || y > chartArea.bottom) {
+      chart.tooltip.setActiveElements([], { x: 0, y: 0 });
+      chart.tooltip.update(true);
+      chart.draw();
+      args.changed = true;
+      return;
+    }
+
+    // Find which bar's y-band we're in
+    const meta = chart.getDatasetMeta(0);
+    let bestIdx = -1;
+    let bestDist = Infinity;
+
+    for (let i = 0; i < meta.data.length; i++) {
+      const bar = meta.data[i];
+      const barY = bar.y;
+      const halfHeight = (bar.height || 10) / 2;
+      // Use the full band between bars, not just the bar itself
+      const dist = Math.abs(y - barY);
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestIdx = i;
+      }
+    }
+
+    if (bestIdx >= 0) {
+      // Check the bar is reasonably close (within half the spacing between bars)
+      const spacing = meta.data.length > 1 ? Math.abs(meta.data[1].y - meta.data[0].y) : 50;
+      if (bestDist <= spacing / 2) {
+        chart.tooltip.setActiveElements(
+          [{ datasetIndex: 0, index: bestIdx }],
+          { x: event.x, y: event.y }
+        );
+        chart.tooltip.update(true);
+        chart.draw();
+        args.changed = true;
+        // Cancel default handling
+        args.cancelable = false;
+        return false;
+      }
+    }
+
+    chart.tooltip.setActiveElements([], { x: 0, y: 0 });
+    chart.tooltip.update(true);
+    chart.draw();
+    args.changed = true;
+  }
+};
+
+// ---- APPROACH C: 300px + custom y-hitbox ----
+const chartC = new Chart(document.getElementById('chartC'), {
+  type: 'bar',
+  data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0, barPercentage: 0.85, categoryPercentage: 0.9 }] },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    interaction: { mode: 'nearest', intersect: false },
+    plugins: { legend: { display: false }, tooltip: { position: 'cursor', external: undefined } },
+    scales: { x: { ticks: { callback: v=>v+'%' } }, y: { ticks: { font: { size: 9 } } } }
+  },
+  plugins: [yHitboxPlugin]
+});
+
+// ---- APPROACH D: 500px + custom y-hitbox ----
+const chartD = new Chart(document.getElementById('chartD'), {
+  type: 'bar',
+  data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0, barPercentage: 0.85, categoryPercentage: 0.9 }] },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    interaction: { mode: 'nearest', intersect: false },
+    plugins: { legend: { display: false }, tooltip: { position: 'cursor', external: undefined } },
+    scales: { x: { ticks: { callback: v=>v+'%' } }, y: { ticks: { font: { size: 9 } } } }
+  },
+  plugins: [yHitboxPlugin]
+});
+
+// ---- AUTOMATED TEST HARNESS ----
+window.charts = { A: chartA, B: chartB, C: chartC, D: chartD };
+
+window.testChart = function(chartInstance) {
+  const meta = chartInstance.getDatasetMeta(0);
+  const rect = chartInstance.canvas.getBoundingClientRect();
+  const results = [];
+
+  for (let i = 0; i < meta.data.length; i++) {
+    const bar = meta.data[i];
+    const label = chartInstance.data.labels[i];
+
+    // Test 1: hover on bar center
+    const centerX = (bar.base + bar.x) / 2;
+    const centerY = bar.y;
+
+    // Test 2: hover on bar's y but at the 0-line (x = bar.base) — edge of bar
+    const edgeX = bar.base + (bar.x > bar.base ? 1 : -1);
+
+    // Test 3: hover slightly above bar center (1/4 of bar-to-bar spacing)
+    const spacing = meta.data.length > 1 ? Math.abs(meta.data[1].y - meta.data[0].y) : 20;
+    const aboveY = bar.y - spacing * 0.25;
+    const belowY = bar.y + spacing * 0.25;
+
+    results.push({
+      bar: label,
+      barHeight: Math.round(bar.height),
+      barWidth: Math.round(Math.abs(bar.x - bar.base)),
+      spacing: Math.round(spacing),
+      tests: { centerX: Math.round(centerX), centerY: Math.round(centerY), edgeX: Math.round(edgeX) }
+    });
+  }
+
+  return results;
+};
+
+// This will be called by Playwright to run the full test suite
+window.runFullTest = async function() {
+  const approaches = ['A', 'B', 'C', 'D'];
+  const allResults = {};
+
+  for (const approach of approaches) {
+    const chart = window.charts[approach];
+    const meta = chart.getDatasetMeta(0);
+    const canvas = chart.canvas;
+    const rect = canvas.getBoundingClientRect();
+
+    let correct = 0;
+    let wrong = 0;
+    let missed = 0;
+    let total = 0;
+    const failures = [];
+
+    for (let i = 0; i < meta.data.length; i++) {
+      const bar = meta.data[i];
+      const label = chart.data.labels[i];
+      const spacing = meta.data.length > 1 ? Math.abs(meta.data[1].y - meta.data[0].y) : 20;
+
+      // 5 test positions per bar
+      const testPoints = [
+        { name: 'center', x: (bar.base + bar.x) / 2, y: bar.y },
+        { name: 'edge', x: bar.base + (bar.x > bar.base ? 2 : -2), y: bar.y },
+        { name: 'above', x: (bar.base + bar.x) / 2, y: bar.y - spacing * 0.2 },
+        { name: 'below', x: (bar.base + bar.x) / 2, y: bar.y + spacing * 0.2 },
+        { name: 'far-right', x: chart.chartArea.right - 5, y: bar.y },
+      ];
+
+      for (const tp of testPoints) {
+        total++;
+        // Simulate the event
+        const evt = {
+          type: 'mousemove',
+          x: tp.x,
+          y: tp.y,
+          native: { type: 'mousemove' }
+        };
+
+        // For approaches C and D (with plugin), we use setActiveElements
+        // For A and B, we use getElementsAtEventForMode
+        let activeElements;
+        if (approach === 'C' || approach === 'D') {
+          // The plugin handles it — simulate by finding nearest by y
+          let bestIdx = -1, bestDist = Infinity;
+          for (let j = 0; j < meta.data.length; j++) {
+            const d = Math.abs(tp.y - meta.data[j].y);
+            if (d < bestDist) { bestDist = d; bestIdx = j; }
+          }
+          if (bestDist <= spacing / 2 && tp.x >= chart.chartArea.left && tp.x <= chart.chartArea.right) {
+            activeElements = [{ index: bestIdx }];
+          } else {
+            activeElements = [];
+          }
+        } else {
+          activeElements = chart.getElementsAtEventForMode(
+            { x: tp.x + rect.left, y: tp.y + rect.top, type: 'mousemove', native: new MouseEvent('mousemove') },
+            'nearest', { intersect: true }, false
+          );
+        }
+
+        if (activeElements.length === 0) {
+          missed++;
+          failures.push({ bar: label, test: tp.name, result: 'no tooltip' });
+        } else if (chart.data.labels[activeElements[0].index] !== label) {
+          wrong++;
+          failures.push({ bar: label, test: tp.name, result: 'WRONG: showed ' + chart.data.labels[activeElements[0].index] });
+        } else {
+          correct++;
+        }
+      }
+    }
+
+    allResults[approach] = {
+      total,
+      correct,
+      wrong,
+      missed,
+      accuracy: (correct / total * 100).toFixed(1) + '%',
+      wrongRate: (wrong / total * 100).toFixed(1) + '%',
+      missRate: (missed / total * 100).toFixed(1) + '%',
+      failures: failures.slice(0, 10) // first 10 failures
+    };
+  }
+
+  return allResults;
+};
+</script>
+</body>
+</html>
