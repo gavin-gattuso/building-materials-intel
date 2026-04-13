@@ -2,7 +2,8 @@
   "buildCommand": "npm install && npx bun site/build-static.ts",
   "outputDirectory": "site/public",
   "crons": [
-    { "path": "/api/daily-scan?key=cron", "schedule": "0 4 * * *" }
+    { "path": "/api/daily-scan?key=cron", "schedule": "0 4 * * *" },
+    { "path": "/api/detect-corrections?key=cron", "schedule": "17 11 * * 1" }
   ],
   "headers": [
     {
@@ -19,6 +20,7 @@
     { "source": "/api/send-briefing", "destination": "/api/send-briefing" },
     { "source": "/api/db", "destination": "/api/db" },
     { "source": "/api/daily-scan", "destination": "/api/daily-scan" },
+    { "source": "/api/detect-corrections", "destination": "/api/detect-corrections" },
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]

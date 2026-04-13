@@ -1,0 +1,87 @@
+{
+  "_description": "9 Applied Value report sections — migrated from av_report_sections DB table. Source of truth for section definitions, keyword patterns, and category alignments.",
+  "_deprecation_note": "The av_report_sections DB table is STILL ACTIVELY READ by api/index.ts (3 endpoints) and api/daily-scan.ts (section tagging). It holds section IDs referenced by the article_av_sections junction table. DO NOT DROP. This config file is the source of truth for scoring rules and keywords only.",
+  "sections": [
+    {
+      "slug": "intro-exec-summary",
+      "title": "Introduction & Executive Summary",
+      "description": "High-level overview of market conditions, key themes, and report highlights.",
+      "section_order": 1,
+      "keywords": ["overview", "outlook", "forecast", "summary", "key takeaway", "highlights"],
+      "categories": [],
+      "weight": 0.3
+    },
+    {
+      "slug": "market-scope",
+      "title": "Market Scope",
+      "description": "Definition and sizing of the building materials & products market, including TAM, segments, and subsegments.",
+      "section_order": 2,
+      "keywords": ["market size", "market share", "TAM", "addressable market", "market definition", "segment", "subsegment", "building materials market"],
+      "categories": [],
+      "weight": 0.5
+    },
+    {
+      "slug": "market-context-outlook",
+      "title": "Market Context & Outlook",
+      "description": "Current macroeconomic environment, sentiment, and forward outlook for the sector.",
+      "section_order": 3,
+      "keywords": ["outlook", "forecast", "trend", "conditions", "sentiment", "economic", "macro", "environment"],
+      "categories": ["GDP & Consumer Confidence", "Pricing & Cost Trends"],
+      "weight": 0.5
+    },
+    {
+      "slug": "drivers-market-health",
+      "title": "Drivers of Market Health",
+      "description": "Analysis of the 7 key drivers affecting industry health: rates, labor, costs, demand, infrastructure, credit, GDP.",
+      "section_order": 4,
+      "keywords": ["interest rate", "mortgage", "labor", "workforce", "material cost", "energy cost", "demand", "housing", "infrastructure", "credit", "lending", "gdp", "consumer confidence", "fed", "fomc"],
+      "categories": ["Interest & Mortgage Rates", "Labor Dynamics", "Material & Energy Costs", "Demand Visibility", "Government Infrastructure Spending", "Credit Availability & Lending Standards", "Credit & Lending", "GDP Growth & Consumer Confidence"],
+      "weight": 0.7
+    },
+    {
+      "slug": "public-company-performance",
+      "title": "Public Company Performance",
+      "description": "Earnings results, revenue/margin analysis, and guidance from 39 tracked public companies.",
+      "section_order": 5,
+      "keywords": ["earnings", "revenue", "ebitda", "margin", "guidance", "quarterly", "annual results", "profit", "fiscal", "eps", "share price"],
+      "categories": ["Company Earnings & Performance", "Capital Markets & Investment"],
+      "weight": 0.8
+    },
+    {
+      "slug": "positioning-eoy",
+      "title": "Positioning & EOY Outlook",
+      "description": "Strategic positioning analysis for different company segments heading into year-end.",
+      "section_order": 6,
+      "keywords": ["strategy", "positioning", "year-end", "eoy", "second half", "h2", "outlook", "planning", "backlog"],
+      "categories": [],
+      "weight": 0.4
+    },
+    {
+      "slug": "trend-continuity-retrospective",
+      "title": "Trend Continuity & Retrospective",
+      "description": "Historical trend analysis and comparison with prior periods.",
+      "section_order": 7,
+      "keywords": ["trend", "cycle", "historical", "compared to", "year-over-year", "yoy", "prior year", "retrospective", "continuity", "pattern"],
+      "categories": [],
+      "weight": 0.4
+    },
+    {
+      "slug": "how-av-can-help",
+      "title": "How Applied Value Can Help",
+      "description": "M&A advisory, due diligence, and consulting opportunities identified from market activity.",
+      "section_order": 8,
+      "keywords": ["consulting", "advisory", "due diligence", "transaction", "valuation", "strategic"],
+      "categories": ["M&A and Corporate Strategy"],
+      "weight": 0.3
+    },
+    {
+      "slug": "public-company-snapshot",
+      "title": "Public Company Snapshot",
+      "description": "Stock performance, valuation multiples, and analyst sentiment for tracked companies.",
+      "section_order": 9,
+      "keywords": ["stock", "share price", "market cap", "pe ratio", "dividend", "analyst", "upgrade", "downgrade", "rating"],
+      "categories": ["Capital Markets & Investment", "Company Earnings & Performance"],
+      "weight": 0.6
+    }
+  ]
+}

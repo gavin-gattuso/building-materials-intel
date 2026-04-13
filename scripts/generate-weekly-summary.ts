@@ -41,12 +41,13 @@ async function main() {
   const { start, end } = getWeekBounds(targetDate);
   console.log(`Generating weekly summary for ${start} to ${end}`);
 
-  // Fetch articles in this week
+  // Fetch report-ready articles in this week
   const { data: articles, error } = await supabase
     .from("articles")
     .select("id, slug, title, date, source, category, content")
     .gte("date", start)
     .lte("date", end)
+    .eq("report_ready", true)
     .order("date", { ascending: false });
 
   if (error) { console.error("Supabase error:", error); process.exit(1); }

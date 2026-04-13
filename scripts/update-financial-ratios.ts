@@ -1,25 +1,39 @@
 /**
- * Fetches latest financial data from Yahoo Finance for tracked companies
- * and updates the financial_ratios table in Supabase.
+ * Fetches latest financial data for tracked companies and updates
+ * the financial_ratios table in Supabase.
+ *
+ * Data source priority:
+ *   1. S&P Capital IQ (if CAPIQ_API_KEY configured)
+ *   2. Yahoo Finance (fallback only)
+ *
+ * Enhanced with:
+ *   - Provenance tracking (data_source, pull_timestamp, currency, fx_rate)
+ *   - Type-specific anomaly detection (revenue, margin, debt, FCF)
+ *   - Human review queue integration for anomaly flags
  *
  * Usage: bun scripts/update-financial-ratios.ts [--period "Q1 2026"] [--force]
  *   --period: target period label (default: auto-detected from current date)
  *   --force:  update all companies, even if already reported
- *
- * Designed to run nightly via the scheduled trigger. After a company's
- * earnings date passes (per earnings calendar), it fetches updated data.
  */
 
 import { createClient } from "@supabase/supabase-js";
-import { getYahooTicker } from "../lib/constants";
+import { TRACKED_COMPANIES, getYahooTicker } from "../lib/constants";
+import {
+  fetchCompanyFinancials,
+  detectAnomalies,
+  isCapIQConfigured,
+  type CapIQFinancials,
+  type AnomalyFlag,
+  type FetchResult,
+} from "../services/financial-data/capiq-client";
 
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co";
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 if (!SUPABASE_KEY) { console.error("SUPABASE_SERVICE_ROLE_KEY required"); process.exit(1); }
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || "";
 
-// Determine current reporting period based on date
 function getCurrentPeriod(): string {
   const now = new Date();
   const month = now.getMonth() + 1;
@@ -28,95 +42,7 @@ function getCurrentPeriod(): string {
   return `H2 ${year}`;
 }
 
-// Fetch financial data from Yahoo Finance
-async function fetchYahooFinancials(ticker: string): Promise<{
-  revenue_ltm: number | null;
-  revenue_growth_yoy: number | null;
-  cogs_sales_pct: number | null;
-  sga_sales_pct: number | null;
-  ebitda_margin_pct: number | null;
-} | null> {
-  const yTicker = getYahooTicker(ticker);
-  try {
-    // Use Yahoo Finance v8 API (public, no key required)
-    const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(yTicker)}?modules=incomeStatementHistory,incomeStatementHistoryQuarterly,financialData`;
-    const res = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0" },
-    });
-
-    if (!res.ok) {
-      console.warn(`  Yahoo Finance ${res.status} for ${yTicker}`);
-      return null;
-    }
-
-    const data = await res.json();
-    const result = data?.quoteSummary?.result?.[0];
-    if (!result) return null;
-
-    const financialData = result.financialData;
-    const annualStatements = result.incomeStatementHistory?.incomeStatementHistory || [];
-    const quarterlyStatements = result.incomeStatementHistoryQuarterly?.incomeStatementHistory || [];
-
-    // Get LTM revenue (sum of last 4 quarters or latest annual)
-    let revenue_ltm: number | null = null;
-    let prev_revenue: number | null = null;
-
-    if (quarterlyStatements.length >= 4) {
-      // Sum last 4 quarters for LTM
-      revenue_ltm = quarterlyStatements.slice(0, 4).reduce((sum: number, q: any) => {
-        return sum + (q.totalRevenue?.raw || 0);
-      }, 0);
-    } else if (annualStatements.length > 0) {
-      revenue_ltm = annualStatements[0]?.totalRevenue?.raw || null;
-    }
-
-    // Previous year revenue for YoY growth
-    if (quarterlyStatements.length >= 8) {
-      prev_revenue = quarterlyStatements.slice(4, 8).reduce((sum: number, q: any) => {
-        return sum + (q.totalRevenue?.raw || 0);
-      }, 0);
-    } else if (annualStatements.length > 1) {
-      prev_revenue = annualStatements[1]?.totalRevenue?.raw || null;
-    }
-
-    // Convert to BUSD
-    if (revenue_ltm) revenue_ltm = revenue_ltm / 1e9;
-    if (prev_revenue) prev_revenue = prev_revenue / 1e9;
-
-    // Revenue growth YoY
-    let revenue_growth_yoy: number | null = null;
-    if (revenue_ltm && prev_revenue && prev_revenue > 0) {
-      revenue_growth_yoy = ((revenue_ltm - prev_revenue) / prev_revenue) * 100;
-    }
-
-    // Latest income statement for ratios
-    const latest = quarterlyStatements[0] || annualStatements[0];
-    if (!latest) return { revenue_ltm, revenue_growth_yoy, cogs_sales_pct: null, sga_sales_pct: null, ebitda_margin_pct: null };
-
-    const rev = latest.totalRevenue?.raw;
-    const cogs = latest.costOfRevenue?.raw;
-    const sga = latest.sellingGeneralAdministrative?.raw;
-    const ebitda = financialData?.ebitda?.raw;
-    const totalRev = financialData?.totalRevenue?.raw || rev;
-
-    const cogs_sales_pct = rev && cogs ? (cogs / rev) * 100 : null;
-    const sga_sales_pct = rev && sga ? (sga / rev) * 100 : null;
-    const ebitda_margin_pct = totalRev && ebitda ? (ebitda / totalRev) * 100 : null;
-
-    return {
-      revenue_ltm: revenue_ltm ? Math.round(revenue_ltm * 10) / 10 : null,
-      revenue_growth_yoy: revenue_growth_yoy ? Math.round(revenue_growth_yoy * 10) / 10 : null,
-      cogs_sales_pct: cogs_sales_pct ? Math.round(cogs_sales_pct * 10) / 10 : null,
-      sga_sales_pct: sga_sales_pct ? Math.round(sga_sales_pct * 10) / 10 : null,
-      ebitda_margin_pct: ebitda_margin_pct ? Math.round(ebitda_margin_pct * 10) / 10 : null,
-    };
-  } catch (err) {
-    console.warn(`  Error fetching ${yTicker}:`, err);
-    return null;
-  }
-}
-
-// Earnings calendar — imported inline to avoid TS module issues in scripts
+// Earnings calendar
 const earningsSchedule = [
   { company: "CRH", ticker: "CRH", date: "2026-05-13", quarter: "Q1 2026" },
   { company: "CEMEX", ticker: "CX", date: "2026-04-27", quarter: "Q1 2026" },
@@ -153,12 +79,45 @@ const earningsSchedule = [
   { company: "Daikin Industries", ticker: "6367.T", date: "2026-05-12", quarter: "FY2026" },
   { company: "Johnson Controls", ticker: "JCI", date: "2026-05-01", quarter: "Q2 FY2026" },
   { company: "Trane Technologies", ticker: "TT", date: "2026-04-29", quarter: "Q1 2026" },
-  // Previously missing companies
   { company: "Home Depot", ticker: "HD", date: "2026-02-25", quarter: "Q4 FY2025" },
   { company: "Lowe's", ticker: "LOW", date: "2026-02-26", quarter: "Q4 FY2025" },
   { company: "RPM International", ticker: "RPM", date: "2026-04-08", quarter: "Q3 FY2026" },
   { company: "Installed Building Products", ticker: "IBP", date: "2026-02-20", quarter: "Q4 FY2025" },
 ];
+
+/**
+ * Generate AI context for a review queue item.
+ */
+async function generateAutoContext(flag: AnomalyFlag, earningsArticles: any[]): Promise<string> {
+  const articleContext = earningsArticles.length > 0
+    ? `Related earnings articles: ${earningsArticles.map(a => `"${a.title}" (${a.source}, ${a.date})`).join("; ")}`
+    : "No related earnings articles found in the knowledge base.";
+
+  const detail = `${flag.company} (${flag.ticker}) flagged for ${flag.anomaly_type}: ${flag.metric} changed from ${flag.previous_value} to ${flag.current_value} (delta: ${flag.delta}, threshold: ${flag.threshold}). ${articleContext}`;
+
+  if (!ANTHROPIC_KEY) return detail;
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_KEY,
+        "anthropic-version": "2024-06-01",
+      },
+      body: JSON.stringify({
+        model: process.env.MODEL_EXTRACTION || "claude-haiku-4-5-20251001",
+        max_tokens: 200,
+        messages: [{ role: "user", content: `In 2-3 sentences, explain why this financial anomaly was flagged for human review and what the reviewer should check. Be specific and actionable.\n\nDetails: ${detail}` }],
+      }),
+    });
+    if (!res.ok) return detail;
+    const data = await res.json();
+    return data.content?.[0]?.text || detail;
+  } catch {
+    return detail;
+  }
+}
 
 async function main() {
   const args = process.argv.slice(2);
@@ -169,26 +128,29 @@ async function main() {
 
   console.log(`Updating financial ratios for period: ${period}`);
   console.log(`Today: ${today}, Force: ${forceAll}`);
+  console.log(`Data source: ${isCapIQConfigured() ? "Capital IQ (primary) + Yahoo Finance (fallback)" : "Yahoo Finance only (CAPIQ not configured)"}\n`);
 
   // Get existing records for this period
   const { data: existing } = await supabase
     .from("financial_ratios")
-    .select("ticker, has_reported, last_earnings_date")
+    .select("ticker, has_reported, last_earnings_date, ebitda_margin_pct, gross_margin_pct, revenue_ltm, net_debt, ebitda_margin_pct, cogs_sales_pct, sga_sales_pct")
     .eq("period", period);
 
   const existingMap = new Map((existing || []).map(e => [e.ticker, e]));
 
   let updated = 0;
-  let skipped = 0;
   let created = 0;
+  let skipped = 0;
   let notYetReported = 0;
+  const fallbackCompanies: { company: string; reason: string }[] = [];
+  const allAnomalies: AnomalyFlag[] = [];
 
   for (const entry of earningsSchedule) {
     const earningsDate = entry.date;
     const hasReported = earningsDate <= today;
     const existingRecord = existingMap.get(entry.ticker);
 
-    // Update has_reported flag for all companies
+    // Update has_reported flag
     if (existingRecord) {
       await supabase
         .from("financial_ratios")
@@ -203,37 +165,64 @@ async function main() {
       continue;
     }
 
-    // Skip if already updated with Yahoo data (unless --force)
+    // Skip if already updated (unless --force)
     if (!forceAll && existingRecord?.has_reported && existingRecord?.last_earnings_date === earningsDate) {
       skipped++;
       continue;
     }
 
-    console.log(`  ${entry.company} (${entry.ticker}): fetching from Yahoo Finance...`);
-    const financials = await fetchYahooFinancials(entry.ticker);
+    // Find the TrackedCompany entry for this ticker
+    const trackedCompany = TRACKED_COMPANIES.find(c => c.ticker === entry.ticker);
+    if (!trackedCompany) {
+      console.warn(`  ${entry.company}: not found in TRACKED_COMPANIES, skipping`);
+      skipped++;
+      continue;
+    }
 
-    if (!financials) {
+    console.log(`  ${entry.company} (${entry.ticker}): fetching financial data...`);
+    const result: FetchResult = await fetchCompanyFinancials(trackedCompany, period);
+
+    if (result.fallbackUsed) {
+      fallbackCompanies.push({ company: entry.company, reason: result.fallbackReason || "unknown" });
+    }
+
+    if (!result.data) {
       console.log(`    No data returned, skipping`);
       skipped++;
       continue;
     }
 
-    // Calculate YoY deltas if we have previous period data
+    const financials = result.data;
+
+    // Calculate YoY deltas from previous period
     const { data: prevData } = await supabase
       .from("financial_ratios")
-      .select("cogs_sales_pct, sga_sales_pct, ebitda_margin_pct")
+      .select("cogs_sales_pct, sga_sales_pct, ebitda_margin_pct, revenue_ltm, net_debt, gross_margin_pct")
       .eq("ticker", entry.ticker)
       .neq("period", period)
       .order("updated_at", { ascending: false })
       .limit(1);
 
-    const prev = prevData?.[0];
+    const prev = prevData?.[0] || null;
     const cogs_delta = financials.cogs_sales_pct != null && prev?.cogs_sales_pct != null
       ? Math.round((financials.cogs_sales_pct - prev.cogs_sales_pct) * 10) / 10 : null;
     const sga_delta = financials.sga_sales_pct != null && prev?.sga_sales_pct != null
       ? Math.round((financials.sga_sales_pct - prev.sga_sales_pct) * 10) / 10 : null;
     const ebitda_delta = financials.ebitda_margin_pct != null && prev?.ebitda_margin_pct != null
       ? Math.round((financials.ebitda_margin_pct - prev.ebitda_margin_pct) * 10) / 10 : null;
+
+    // Detect anomalies
+    const previousFinancials: Partial<CapIQFinancials> = {
+      revenue_ltm: prev?.revenue_ltm,
+      ebitda_margin_pct: prev?.ebitda_margin_pct,
+      gross_margin_pct: prev?.gross_margin_pct,
+      net_debt: prev?.net_debt,
+      ebitda_ltm: prev?.ebitda_margin_pct && prev?.revenue_ltm
+        ? (prev.ebitda_margin_pct / 100) * prev.revenue_ltm : undefined,
+      fcf_ltm: undefined,
+    };
+    const anomalies = detectAnomalies(financials, previousFinancials);
+    allAnomalies.push(...anomalies);
 
     const updateData = {
       revenue_ltm: financials.revenue_ltm,
@@ -246,7 +235,15 @@ async function main() {
       ebitda_margin_yoy_delta: ebitda_delta,
       has_reported: true,
       last_earnings_date: earningsDate,
-      data_source: "yahoo-finance",
+      data_source: financials.data_source,
+      source_url: financials.source_url,
+      pull_timestamp: financials.pull_timestamp,
+      reporting_period: financials.reporting_period,
+      fiscal_year_end: financials.fiscal_year_end,
+      currency: financials.currency,
+      fx_rate_used: financials.fx_rate_used,
+      manually_verified: false,
+      capiq_unique_id: financials.capiq_unique_id,
       updated_at: new Date().toISOString(),
     };
 
@@ -257,9 +254,8 @@ async function main() {
         .eq("ticker", entry.ticker)
         .eq("period", period);
       updated++;
-      console.log(`    Updated: Rev $${financials.revenue_ltm}B, EBITDA ${financials.ebitda_margin_pct}%`);
+      console.log(`    Updated: Rev $${financials.revenue_ltm}B, EBITDA ${financials.ebitda_margin_pct}% [${financials.data_source}]`);
     } else {
-      // Need segment/category info — fetch from any existing record for this ticker
       const { data: ref } = await supabase
         .from("financial_ratios")
         .select("segment, category, country, company")
@@ -277,15 +273,65 @@ async function main() {
           period,
         });
         created++;
-        console.log(`    Created new record for ${period}`);
+        console.log(`    Created new record for ${period} [${financials.data_source}]`);
       }
     }
 
-    // Rate limit: Yahoo Finance doesn't like rapid requests
+    // Insert anomalies into human_review_queue
+    for (const flag of anomalies) {
+      // Find related earnings articles for context
+      const { data: earningsArticles } = await supabase
+        .from("articles")
+        .select("title, source, date, url")
+        .ilike("title", `%${entry.company}%`)
+        .eq("category", "Earnings")
+        .order("date", { ascending: false })
+        .limit(3);
+
+      const autoContext = await generateAutoContext(flag, earningsArticles || []);
+
+      // Get the financial_ratios row id for reference
+      const { data: ratioRow } = await supabase
+        .from("financial_ratios")
+        .select("id")
+        .eq("ticker", entry.ticker)
+        .eq("period", period)
+        .maybeSingle();
+
+      if (ratioRow) {
+        await supabase.from("human_review_queue").insert({
+          queue_type: "financial_ratio_anomaly",
+          reference_id: ratioRow.id,
+          reference_table: "financial_ratios",
+          priority: 1,
+          review_status: "pending",
+          auto_context: autoContext,
+          anomaly_metric: flag.metric,
+          anomaly_value: flag.current_value,
+          anomaly_threshold: flag.threshold,
+          anomaly_direction: flag.direction,
+        });
+        console.log(`    ⚠ Anomaly flagged: ${flag.anomaly_type} (${flag.metric})`);
+      }
+    }
+
+    // Rate limit between requests
     await new Promise(r => setTimeout(r, 500));
   }
 
+  // Summary
   console.log(`\nDone: ${updated} updated, ${created} created, ${skipped} skipped, ${notYetReported} not yet reported`);
+  console.log(`Anomalies flagged: ${allAnomalies.length}`);
+
+  if (fallbackCompanies.length > 0) {
+    console.log(`\n⚠ Yahoo Finance fallback used for ${fallbackCompanies.length} companies:`);
+    for (const fb of fallbackCompanies) {
+      console.log(`  - ${fb.company}: ${fb.reason}`);
+    }
+  }
+
+  // Return fallback info for email briefing integration
+  return { fallbackCompanies, anomalies: allAnomalies };
 }
 
 main().catch(err => { console.error(err); process.exit(1); });

@@ -8,6 +8,7 @@ import { readdir, readFile } from "fs/promises";
 import { join, basename } from "path";
 import matter from "gray-matter";
 import { TRACKED_COMPANY_NAMES } from "../lib/constants";
+import reportSectionsConfig from "../config/report-sections.json";
 
 function dollarQuote(s: string): string {
   return `'${String(s).replace(/'/g, "''")}'`;
@@ -55,54 +56,15 @@ async function queryDB(restPath: string): Promise<any> {
   throw new Error("Complex REST queries require SUPABASE_SERVICE_ROLE_KEY");
 }
 
-// Section slug → matching rules (keywords in category, tags, content)
-const SECTION_RULES: Record<string, { keywords: string[]; categories: string[]; weight: number }> = {
-  "intro-exec-summary": {
-    keywords: ["overview", "outlook", "forecast", "summary", "key takeaway", "highlights"],
-    categories: [],
-    weight: 0.3, // Low base — most articles get tagged here only if they're broad
-  },
-  "market-scope": {
-    keywords: ["market size", "market share", "TAM", "addressable market", "market definition", "segment", "subsegment", "building materials market"],
-    categories: [],
-    weight: 0.5,
-  },
-  "market-context-outlook": {
-    keywords: ["outlook", "forecast", "trend", "conditions", "sentiment", "economic", "macro", "environment"],
-    categories: ["GDP & Consumer Confidence", "Pricing & Cost Trends"],
-    weight: 0.5,
-  },
-  "drivers-market-health": {
-    keywords: ["interest rate", "mortgage", "labor", "workforce", "material cost", "energy cost", "demand", "housing", "infrastructure", "credit", "lending", "gdp", "consumer confidence", "fed", "fomc"],
-    categories: ["Interest & Mortgage Rates", "Labor Dynamics", "Material & Energy Costs", "Demand Visibility", "Government Infrastructure Spending", "Credit Availability & Lending Standards", "Credit & Lending", "GDP Growth & Consumer Confidence"],
-    weight: 0.7,
-  },
-  "public-company-performance": {
-    keywords: ["earnings", "revenue", "ebitda", "margin", "guidance", "quarterly", "annual results", "profit", "fiscal", "eps", "share price"],
-    categories: ["Company Earnings & Performance", "Capital Markets & Investment"],
-    weight: 0.8,
-  },
-  "positioning-eoy": {
-    keywords: ["strategy", "positioning", "year-end", "eoy", "second half", "h2", "outlook", "planning", "backlog"],
-    categories: [],
-    weight: 0.4,
-  },
-  "trend-continuity-retrospective": {
-    keywords: ["trend", "cycle", "historical", "compared to", "year-over-year", "yoy", "prior year", "retrospective", "continuity", "pattern"],
-    categories: [],
-    weight: 0.4,
-  },
-  "how-av-can-help": {
-    keywords: ["consulting", "advisory", "due diligence", "transaction", "valuation", "strategic"],
-    categories: ["M&A and Corporate Strategy"],
-    weight: 0.3,
-  },
-  "public-company-snapshot": {
-    keywords: ["stock", "share price", "market cap", "pe ratio", "dividend", "analyst", "upgrade", "downgrade", "rating"],
-    categories: ["Capital Markets & Investment", "Company Earnings & Performance"],
-    weight: 0.6,
-  },
-};
+// Section rules loaded from config (single source of truth)
+const SECTION_RULES: Record<string, { keywords: string[]; categories: string[]; weight: number }> = {};
+for (const section of reportSectionsConfig.sections) {
+  SECTION_RULES[section.slug] = {
+    keywords: section.keywords,
+    categories: section.categories,
+    weight: section.weight,
+  };
+}
 
 // The 35 tracked companies trigger public-company-performance tagging (from lib/constants.ts)
 

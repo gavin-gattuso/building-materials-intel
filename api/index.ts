@@ -73,7 +73,7 @@ async function getArticles(limit = 200) {
 async function getArticlesMeta(limit = 200) {
   const { data: articles, error } = await supabase
     .from("articles")
-    .select("id, slug, title, date, source, url, category")
+    .select("id, slug, title, date, source, url, category, report_ready, report_ready_reason")
     .order("date", { ascending: false })
     .limit(limit);
   if (error) console.error("getArticlesMeta error:", error.message);
@@ -312,10 +312,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       try {
         const period = req.query.period as string | undefined;
         const THRESHOLDS = [
-          { field: "revenue_growth_yoy", label: "Revenue Growth YoY", threshold: 15, unit: "%" },
-          { field: "cogs_sales_yoy_delta", label: "COGS / Sales", threshold: 2.0, unit: "pp" },
-          { field: "sga_sales_yoy_delta", label: "SG&A / Sales", threshold: 1.5, unit: "pp" },
-          { field: "ebitda_margin_yoy_delta", label: "EBITDA Margin", threshold: 3.0, unit: "pp" },
+          { field: "revenue_growth_yoy", label: "Revenue Growth YoY", threshold: 15, unit: "%", type: "revenue_anomaly" },
+          { field: "cogs_sales_yoy_delta", label: "COGS / Sales", threshold: 2.0, unit: "pp", type: "margin_anomaly" },
+          { field: "sga_sales_yoy_delta", label: "SG&A / Sales", threshold: 2.0, unit: "pp", type: "margin_anomaly" },
+          { field: "ebitda_margin_yoy_delta", label: "EBITDA Margin", threshold: 2.0, unit: "pp", type: "margin_anomaly" },
         ];
         let query = supabase.from("financial_ratios").select("*").order("company");
         if (period) query = query.eq("period", period);
@@ -619,6 +619,77 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.setHeader("Cache-Control", "public, max-age=300, s-maxage=600");
       const { TRACKED_COMPANIES } = await import("../lib/constants.js");
       return res.json(TRACKED_COMPANIES);
+    }
+
+    // /api/review-queue — query and manage the human review queue
+    if (path === "review-queue") {
+      if (req.method === "GET") {
+        const status = req.query.status as string | undefined;
+        const type = req.query.type as string | undefined;
+        const limit = Number(req.query.limit) || 50;
+        let query = supabase
+          .from("human_review_queue")
+          .select("*")
+          .order("priority")
+          .order("created_at", { ascending: false });
+        if (status) query = query.eq("review_status", status);
+        if (type) query = query.eq("queue_type", type);
+        const { data } = await query.limit(limit);
+        return res.json(data || []);
+      }
+      if (req.method === "POST") {
+        // Update review status (approve, reject, modify, escalate)
+        const { id, status: newStatus, notes, reviewedBy } = req.body;
+        if (!id || !newStatus) return res.status(400).json({ error: "id and status required" });
+        const validStatuses = ["pending", "approved", "rejected", "modified", "escalated"];
+        if (!validStatuses.includes(newStatus)) return res.status(400).json({ error: `status must be one of: ${validStatuses.join(", ")}` });
+
+        const { data: updated, error: updateErr } = await supabase
+          .from("human_review_queue")
+          .update({
+            review_status: newStatus,
+            reviewed_at: new Date().toISOString(),
+            reviewed_by: reviewedBy || "api",
+            review_notes: notes || null,
+          })
+          .eq("id", id)
+          .select("reference_id, reference_table, queue_type")
+          .single();
+
+        if (updateErr) return res.status(500).json({ error: updateErr.message });
+
+        // If approving an earnings article, promote it to report_ready
+        if (newStatus === "approved" || newStatus === "modified") {
+          if (updated.reference_table === "articles") {
+            await supabase
+              .from("articles")
+              .update({
+                report_ready: true,
+                report_ready_timestamp: new Date().toISOString(),
+                report_ready_reason: `human_reviewed_${updated.queue_type}`,
+              })
+              .eq("id", updated.reference_id);
+          }
+        }
+
+        return res.json({ ok: true, id, status: newStatus });
+      }
+      return res.status(405).json({ error: "GET or POST required" });
+    }
+
+    // /api/review-queue/stats — summary counts
+    if (path === "review-queue/stats") {
+      const { data } = await supabase
+        .from("human_review_queue")
+        .select("queue_type, review_status, priority");
+      const stats: Record<string, Record<string, number>> = {};
+      let totalPending = 0;
+      for (const item of data || []) {
+        if (!stats[item.queue_type]) stats[item.queue_type] = {};
+        stats[item.queue_type][item.review_status] = (stats[item.queue_type][item.review_status] || 0) + 1;
+        if (item.review_status === "pending") totalPending++;
+      }
+      return res.json({ totalPending, byType: stats });
     }
 
     return res.status(404).json({ error: "Not found" });

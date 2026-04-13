@@ -1,0 +1,36 @@
+{
+  "_description": "Foundational industry concepts — migrated from concepts DB table. These are reference knowledge pages, not dynamic content.",
+  "_deprecation_note": "The concepts DB table is STILL ACTIVELY READ by api/index.ts for wiki pages, wiki detail, and dashboard stats. It holds rich markdown content served to the frontend. DO NOT DROP. This config file is a reference copy of concept definitions only.",
+  "concepts": [
+    {
+      "slug": "building-materials-value-chain",
+      "title": "Building Materials Value Chain",
+      "description": "End-to-end value chain from raw material extraction through manufacturing, distribution, and installation."
+    },
+    {
+      "slug": "construction-cycle-analysis",
+      "title": "Construction Cycle Analysis",
+      "description": "Understanding the cyclical nature of construction markets: leading indicators, lag effects, and turning points."
+    },
+    {
+      "slug": "margin-analysis-framework",
+      "title": "Margin Analysis Framework",
+      "description": "Framework for analyzing gross margin, EBITDA margin, and operating leverage across building products companies."
+    },
+    {
+      "slug": "m-and-a-landscape",
+      "title": "M&A Landscape",
+      "description": "Acquisition trends, platform vs. bolt-on strategies, and valuation multiples in building materials."
+    },
+    {
+      "slug": "tariff-trade-impact",
+      "title": "Tariff & Trade Impact",
+      "description": "Impact of Section 232 steel tariffs, lumber duties, and trade policy on building materials pricing and supply chains."
+    },
+    {
+      "slug": "residential-nonresidential-split",
+      "title": "Residential vs. Nonresidential Split",
+      "description": "Key differences in demand drivers, cyclicality, and company exposure between residential and nonresidential construction."
+    }
+  ]
+}

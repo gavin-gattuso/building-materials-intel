@@ -1,6 +1,12 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import { buildDashboardHTML } from "../lib/html-dashboard.js";
+import {
+  validateReport,
+  checkReportReadyCount,
+  generateProvenanceAppendix,
+  renderProvenanceHTML,
+} from "../lib/report-validation.js";
 
 const SUPABASE_URL = (process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co").trim();
 const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || "").trim();
@@ -307,6 +313,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // AI generation mode: fetch KB articles and synthesize everything server-side
     if (mode === "ai") {
+      // Phase 5.1: Check report-ready article count before proceeding
+      const readyError = await checkReportReadyCount(safeStart, safeEnd, 20);
+      if (readyError) {
+        return res.status(422).json({
+          error: "Insufficient report-ready articles",
+          detail: readyError,
+        });
+      }
+
+      // Phase 5.1: Only use report-ready articles
       let articles: any[] = [];
       if (supabase) {
         const { data } = await supabase
@@ -314,6 +330,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           .select("id, slug, title, date, source, url, category, content")
           .gte("date", startDate)
           .lte("date", endDate)
+          .eq("report_ready", true)
           .order("date", { ascending: false })
           .limit(500);
         articles = data || [];
@@ -332,7 +349,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         synthesizeNarrative(aiDrivers, aiSections, financials, safeStart, safeEnd),
       ]);
 
-      const html = buildDashboardHTML({
+      let html = buildDashboardHTML({
         startDate: safeStart,
         endDate: safeEnd,
         executiveSummary: aiExecSummary,
@@ -342,6 +359,43 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         conclusion: aiConclusion,
         narrative: aiNarrative,
       });
+
+      // Phase 5.2: Post-generation validation
+      const fullReportText = [
+        aiExecSummary,
+        ...aiDrivers.map((d: any) => `${d.content} ${d.impact || ""}`),
+        ...aiSections.map((s: any) => `${s.content} ${(s.articles || []).map((a: any) => a.analysis).join(" ")}`),
+        aiConclusion,
+        ...(aiNarrative ? Object.values(aiNarrative) : []),
+      ].join("\n");
+
+      const validationResult = await validateReport(fullReportText, aiExecSummary, safeStart, safeEnd);
+
+      // Phase 5.2: Append validation warnings if any
+      if (validationResult.warnings.length > 0) {
+        let warningsHtml = `<div style="page-break-before:always;margin-top:40px;border:2px solid #FF5722;border-radius:8px;padding:16px;background:#FFF3E0">`;
+        warningsHtml += `<h2 style="color:#BF360C;font-family:Arial;margin:0 0 12px">DATA VALIDATION WARNINGS</h2>`;
+        for (const w of validationResult.warnings) {
+          const color = w.severity === "error" ? "#D32F2F" : w.severity === "warning" ? "#F57F17" : "#1565C0";
+          warningsHtml += `<p style="font-family:Arial;font-size:12px;margin:6px 0;padding:6px 10px;border-left:4px solid ${color};background:white">[${w.severity.toUpperCase()}] <strong>${w.check}</strong>: ${w.message}</p>`;
+        }
+        warningsHtml += `</div>`;
+        // Insert before closing </body> or append to end
+        if (html.includes("</body>")) {
+          html = html.replace("</body>", warningsHtml + "</body>");
+        } else {
+          html += warningsHtml;
+        }
+      }
+
+      // Phase 5.3: Append provenance appendix (always present, non-removable)
+      const provenance = await generateProvenanceAppendix(safeStart, safeEnd, validationResult);
+      const provenanceHtml = renderProvenanceHTML(provenance);
+      if (html.includes("</body>")) {
+        html = html.replace("</body>", provenanceHtml + "</body>");
+      } else {
+        html += provenanceHtml;
+      }
 
       const filename = `Building_Materials_Dashboard_${safeStart}_to_${safeEnd}.html`;
       res.setHeader("Content-Type", "text/html; charset=utf-8");

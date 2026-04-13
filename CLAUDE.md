@@ -32,36 +32,69 @@ A remote scheduled trigger (`building-materials-daily-review`, ID: `trig_015uykD
 - Important: ESM imports in `api/` must use `.js` extensions for Vercel Node.js runtime compatibility
 
 ## Vercel API Endpoints
-The main API (`api/index.ts`) handles all endpoints except build-report:
+The main API (`api/index.ts`) handles all endpoints except build-report and detect-corrections:
 - `GET /api/stats` -- Article counts, category breakdown, company mentions
 - `GET /api/mode` -- Whether AI synthesis is enabled
-- `GET /api/articles?q=&category=&company=&limit=` -- Search/filter articles
+- `GET /api/articles?q=&category=&company=&limit=` -- Search/filter articles (includes report_ready field)
 - `GET /api/article/{slug}` -- Full article detail
 - `GET /api/wiki?type=company|market-driver|concept` -- Wiki page listings
 - `GET /api/wiki/{slug}` -- Full wiki page content
 - `GET /api/weekly-summary` -- Latest AI-generated weekly digest
 - `GET /api/financial-ratios?period=` -- Financial metrics for all 39 companies
-- `GET /api/financial-ratio-flags?period=` -- Flagged >15% YoY changes with linked articles
+- `GET /api/financial-ratio-flags?period=` -- Anomaly flags with type-specific thresholds (>15% revenue, >2pp margin)
 - `GET /api/av-sections` -- 9 Applied Value report sections
 - `GET /api/av-sections/{slug}` -- Section detail with tagged articles and relevance scores
 - `GET /api/av-coverage` -- Article coverage counts per report section
+- `GET /api/review-queue?status=&type=&limit=` -- Human review queue items
+- `GET /api/review-queue/stats` -- Review queue summary counts by type and status
+- `POST /api/review-queue` -- Update review status (body: {id, status, notes, reviewedBy}); auto-promotes articles on approval
 - `POST /api/chat` -- Smart search or AI synthesis (body: {message, history})
 - `POST /api/synthesize-section` -- AI synthesis for report sections
 - `POST /api/executive-summary` -- AI-generated executive summary
-- `POST /api/build-report` -- Generates .docx report (separate serverless function in `api/build-report.ts`)
+- `POST /api/build-report` -- Generates HTML report with validation checks and provenance appendix (separate serverless function in `api/build-report.ts`)
+- `POST /api/detect-corrections` -- Weekly correction detection for Tier 1-2 articles (separate serverless function, Vercel cron: Mondays 11:17 UTC)
 
 ## Database (Supabase)
-- All data served from Supabase (PostgreSQL) -- articles, companies, market_drivers, concepts, financial_ratios, weekly_summaries, av_report_sections, article_av_sections, earnings_calendar
+- All data served from Supabase (PostgreSQL)
+- Core tables: articles, companies, market_drivers, concepts, financial_ratios, weekly_summaries, av_report_sections, article_av_sections, earnings_calendar
+- Pipeline tables (added April 2026): article_extractions (structured financial data per article), rejected_articles (audit trail of filtered articles), human_review_queue (earnings/anomaly review workflow)
+- Junction tables: article_companies (with low_confidence_match flag), article_tags, article_av_sections (with scoring_model_version, scoring_prompt_version, scoring_signals)
+- Articles have provenance fields: source_excerpt, full_text, model_version, prompt_version, pull_timestamp, syndication_hash, corroborating_sources, correction_flag, report_ready
+- Financial ratios have provenance: data_source (capital_iq or yahoo_finance_fallback), currency, fx_rate_used, capiq_unique_id, manually_verified
 - Env vars: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_ANON_KEY
-- Migration scripts in `scripts/` (migrate-to-supabase.ts, migrate-av-reports-schema.ts, etc.)
+- Migration scripts in `scripts/` (migrate-to-supabase.ts, migrate-provenance-pipeline.ts, etc.)
 
 ## Scripts
 - `scripts/push-to-supabase.ts` -- Upload parsed KB to Supabase
-- `scripts/update-financial-ratios.ts` -- Fetch Yahoo Finance data, calculate metrics, flag changes
-- `scripts/generate-weekly-summary.ts` -- AI weekly digest (runs Friday via trigger)
-- `scripts/tag-articles-with-av-sections.ts` -- AI-tag articles to 9 AV report sections
+- `scripts/update-financial-ratios.ts` -- Fetch financial data (Capital IQ primary, Yahoo Finance fallback), detect anomalies, insert review queue items
+- `scripts/generate-weekly-summary.ts` -- AI weekly digest (runs Friday via trigger, filters by report_ready)
+- `scripts/tag-articles-with-av-sections.ts` -- Tag articles to 9 AV report sections (reads rules from config/report-sections.json)
+- `scripts/detect-corrections.ts` -- Weekly re-fetch of Tier 1-2 article URLs to detect corrections (also available as API endpoint)
+- `scripts/migrate-provenance-pipeline.ts` -- Database migration for all provenance/pipeline schema changes
+- `scripts/review-earnings-backfill.ts` -- Review process for earnings articles (rule-based without API key, AI extraction with --extract flag)
+- `scripts/backfill-provenance.ts` -- Backfill syndication hashes and model_version for pre-pipeline articles
 - `scripts/fetch-fy2025.ts` / `fetch-cogs-sga.ts` -- Financial data fetchers
 - `scripts/lint-kb.ts` -- Validate KB markdown frontmatter
+
+## Configuration
+- `config/report-sections.json` -- 9 AV report sections with keywords, categories, weights (source of truth for scoring rules)
+- `config/market-drivers.json` -- 7 market health drivers with search keywords and indicator signals
+- `config/industry-concepts.json` -- 6 foundational industry concepts
+- `config/prompt-versions.json` -- Append-only registry of every AI prompt used in the system (audit trail)
+
+## Services
+- `services/financial-data/capiq-client.ts` -- S&P Capital IQ API client with Yahoo Finance fallback and anomaly detection
+- `services/financial-data/fx-rates.ts` -- FX rate fetching from ECB for non-USD company conversions
+- `lib/extraction.ts` -- Two-step article processing: structured extraction (article_extractions) then prose summary
+- `lib/syndication.ts` -- Syndication hash computation for cross-outlet duplicate detection
+- `lib/report-validation.ts` -- 5 post-generation validation checks and provenance appendix generation
+
+## Pipeline & Data Quality
+- Articles go through: RSS fetch → whitelist check → URL/title/syndication dedup → structured extraction → prose summary → company matching (2-signal minimum) → section tagging → report_ready promotion
+- Earnings articles require human review before report_ready = TRUE
+- Financial anomalies (>15% revenue, >2pp margin, >0.5x leverage, >30% FCF) auto-insert into human_review_queue
+- Report generation requires minimum 20 report-ready articles; runs 5 validation checks; always appends provenance appendix
+- Rejected articles logged to rejected_articles table with reason codes
 
 ## Static Build
 - `site/build-static.ts` -- Generates static JSON files at build time (earnings-calendar.json, reports.json, financial-ratios.json, weekly-summary.json)

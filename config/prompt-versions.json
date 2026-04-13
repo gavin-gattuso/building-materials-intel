@@ -1,0 +1,53 @@
+{
+  "_description": "Append-only registry of every prompt used in the system. Previous versions are never deleted. This is the audit trail for all AI-generated content.",
+  "versions": [
+    {
+      "id": "extraction-v1.0",
+      "type": "structured_extraction",
+      "model": "claude-haiku-4-5-20251001",
+      "created": "2026-04-12",
+      "description": "Initial structured extraction prompt. Extracts financial figures, guidance language, headwinds/tailwinds, pricing signals from article text.",
+      "prompt": "You are a structured data extraction system for building materials industry articles. Extract ONLY what is explicitly stated in the article. Do not infer, estimate, or paraphrase guidance language. If a figure or statement is not present in the article, return null for that field.\n\nExtract the following from the article text below:\n\n1. **Financial Figures**: revenue_figure (in millions/billions as stated), revenue_period, revenue_currency, ebitda_figure, ebitda_margin_pct, yoy_growth_pct\n2. **Guidance Language**: guidance_verbatim (exact quote from management), guidance_direction (one of: raised, lowered, maintained, initiated, withdrawn), guidance_period\n3. **Management Signals**: mentioned_headwinds (array of specific challenges cited), mentioned_tailwinds (array of specific positives cited), mentioned_capex (any capital expenditure plans), mentioned_volume_language (any volume/shipment commentary)\n4. **Pricing Signals**: pricing_action (one of: price increase, price decrease, surcharge, neutral), pricing_percentage (if stated)\n5. **Confidence**: extraction_confidence (0.0-1.0 based on how explicit the source data was)\n6. **Field Tracking**: fields_present (array of field names that had data), fields_absent (array of field names with no data in article)\n\nRespond with JSON only, no preamble or markdown fences. Every field must be present in the response; use null for absent data.\n\nARTICLE:\n{article_text}"
+    },
+    {
+      "id": "summary-standard-v1.0",
+      "type": "prose_summary",
+      "model": "claude-haiku-4-5-20251001",
+      "created": "2026-04-12",
+      "description": "Initial standard article summary prompt (non-Earnings). 150-200 words, references extracted structured data for consistency.",
+      "prompt": "Summarize this building materials industry article in 150-200 words. You MUST preserve all specific numbers, percentages, company names, and dates from the article.\n\nIMPORTANT: Your summary must not state any figure that is not present in the extracted structured data provided below. Reference the extraction to ensure numerical consistency.\n\nEXTRACTED DATA:\n{extraction_json}\n\nARTICLE TITLE: {title}\nARTICLE TEXT:\n{article_text}"
+    },
+    {
+      "id": "summary-earnings-v1.0",
+      "type": "prose_summary_earnings",
+      "model": "claude-sonnet-4-6",
+      "created": "2026-04-12",
+      "description": "Initial earnings article summary prompt. Uses Sonnet for higher quality on financial content. 200-300 words.",
+      "prompt": "Write a 200-300 word analyst-quality summary of this earnings article for a building materials industry intelligence report. Cover: headline results, guidance changes, management commentary on market conditions, and any segment-level detail.\n\nIMPORTANT: Your summary must not state any figure that is not present in the extracted structured data provided below. Reference the extraction to ensure numerical consistency. Use exact figures from the extraction, not approximations.\n\nEXTRACTED DATA:\n{extraction_json}\n\nARTICLE TITLE: {title}\nARTICLE TEXT:\n{article_text}"
+    },
+    {
+      "id": "tagging-v1.0",
+      "type": "section_tagging",
+      "model": "keyword-based",
+      "created": "2026-04-12",
+      "description": "Initial section tagging uses keyword-based scoring (no AI model). Scoring rules defined in config/report-sections.json.",
+      "prompt": "N/A — keyword-based scoring algorithm, not an LLM prompt. See scoreArticleForSection() in daily-scan.ts and config/report-sections.json for scoring rules."
+    },
+    {
+      "id": "source-excerpt-v1.0",
+      "type": "source_excerpt_selection",
+      "model": "claude-haiku-4-5-20251001",
+      "created": "2026-04-12",
+      "description": "Initial source excerpt selection prompt. Identifies 3-5 verbatim sentences from original article that are most material to the summary.",
+      "prompt": "From the article text below, select exactly 3-5 verbatim sentences that are most material to a building materials industry analyst. Prioritize in this order:\n1. Sentences containing explicit financial figures (revenue, earnings, margins, growth rates)\n2. Sentences containing verbatim guidance language from company management\n3. Sentences containing direct quotes from company executives\n4. Most topically relevant sentences about market conditions or strategy\n\nReturn ONLY a JSON array of the selected sentences, exactly as they appear in the article. Do not paraphrase, truncate, or modify them in any way.\n\nARTICLE:\n{article_text}"
+    },
+    {
+      "id": "review-context-v1.0",
+      "type": "review_queue_context",
+      "model": "claude-haiku-4-5-20251001",
+      "created": "2026-04-12",
+      "description": "Initial auto-context generation for human review queue items. 2-3 sentences explaining why an item was flagged.",
+      "prompt": "In 2-3 sentences, explain why this item was flagged for human review and what the reviewer should check. Be specific and actionable.\n\nQueue type: {queue_type}\nItem details: {item_details}"
+    }
+  ]
+}

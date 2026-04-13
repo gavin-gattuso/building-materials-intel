@@ -1,0 +1,55 @@
+{
+  "_description": "7 market health drivers — migrated from market_drivers DB table definitions. The market_drivers table still stores associated articles and current_signal data; this file defines the canonical driver list and their indicator signals.",
+  "_deprecation_note": "The market_drivers DB table is STILL ACTIVELY READ by api/index.ts for wiki pages, wiki detail, and dashboard stats. It holds rich markdown content served to the frontend. DO NOT DROP. This config file is the source of truth for driver search keywords and indicator signals only.",
+  "drivers": [
+    {
+      "slug": "interest-mortgage-rates",
+      "title": "Interest & Mortgage Rates",
+      "description": "Federal funds rate, 30-year mortgage rates, and their impact on housing demand and construction financing costs.",
+      "indicator_signals": ["fed funds rate", "30-year mortgage", "10-year treasury", "basis points", "rate cut", "rate hike", "fomc"],
+      "search_keywords": ["interest", "mortgage", "rate", "fed", "federal reserve", "basis point", "bps"]
+    },
+    {
+      "slug": "labor-dynamics",
+      "title": "Labor Dynamics",
+      "description": "Construction workforce availability, wage trends, immigration policy impacts, and skilled labor shortages.",
+      "indicator_signals": ["construction employment", "wage growth", "job openings", "quit rate", "H-2B visa"],
+      "search_keywords": ["labor", "workforce", "worker", "hiring", "wage", "employment", "construction job"]
+    },
+    {
+      "slug": "material-energy-costs",
+      "title": "Material & Energy Costs",
+      "description": "Producer price index movements for key inputs: lumber, steel, cement, aggregates, energy, and petrochemicals.",
+      "indicator_signals": ["PPI", "lumber futures", "HRC steel price", "cement price", "diesel", "natural gas"],
+      "search_keywords": ["material cost", "energy", "lumber", "steel price", "cement price", "commodity", "raw material", "ppi"]
+    },
+    {
+      "slug": "demand-visibility",
+      "title": "Demand Visibility",
+      "description": "Leading indicators of construction demand: housing starts, permits, ABI readings, backlog, and order books.",
+      "indicator_signals": ["housing starts", "building permits", "ABI", "dodge momentum", "backlog"],
+      "search_keywords": ["demand", "backlog", "pipeline", "order", "forecast", "housing start", "permit"]
+    },
+    {
+      "slug": "government-infrastructure-spending",
+      "title": "Government Infrastructure Spending",
+      "description": "Federal and state infrastructure investment: IIJA/BIL disbursements, highway spending, and public works.",
+      "indicator_signals": ["IIJA", "BIL", "highway bill", "infrastructure spending", "public construction"],
+      "search_keywords": ["infrastructure", "iija", "chips act", "government spending", "federal fund", "highway", "bridge"]
+    },
+    {
+      "slug": "credit-availability-lending",
+      "title": "Credit Availability & Lending Standards",
+      "description": "Bank lending conditions, commercial real estate credit, construction loan availability, and bond spreads.",
+      "indicator_signals": ["SLOOS", "lending standards", "CRE loan", "construction loan", "credit spread"],
+      "search_keywords": ["credit", "lending", "loan", "financing", "bank", "debt", "spread"]
+    },
+    {
+      "slug": "gdp-consumer-confidence",
+      "title": "GDP Growth & Consumer Confidence",
+      "description": "Macroeconomic growth, consumer spending trends, and confidence indices affecting residential renovation and new construction.",
+      "indicator_signals": ["GDP", "consumer confidence", "NAHB HMI", "retail sales", "personal consumption"],
+      "search_keywords": ["gdp", "consumer confidence", "economic growth", "recession", "consumer spending", "sentiment"]
+    }
+  ]
+}
