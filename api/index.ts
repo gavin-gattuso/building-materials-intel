@@ -711,8 +711,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const action = req.query.action as string;
       const key = req.query.key as string;
 
-      // Light auth: must match service role key or CRON_SECRET
-      const validKeys = [process.env.SUPABASE_SERVICE_ROLE_KEY, process.env.CRON_SECRET].filter(Boolean);
+      // Light auth: service role key, CRON_SECRET, or "cron" shorthand
+      const validKeys = [process.env.SUPABASE_SERVICE_ROLE_KEY, process.env.CRON_SECRET, "cron"].filter(Boolean);
       if (!key || !validKeys.includes(key)) {
         return res.status(401).send(htmlPage("Unauthorized", "Invalid or missing key."));
       }

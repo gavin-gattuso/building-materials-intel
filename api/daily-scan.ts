@@ -739,7 +739,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const totalPending = (pendingReviews || []).length;
         const actionBaseUrl = `https://building-materials-intel.vercel.app/api/review-queue/action`;
-        const actionKey = SUPABASE_KEY; // auth for one-click links
+        const actionKey = "cron"; // short auth token for email links
 
         // Build email HTML
         const byCategory: Record<string, typeof todayArticles> = {};
@@ -827,7 +827,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const titleById = new Map((articleRows || []).map((a: any) => [a.id, a.title]));
 
         const staleActionBase = `https://building-materials-intel.vercel.app/api/review-queue/action`;
-        const staleActionKey = SUPABASE_KEY;
+        const staleActionKey = "cron";
         const rows = overdue.map(o => {
           const ageHours = Math.round((Date.now() - Date.parse(o.created_at)) / 36e5);
           const headline = titleById.get(o.reference_id) || (o.auto_context || "").slice(0, 120);
