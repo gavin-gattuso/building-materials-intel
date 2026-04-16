@@ -66,6 +66,25 @@ function getSourceTier(url: string): number {
   return 3; // Everything else whitelisted is tier 3+
 }
 
+// ── Google News URL Resolution ──
+
+async function resolveGoogleNewsUrl(url: string): Promise<string> {
+  if (!url.includes("news.google.com/rss/articles/")) return url;
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(url, { redirect: "follow", signal: controller.signal });
+    clearTimeout(timeout);
+    // The final URL after redirects is the real article URL
+    if (res.url && !res.url.includes("news.google.com")) return res.url;
+    // Fallback: some Google News URLs need manual extraction from the page
+    const html = await res.text();
+    const match = html.match(/data-n-au="([^"]+)"/);
+    if (match?.[1]) return match[1];
+  } catch { /* fall through — timeout or network error */ }
+  return url; // Return original if resolution fails
+}
+
 // ── Utilities ──
 
 function slugify(date: string, title: string): string {
@@ -326,7 +345,7 @@ function scoreArticleForSection(
 
 // ── Vercel function config ──
 export const config = {
-  maxDuration: 120,
+  maxDuration: 300,
 };
 
 // ── Main Handler ──
@@ -376,7 +395,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       `https://news.google.com/rss/search?q=Nucor+CRH+Vulcan+Materials+construction&hl=en-US&gl=US&ceid=US:en`,
     ];
 
-    const articles: { title: string; url: string; source: string; date: string }[] = [];
+    const rawItems: { title: string; url: string; source: string; date: string }[] = [];
 
     for (const feedUrl of FEEDS) {
       try {
@@ -391,14 +410,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const pubDateMatch = item.match(/<pubDate>(.*?)<\/pubDate>/);
 
           const title = (titleMatch?.[1] || titleMatch?.[2] || "").trim();
-          let url = (linkMatch?.[1] || "").trim();
+          const url = (linkMatch?.[1] || "").trim();
           const source = (sourceMatch?.[1] || "").trim();
           const pubDate = pubDateMatch?.[1] ? new Date(pubDateMatch[1]).toISOString().split("T")[0] : today;
 
           if (!title || !url) continue;
-          articles.push({ title, url, source, date: pubDate });
+          rawItems.push({ title, url, source, date: pubDate });
         }
       } catch (err: any) { log.push(`Feed error: ${err.message}`); }
+    }
+
+    // Resolve Google News redirect URLs in parallel (max 10 concurrent)
+    const articles: typeof rawItems = [];
+    for (let i = 0; i < rawItems.length; i += 10) {
+      const batch = rawItems.slice(i, i + 10);
+      const resolved = await Promise.all(
+        batch.map(async (item) => ({
+          ...item,
+          url: await resolveGoogleNewsUrl(item.url),
+        }))
+      );
+      articles.push(...resolved);
     }
 
     log.push(`Found ${articles.length} candidate articles from RSS feeds`);
