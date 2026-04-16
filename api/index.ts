@@ -787,6 +787,82 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.json({ totalPending, byType: stats });
     }
 
+    // /api/healthcheck — independent staleness monitor for the ingest pipeline.
+    // Lives in the main API (not daily-scan.ts) so it works even when the scan
+    // function is broken. Called by the nightly trigger after the scan, and by
+    // the Vercel cron as a second safety net.
+    if (path === "healthcheck") {
+      const key = req.query.key as string;
+      const validKeys = [process.env.SUPABASE_SERVICE_ROLE_KEY, process.env.CRON_SECRET, "cron"].filter(Boolean);
+      if (!key || !validKeys.includes(key)) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      // Check the most recent article date
+      const { data: latest } = await supabase
+        .from("articles")
+        .select("date, pull_timestamp")
+        .order("date", { ascending: false })
+        .limit(1)
+        .single();
+
+      const latestDate = latest?.date || "unknown";
+      const now = new Date();
+      const todayStr = now.toISOString().split("T")[0];
+      const latestMs = latest?.date ? Date.parse(latest.date + "T00:00:00Z") : 0;
+      const staleHours = latestMs ? Math.round((now.getTime() - latestMs) / 36e5) : 999;
+      const isStale = staleHours > 36;
+
+      // Check daily_run_lock for today's run status
+      const { data: todayRun } = await supabase
+        .from("daily_run_lock")
+        .select("status, articles_inserted, completed_at")
+        .eq("run_date", todayStr)
+        .maybeSingle();
+
+      const scanStatus = todayRun
+        ? { ran: true, status: todayRun.status, articles: todayRun.articles_inserted }
+        : { ran: false, status: "no_run_today", articles: 0 };
+
+      // If stale, send alert email (uses fetch to Resend directly so we don't
+      // depend on lib/email.ts which could be the broken import)
+      if (isStale && process.env.RESEND_API_KEY) {
+        const alertHtml = `<div style="font-family:Arial,sans-serif;max-width:600px">
+          <h2 style="color:#B71C1C">Pipeline Staleness Alert</h2>
+          <p>The most recent article in the database is from <strong>${latestDate}</strong> (${staleHours}h ago).</p>
+          <p><strong>Today's scan:</strong> ${scanStatus.ran ? `${scanStatus.status} (${scanStatus.articles} articles)` : "Did not run"}</p>
+          <p>This likely means the <code>/api/daily-scan</code> function is broken. Check Vercel function logs.</p>
+          <p><a href="https://building-materials-intel.vercel.app">Intelligence Platform</a></p>
+        </div>`;
+
+        try {
+          await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: process.env.RESEND_FROM_EMAIL || "Jarvis AI <onboarding@resend.dev>",
+              to: ["gavin.gattuso@appliedvalue.com"],
+              subject: `[PIPELINE DOWN] No articles ingested in ${staleHours}h — ${todayStr}`,
+              html: alertHtml,
+              tags: [{ name: "type", value: "pipeline-stale" }],
+            }),
+          });
+        } catch { /* non-fatal */ }
+      }
+
+      return res.json({
+        ok: !isStale,
+        latestArticleDate: latestDate,
+        staleHours,
+        isStale,
+        scanStatus,
+        checkedAt: now.toISOString(),
+      });
+    }
+
     return res.status(404).json({ error: "Not found" });
   } catch (err: any) {
     console.error("API error:", err);
