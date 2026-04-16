@@ -430,6 +430,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Step 2: Deduplicate, whitelist-check, and archive
     for (const article of articles) {
+      // Title-based noise filter: reject listicle / stock-picking articles
+      const titleLower = article.title.toLowerCase();
+      if (/stocks?\s+to\s+watch/.test(titleLower) || /top\s+\d+\s+stocks/.test(titleLower)) {
+        await logRejection(article.url, article.title, "title_noise_filter",
+          "Stock-picking listicle — not relevant to industry intelligence");
+        rejected++;
+        continue;
+      }
+
       // Whitelist check (Phase 3.4)
       if (!isApprovedSource(article.url)) {
         await logRejection(article.url, article.title, "domain_not_whitelisted",
