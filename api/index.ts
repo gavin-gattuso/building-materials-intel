@@ -14,6 +14,15 @@ const ALLOWED_ORIGINS = [
   "http://localhost:3000",
 ];
 
+/** Minimal HTML page for browser-rendered responses (e.g. email action clicks). */
+function htmlPage(title: string, body: string): string {
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${title}</title></head>
+<body style="font-family:Arial,sans-serif;max-width:500px;margin:40px auto;padding:0 20px;text-align:center">
+<div style="background:#1B3C2D;color:#fff;padding:16px;border-radius:8px 8px 0 0"><h1 style="margin:0;font-size:18px">Building Materials Intel</h1></div>
+<div style="padding:24px;background:#f9f9f9;border-radius:0 0 8px 8px">${body}</div>
+</body></html>`;
+}
+
 // Simple in-memory rate limiter for AI endpoints
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 10; // max requests per window
@@ -694,6 +703,73 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.json({ ok: true, id, status: newStatus });
       }
       return res.status(405).json({ error: "GET or POST required" });
+    }
+
+    // /api/review-queue/action — one-click approve/dismiss from email links
+    if (path === "review-queue/action") {
+      const id = req.query.id as string;
+      const action = req.query.action as string;
+      const key = req.query.key as string;
+
+      // Light auth: must match service role key or CRON_SECRET
+      const validKeys = [process.env.SUPABASE_SERVICE_ROLE_KEY, process.env.CRON_SECRET].filter(Boolean);
+      if (!key || !validKeys.includes(key)) {
+        return res.status(401).send(htmlPage("Unauthorized", "Invalid or missing key."));
+      }
+      if (!id || !action) {
+        return res.status(400).send(htmlPage("Bad Request", "Missing id or action parameter."));
+      }
+      const validActions = ["approved", "rejected", "dismissed"];
+      const status = action === "dismissed" ? "rejected" : action;
+      if (!validActions.includes(action)) {
+        return res.status(400).send(htmlPage("Bad Request", `Action must be one of: ${validActions.join(", ")}`));
+      }
+
+      // Fetch item context before updating
+      const { data: item } = await supabase
+        .from("human_review_queue")
+        .select("id, queue_type, auto_context, reference_id, reference_table, review_status")
+        .eq("id", id)
+        .single();
+
+      if (!item) {
+        return res.send(htmlPage("Not Found", "This review item no longer exists."));
+      }
+      if (item.review_status !== "pending") {
+        return res.send(htmlPage("Already Reviewed", `This item was already marked as <strong>${item.review_status}</strong>.`));
+      }
+
+      // Update the review item
+      await supabase
+        .from("human_review_queue")
+        .update({
+          review_status: status,
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: "email-action",
+          review_notes: `One-click ${action} from email`,
+        })
+        .eq("id", id);
+
+      // If approving, promote article to report_ready
+      if (status === "approved" && item.reference_table === "articles") {
+        await supabase
+          .from("articles")
+          .update({
+            report_ready: true,
+            report_ready_timestamp: new Date().toISOString(),
+            report_ready_reason: `human_reviewed_${item.queue_type}`,
+          })
+          .eq("id", item.reference_id);
+      }
+
+      const verb = action === "approved" ? "Approved" : "Dismissed";
+      const color = action === "approved" ? "#2E7D52" : "#B71C1C";
+      return res.send(htmlPage(
+        `${verb}`,
+        `<p style="color:${color};font-size:18px;font-weight:bold">${verb}</p>
+         <p style="color:#555">${(item.auto_context || "").slice(0, 200)}</p>
+         <p><a href="https://building-materials-intel.vercel.app" style="color:#2E7D52">Back to Intelligence Platform</a></p>`
+      ));
     }
 
     // /api/review-queue/stats — summary counts

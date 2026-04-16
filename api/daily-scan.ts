@@ -729,21 +729,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .order("category");
 
       if (todayArticles && todayArticles.length > 0) {
-        // Get review queue stats for the email
+        // Get review queue items for the email (with IDs for action links)
         const { data: pendingReviews } = await supabase
           .from("human_review_queue")
-          .select("queue_type, priority, auto_context, reference_id")
-          .eq("review_status", "pending");
+          .select("id, queue_type, priority, auto_context, reference_id")
+          .eq("review_status", "pending")
+          .order("priority")
+          .order("created_at", { ascending: false });
 
-        const reviewStats: Record<string, number> = {};
-        const urgentItems: { type: string; context: string }[] = [];
-        for (const item of pendingReviews || []) {
-          reviewStats[item.queue_type] = (reviewStats[item.queue_type] || 0) + 1;
-          if (item.priority === 1) {
-            urgentItems.push({ type: item.queue_type, context: item.auto_context || "" });
-          }
-        }
         const totalPending = (pendingReviews || []).length;
+        const actionBaseUrl = `https://building-materials-intel.vercel.app/api/review-queue/action`;
+        const actionKey = SUPABASE_KEY; // auth for one-click links
 
         // Build email HTML
         const byCategory: Record<string, typeof todayArticles> = {};
@@ -757,18 +753,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         html += `<div style="background:#1B3C2D;color:#fff;padding:16px 24px;border-radius:8px 8px 0 0"><h1 style="margin:0;font-size:20px">Building Materials Daily Briefing</h1><p style="margin:4px 0 0;opacity:0.8;font-size:13px">${today}</p></div>`;
         html += `<div style="padding:20px 24px;background:#f9f9f9">`;
 
-        // Review Queue Section (Phase 4.3 — at the top)
+        // Review Queue Section — with one-click approve/dismiss buttons
         if (totalPending > 0) {
           html += `<div style="background:#FFF3E0;border:1px solid #FFB74D;border-radius:6px;padding:12px 16px;margin-bottom:16px">`;
-          html += `<h2 style="color:#E65100;font-size:15px;margin:0 0 8px">Review Queue: ${totalPending} Pending Items</h2>`;
-          for (const [type, count] of Object.entries(reviewStats)) {
-            html += `<p style="margin:2px 0;font-size:12px;color:#333">• ${type}: ${count}</p>`;
-          }
-          if (urgentItems.length > 0) {
-            html += `<h3 style="color:#BF360C;font-size:13px;margin:10px 0 4px">Priority 1 (Urgent):</h3>`;
-            for (const item of urgentItems.slice(0, 5)) {
-              html += `<p style="margin:4px 0;font-size:12px;color:#333;border-left:3px solid #FF5722;padding-left:8px">${item.context.slice(0, 200)}</p>`;
-            }
+          html += `<h2 style="color:#E65100;font-size:15px;margin:0 0 8px">Review Queue: ${totalPending} Pending</h2>`;
+          for (const item of (pendingReviews || []).slice(0, 10)) {
+            const approveUrl = `${actionBaseUrl}?id=${item.id}&action=approved&key=${actionKey}`;
+            const dismissUrl = `${actionBaseUrl}?id=${item.id}&action=dismissed&key=${actionKey}`;
+            const label = item.queue_type.replace(/_/g, " ");
+            const priorityBadge = item.priority === 1
+              ? `<span style="background:#FF5722;color:#fff;font-size:10px;padding:1px 5px;border-radius:3px;margin-right:4px">P1</span>`
+              : `<span style="background:#FF9800;color:#fff;font-size:10px;padding:1px 5px;border-radius:3px;margin-right:4px">P${item.priority}</span>`;
+            html += `<div style="border-left:3px solid #FF5722;padding:8px 10px;margin:8px 0;background:#fff;border-radius:0 4px 4px 0">`;
+            html += `<p style="margin:0 0 4px;font-size:12px">${priorityBadge}<strong>${label}</strong></p>`;
+            html += `<p style="margin:0 0 6px;font-size:11px;color:#555">${(item.auto_context || "").slice(0, 180)}</p>`;
+            html += `<a href="${approveUrl}" style="display:inline-block;background:#2E7D52;color:#fff;font-size:11px;padding:4px 12px;border-radius:3px;text-decoration:none;margin-right:6px">Approve</a>`;
+            html += `<a href="${dismissUrl}" style="display:inline-block;background:#757575;color:#fff;font-size:11px;padding:4px 12px;border-radius:3px;text-decoration:none">Dismiss</a>`;
+            html += `</div>`;
           }
           html += `</div>`;
         }
@@ -825,16 +826,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           : { data: [] as any[] };
         const titleById = new Map((articleRows || []).map((a: any) => [a.id, a.title]));
 
+        const staleActionBase = `https://building-materials-intel.vercel.app/api/review-queue/action`;
+        const staleActionKey = SUPABASE_KEY;
         const rows = overdue.map(o => {
           const ageHours = Math.round((Date.now() - Date.parse(o.created_at)) / 36e5);
           const headline = titleById.get(o.reference_id) || (o.auto_context || "").slice(0, 120);
-          return `<tr><td style="padding:4px 8px;border-bottom:1px solid #eee">${o.queue_type}</td><td style="padding:4px 8px;border-bottom:1px solid #eee">${headline}</td><td style="padding:4px 8px;border-bottom:1px solid #eee;text-align:right">${ageHours}h</td></tr>`;
+          const approveLink = `${staleActionBase}?id=${o.id}&action=approved&key=${staleActionKey}`;
+          const dismissLink = `${staleActionBase}?id=${o.id}&action=dismissed&key=${staleActionKey}`;
+          return `<tr><td style="padding:4px 8px;border-bottom:1px solid #eee">${o.queue_type}</td><td style="padding:4px 8px;border-bottom:1px solid #eee">${headline}</td><td style="padding:4px 8px;border-bottom:1px solid #eee;text-align:right">${ageHours}h</td><td style="padding:4px 8px;border-bottom:1px solid #eee;white-space:nowrap"><a href="${approveLink}" style="color:#2E7D52;font-weight:bold;text-decoration:none;margin-right:8px">Approve</a><a href="${dismissLink}" style="color:#757575;text-decoration:none">Dismiss</a></td></tr>`;
         }).join("");
 
         const alertHtml = `<div style="font-family:Arial,sans-serif;max-width:700px">
           <h2 style="color:#BF360C">${overdue.length} review queue item${overdue.length === 1 ? "" : "s"} overdue</h2>
           <p>The items below have been <strong>pending human review for more than 48 hours</strong>. They are blocking report-ready promotion and will not reach the bi-annual report until cleared.</p>
-          <table style="border-collapse:collapse;width:100%;font-size:12px"><thead><tr style="background:#163E2D;color:white"><th style="padding:6px 8px;text-align:left">Type</th><th style="padding:6px 8px;text-align:left">Article / Context</th><th style="padding:6px 8px;text-align:right">Age</th></tr></thead><tbody>${rows}</tbody></table>
+          <table style="border-collapse:collapse;width:100%;font-size:12px"><thead><tr style="background:#163E2D;color:white"><th style="padding:6px 8px;text-align:left">Type</th><th style="padding:6px 8px;text-align:left">Article / Context</th><th style="padding:6px 8px;text-align:right">Age</th><th style="padding:6px 8px;text-align:center">Action</th></tr></thead><tbody>${rows}</tbody></table>
         </div>`;
 
         const staleResult = await sendEmail({
