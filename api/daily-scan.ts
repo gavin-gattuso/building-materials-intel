@@ -395,7 +395,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       `https://news.google.com/rss/search?q=Nucor+CRH+Vulcan+Materials+construction&hl=en-US&gl=US&ceid=US:en`,
     ];
 
-    const rawItems: { title: string; url: string; source: string; date: string }[] = [];
+    const articles: { title: string; url: string; source: string; date: string }[] = [];
 
     for (const feedUrl of FEEDS) {
       try {
@@ -407,30 +407,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const titleMatch = item.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>|<title>(.*?)<\/title>/);
           const linkMatch = item.match(/<link>(.*?)<\/link>/);
           const sourceMatch = item.match(/<source[^>]*>(.*?)<\/source>/);
+          const sourceUrlMatch = item.match(/<source\s+url="([^"]*)"[^>]*>/);
           const pubDateMatch = item.match(/<pubDate>(.*?)<\/pubDate>/);
 
           const title = (titleMatch?.[1] || titleMatch?.[2] || "").trim();
-          const url = (linkMatch?.[1] || "").trim();
+          const googleUrl = (linkMatch?.[1] || "").trim();
           const source = (sourceMatch?.[1] || "").trim();
+          const sourceUrl = (sourceUrlMatch?.[1] || "").trim();
           const pubDate = pubDateMatch?.[1] ? new Date(pubDateMatch[1]).toISOString().split("T")[0] : today;
 
-          if (!title || !url) continue;
-          rawItems.push({ title, url, source, date: pubDate });
+          if (!title || !googleUrl) continue;
+
+          // Google News RSS provides source url="..." with the publisher domain.
+          // Use that for whitelist checking; fall back to resolving the redirect URL.
+          const url = sourceUrl || (await resolveGoogleNewsUrl(googleUrl));
+          articles.push({ title, url, source, date: pubDate });
         }
       } catch (err: any) { log.push(`Feed error: ${err.message}`); }
-    }
-
-    // Resolve Google News redirect URLs in parallel (max 10 concurrent)
-    const articles: typeof rawItems = [];
-    for (let i = 0; i < rawItems.length; i += 10) {
-      const batch = rawItems.slice(i, i + 10);
-      const resolved = await Promise.all(
-        batch.map(async (item) => ({
-          ...item,
-          url: await resolveGoogleNewsUrl(item.url),
-        }))
-      );
-      articles.push(...resolved);
     }
 
     log.push(`Found ${articles.length} candidate articles from RSS feeds`);
