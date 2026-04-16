@@ -267,7 +267,9 @@ async function queueForReview(
 
 // ── Section Tagging (inline, from config) ──
 
-import reportSectionsConfig from "../config/report-sections.json";
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+const reportSectionsConfig = require("../config/report-sections.json");
 
 function scoreArticleForSection(
   sectionSlug: string,
