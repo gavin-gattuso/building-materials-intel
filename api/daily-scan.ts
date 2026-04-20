@@ -359,9 +359,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // ── Daily run-lock (idempotency across dual triggers) ──
   // Attempt to claim today's run. Unique-constraint violation = another
   // invocation has already started or completed; skip cleanly.
-  const { error: lockErr } = await supabase
-    .from("daily_run_lock")
-    .insert({ run_date: today, status: "in_progress" });
+  // Ad-hoc backfill runs (?backfill=1) bypass the lock — they're manual and
+  // idempotent via URL/title/syndication-hash dedup inside the loop.
+  const isBackfill = req.query.backfill === "1";
+  const { error: lockErr } = isBackfill
+    ? { error: null as any }
+    : await supabase.from("daily_run_lock").insert({ run_date: today, status: "in_progress" });
   if (lockErr) {
     const msg = (lockErr.message || "").toLowerCase();
     if (msg.includes("duplicate") || msg.includes("unique") || (lockErr as any).code === "23505") {
@@ -384,8 +387,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // `when:2d` restricts results to the last 48 hours — without it Google
     // News mixes evergreen/stale content with fresh items and most days we
     // ingest old articles that just happened to match the query.
+    // Query params:
+    //   ?days=N      — widen window (e.g. 7 for one-off backfill). Default 2.
+    //   ?extra=q1|q2 — append extra queries (pipe-separated). Ad-hoc searches.
+    const daysParam = Math.max(1, Math.min(14, parseInt((req.query.days as string) || "2", 10) || 2));
+    const whenFilter = `when:${daysParam}d`;
+    const extraRaw = (req.query.extra as string) || "";
+    const extraQueries = extraRaw ? extraRaw.split("|").map(s => s.trim()).filter(Boolean) : [];
     const gq = (q: string) =>
-      `https://news.google.com/rss/search?q=${encodeURIComponent(q + " when:2d")}&hl=en-US&gl=US&ceid=US:en`;
+      `https://news.google.com/rss/search?q=${encodeURIComponent(q + " " + whenFilter)}&hl=en-US&gl=US&ceid=US:en`;
     const FEEDS = [
       gq("building materials construction industry"),
       gq("steel tariffs lumber prices construction"),
@@ -395,8 +405,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       gq("Home Depot Lowe's retail hardware"),
       gq("cement concrete aggregates pricing"),
       gq("roofing windows insulation manufacturer earnings"),
+      ...extraQueries.map(gq),
     ];
     const ITEMS_PER_FEED = 25;
+    log.push(`Feed config: ${FEEDS.length} feeds, window=${whenFilter}${extraQueries.length ? `, extras=[${extraQueries.join(", ")}]` : ""}`);
 
     const articles: { title: string; url: string; source: string; date: string }[] = [];
 
@@ -872,18 +884,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       log.push(`Stale-queue check failed (non-fatal): ${err.message}`);
     }
 
-    // Mark run complete
-    await supabase
-      .from("daily_run_lock")
-      .update({ status: "complete", completed_at: new Date().toISOString(), articles_inserted: archived })
-      .eq("run_date", today);
+    // Mark run complete (skip for ad-hoc backfill runs which bypassed the lock)
+    if (!isBackfill) {
+      await supabase
+        .from("daily_run_lock")
+        .update({ status: "complete", completed_at: new Date().toISOString(), articles_inserted: archived })
+        .eq("run_date", today);
+    }
 
     return res.json({ ok: true, date: today, archived, skipped, rejected, linked, reviewQueued, log });
   } catch (err: any) {
-    await supabase
-      .from("daily_run_lock")
-      .update({ status: "failed", completed_at: new Date().toISOString(), articles_inserted: archived })
-      .eq("run_date", today);
+    if (!isBackfill) {
+      await supabase
+        .from("daily_run_lock")
+        .update({ status: "failed", completed_at: new Date().toISOString(), articles_inserted: archived })
+        .eq("run_date", today);
+    }
     return res.status(500).json({ error: err.message, log });
   }
 }
