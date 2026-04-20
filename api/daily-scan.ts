@@ -51,17 +51,29 @@ async function resolveGoogleNewsUrl(url: string): Promise<string> {
   if (!url.includes("news.google.com/rss/articles/")) return url;
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
-    const res = await fetch(url, { redirect: "follow", signal: controller.signal });
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    const res = await fetch(url, {
+      redirect: "follow",
+      signal: controller.signal,
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; BuildingMaterialsBot/1.0; +https://building-materials-intel.vercel.app)",
+      },
+    });
     clearTimeout(timeout);
-    // The final URL after redirects is the real article URL
     if (res.url && !res.url.includes("news.google.com")) return res.url;
-    // Fallback: some Google News URLs need manual extraction from the page
     const html = await res.text();
-    const match = html.match(/data-n-au="([^"]+)"/);
-    if (match?.[1]) return match[1];
+    // Try multiple known Google News URL shapes (they rotate)
+    const patterns = [
+      /data-n-au="([^"]+)"/,
+      /<c-wiz[^>]*jsdata="[^"]*?;([^;"]+?);/,
+      /"(https?:\/\/(?!news\.google\.com)[^"\s]+?)"\s*,\s*"[A-Z]{2}"/,
+    ];
+    for (const p of patterns) {
+      const m = html.match(p);
+      if (m?.[1] && !m[1].includes("news.google.com")) return m[1];
+    }
   } catch { /* fall through — timeout or network error */ }
-  return url; // Return original if resolution fails
+  return url;
 }
 
 // ── Utilities ──
@@ -366,21 +378,43 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     // Step 1: Get news via Google News RSS
+    // 8 topical queries cover the major Building Materials segments. Each feed
+    // returns ~100 items; we sample the first 25 per feed = ~200 candidates/day
+    // before dedup and whitelist filtering.
+    const gq = (q: string) =>
+      `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-US&gl=US&ceid=US:en`;
     const FEEDS = [
-      `https://news.google.com/rss/search?q=building+materials+construction+industry&hl=en-US&gl=US&ceid=US:en`,
-      `https://news.google.com/rss/search?q=steel+tariffs+lumber+prices+construction&hl=en-US&gl=US&ceid=US:en`,
-      `https://news.google.com/rss/search?q=Nucor+CRH+Vulcan+Materials+construction&hl=en-US&gl=US&ceid=US:en`,
+      gq("building materials construction industry"),
+      gq("steel tariffs lumber prices construction"),
+      gq("Nucor CRH Vulcan Materials construction"),
+      gq("HVAC cooling data center construction"),
+      gq("housing starts permits residential construction"),
+      gq("Home Depot Lowe's retail hardware"),
+      gq("cement concrete aggregates pricing"),
+      gq("roofing windows insulation manufacturer earnings"),
     ];
+    const ITEMS_PER_FEED = 25;
 
     const articles: { title: string; url: string; source: string; date: string }[] = [];
 
-    for (const feedUrl of FEEDS) {
+    // Fetch feeds in parallel (8 feeds × ~1s each = ~2s wall vs ~15s sequential).
+    // URL resolution inside each feed loop stays sequential to bound concurrency.
+    const feedResults = await Promise.all(FEEDS.map(async (feedUrl) => {
       try {
         const feedRes = await fetch(feedUrl);
-        if (!feedRes.ok) { log.push(`Feed failed: ${feedRes.status}`); continue; }
-        const xml = await feedRes.text();
+        if (!feedRes.ok) return { xml: null, error: `Feed failed: ${feedRes.status}` };
+        return { xml: await feedRes.text(), error: null };
+      } catch (err: any) {
+        return { xml: null, error: `Feed error: ${err.message}` };
+      }
+    }));
+
+    for (const { xml, error } of feedResults) {
+      if (error) { log.push(error); continue; }
+      if (!xml) continue;
+      try {
         const items = xml.match(/<item>([\s\S]*?)<\/item>/g) || [];
-        for (const item of items.slice(0, 15)) {
+        for (const item of items.slice(0, ITEMS_PER_FEED)) {
           const titleMatch = item.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>|<title>(.*?)<\/title>/);
           const linkMatch = item.match(/<link>(.*?)<\/link>/);
           const sourceMatch = item.match(/<source[^>]*>(.*?)<\/source>/);
@@ -395,8 +429,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
           if (!title || !googleUrl) continue;
 
-          // Google News RSS provides source url="..." with the publisher domain.
-          // Use that for whitelist checking; fall back to resolving the redirect URL.
+          // Prefer RSS <source url="..."> (publisher domain). Only resolve the
+          // Google redirect when sourceUrl is missing — resolution is slow (8s
+          // timeout) and for non-whitelisted sourceUrls the redirect almost
+          // always lands on the same publisher, so it wouldn't help.
           const url = sourceUrl || (await resolveGoogleNewsUrl(googleUrl));
           articles.push({ title, url, source, date: pubDate });
         }
