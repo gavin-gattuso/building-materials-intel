@@ -7,6 +7,12 @@ import {
   extractSourceExcerpts,
 } from "../lib/extraction.js";
 import { sendEmail, idempotencyKey } from "../lib/email.js";
+import { createRequire } from "node:module";
+
+const requireCfg = createRequire(import.meta.url);
+const whitelistConfig = requireCfg("../config/source-whitelist.json") as {
+  domains: Array<{ domain: string; tier: number; company?: string; note?: string }>;
+};
 
 const SUPABASE_URL = (process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co").trim();
 const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
@@ -14,36 +20,10 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || "";
 
-// ── 8-Tier Approved Source Whitelist ──
+// ── Approved Source Whitelist (loaded from config/source-whitelist.json) ──
 
-const APPROVED_DOMAINS = new Set([
-  // Tier 1: Major News
-  "reuters.com", "bloomberg.com", "wsj.com", "ft.com", "cnbc.com", "forbes.com",
-  "fortune.com", "apnews.com", "nytimes.com", "washingtonpost.com", "bbc.com",
-  // Tier 2: Industry-Specific
-  "constructiondive.com", "bdcnetwork.com", "enr.com", "remodelingmag.com",
-  "jlconline.com", "probuilder.com",
-  // Tier 4: Associations & Research
-  "nahb.org", "agc.org", "cement.org", "steel.org", "construction-analytics.com",
-  "aia.org", "conference-board.org", "spglobal.com",
-  // Tier 5: Government & Data
-  "census.gov", "bls.gov", "bea.gov", "fred.stlouisfed.org", "federalreserve.gov",
-  "usgs.gov", "procore.com",
-  "businesswire.com", "prnewswire.com", "globenewswire.com",
-  // Tier 6: Financial Analysis (limited)
-  "finance.yahoo.com", "seekingalpha.com", "marketscreener.com",
-  // Tier 7: Consulting
-  "bain.com", "deloitte.com", "pwc.com", "kpmg.com", "fmicorp.com",
-  "capstoneheadwaters.com",
-  // Tier 8: Construction Niche
-  "lbmjournal.com", "builderonline.com", "steelmarketupdate.com", "fastmarkets.com",
-  "forconstructionpros.com", "constructconnect.com", "concreteproducts.com",
-  "pitandquarry.com", "rockproducts.com", "cemnet.com", "housingwire.com",
-  "datacenterdynamics.com", "roofingcontractor.com",
-  // Company IR (Tier 3)
-  "nucor.com", "investors.tranetechnologies.com", "stocktitan.net",
-  "barchart.com", "news.agc.org",
-]);
+const APPROVED_DOMAINS = new Set<string>(whitelistConfig.domains.map(d => d.domain));
+const TIER_BY_DOMAIN = new Map<string, number>(whitelistConfig.domains.map(d => [d.domain, d.tier]));
 
 function isApprovedSource(url: string): boolean {
   try {
@@ -59,11 +39,10 @@ function getSourceDomain(url: string): string {
 
 function getSourceTier(url: string): number {
   const domain = getSourceDomain(url);
-  const tier1 = ["reuters.com", "bloomberg.com", "wsj.com", "ft.com", "nytimes.com", "washingtonpost.com", "bbc.com", "cnbc.com", "forbes.com", "fortune.com", "apnews.com"];
-  const tier2 = ["constructiondive.com", "bdcnetwork.com", "enr.com", "remodelingmag.com", "jlconline.com", "probuilder.com"];
-  if (tier1.some(d => domain === d || domain.endsWith("." + d))) return 1;
-  if (tier2.some(d => domain === d || domain.endsWith("." + d))) return 2;
-  return 3; // Everything else whitelisted is tier 3+
+  for (const [d, tier] of TIER_BY_DOMAIN) {
+    if (domain === d || domain.endsWith("." + d)) return tier;
+  }
+  return 3;
 }
 
 // ── Google News URL Resolution ──
@@ -286,9 +265,7 @@ async function queueForReview(
 
 // ── Section Tagging (inline, from config) ──
 
-import { createRequire } from "node:module";
-const require = createRequire(import.meta.url);
-const reportSectionsConfig = require("../config/report-sections.json");
+const reportSectionsConfig = requireCfg("../config/report-sections.json");
 
 function scoreArticleForSection(
   sectionSlug: string,
