@@ -381,8 +381,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 8 topical queries cover the major Building Materials segments. Each feed
     // returns ~100 items; we sample the first 25 per feed = ~200 candidates/day
     // before dedup and whitelist filtering.
+    // `when:2d` restricts results to the last 48 hours — without it Google
+    // News mixes evergreen/stale content with fresh items and most days we
+    // ingest old articles that just happened to match the query.
     const gq = (q: string) =>
-      `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-US&gl=US&ceid=US:en`;
+      `https://news.google.com/rss/search?q=${encodeURIComponent(q + " when:2d")}&hl=en-US&gl=US&ceid=US:en`;
     const FEEDS = [
       gq("building materials construction industry"),
       gq("steel tariffs lumber prices construction"),
