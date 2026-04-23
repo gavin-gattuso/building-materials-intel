@@ -390,7 +390,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Query params:
     //   ?days=N      — widen window (e.g. 7 for one-off backfill). Default 2.
     //   ?extra=q1|q2 — append extra queries (pipe-separated). Ad-hoc searches.
-    const daysParam = Math.max(1, Math.min(14, parseInt((req.query.days as string) || "2", 10) || 2));
+    const daysParam = Math.max(1, Math.min(14, parseInt((req.query.days as string) || "4", 10) || 4));
     const whenFilter = `when:${daysParam}d`;
     const extraRaw = (req.query.extra as string) || "";
     const extraQueries = extraRaw ? extraRaw.split("|").map(s => s.trim()).filter(Boolean) : [];
