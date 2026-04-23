@@ -811,7 +811,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const todayStr = now.toISOString().split("T")[0];
       const latestMs = latest?.date ? Date.parse(latest.date + "T00:00:00Z") : 0;
       const staleHours = latestMs ? Math.round((now.getTime() - latestMs) / 36e5) : 999;
-      const isStale = staleHours > 36;
+      const isStale = staleHours > 48;
 
       // Check daily_run_lock for today's run status
       const { data: todayRun } = await supabase
