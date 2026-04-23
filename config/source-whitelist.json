@@ -93,6 +93,11 @@
     { "domain": "finance.yahoo.com", "tier": 6, "note": "Financial analysis" },
     { "domain": "seekingalpha.com", "tier": 6 },
     { "domain": "marketscreener.com", "tier": 6 },
+    { "domain": "yahoo.com", "tier": 6, "note": "Aggregator — syndicates Reuters/AP/Bloomberg. Added 2026-04" },
+    { "domain": "msn.com", "tier": 6, "note": "Aggregator — syndicates legit news. Added 2026-04" },
+    { "domain": "thestreet.com", "tier": 6, "note": "Financial news — added 2026-04" },
+    { "domain": "tradingview.com", "tier": 6, "note": "Financial news — added 2026-04" },
+    { "domain": "bnamericas.com", "tier": 6, "note": "Latam business news — added 2026-04" },
 
     { "domain": "bain.com", "tier": 7, "note": "Consulting" },
     { "domain": "deloitte.com", "tier": 7 },
