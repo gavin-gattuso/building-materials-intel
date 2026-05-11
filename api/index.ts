@@ -853,12 +853,64 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         } catch { /* non-fatal */ }
       }
 
+      // Weekly digest staleness check — emails an alert if no weekly_summaries
+      // row exists for the current week by Saturday morning. Catches both
+      // (a) cron not firing and (b) cron firing but returning no_articles.
+      const dayOfWeek = now.getUTCDay(); // 0=Sun, 6=Sat
+      const checkDigest = dayOfWeek === 6 || dayOfWeek === 0; // Sat or Sun
+      let digestStatus: { hasCurrentWeek: boolean; latestWeekEnd: string | null; daysOld: number } | null = null;
+      if (checkDigest) {
+        const { data: latestDigest } = await supabase
+          .from("weekly_summaries")
+          .select("week_start, week_end")
+          .order("week_end", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        const latestWeekEnd = latestDigest?.week_end || null;
+        const daysOld = latestWeekEnd ? Math.floor((now.getTime() - Date.parse(latestWeekEnd + "T00:00:00Z")) / 86400000) : 999;
+        // Current week's Sunday (week_end) — if today is Sat, that's today; if Sun, that's today.
+        const thisWeekEnd = (() => {
+          const d = new Date(now);
+          const add = d.getUTCDay() === 0 ? 0 : 7 - d.getUTCDay();
+          d.setUTCDate(d.getUTCDate() + add);
+          return d.toISOString().slice(0, 10);
+        })();
+        const hasCurrentWeek = !!latestDigest && latestDigest.week_end >= thisWeekEnd;
+        digestStatus = { hasCurrentWeek, latestWeekEnd, daysOld };
+        if (!hasCurrentWeek && process.env.RESEND_API_KEY) {
+          const digestAlertHtml = `<div style="font-family:Arial,sans-serif;max-width:600px">
+            <h2 style="color:#B71C1C">Weekly Digest Missing</h2>
+            <p>No <code>weekly_summaries</code> row exists for the current week (ending <strong>${thisWeekEnd}</strong>).</p>
+            <p><strong>Latest digest in DB:</strong> ${latestWeekEnd || "none"} (${daysOld} days old)</p>
+            <p>The Friday 22:00 UTC cron at <code>/api/cron-weekly-summary</code> either did not fire or returned an error. Check Vercel cron logs.</p>
+            <p>Manual recovery: <code>POST /api/cron-weekly-summary?key=cron</code>. Even without ANTHROPIC_API_KEY set, the fallback path now writes a deterministic digest.</p>
+          </div>`;
+          try {
+            await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                from: process.env.RESEND_FROM_EMAIL || "Jarvis AI <onboarding@resend.dev>",
+                to: ["gavin.gattuso@appliedvalue.com"],
+                subject: `[DIGEST MISSING] Weekly summary for week ending ${thisWeekEnd}`,
+                html: digestAlertHtml,
+                tags: [{ name: "type", value: "digest-missing" }],
+              }),
+            });
+          } catch { /* non-fatal */ }
+        }
+      }
+
       return res.json({
         ok: !isStale,
         latestArticleDate: latestDate,
         staleHours,
         isStale,
         scanStatus,
+        digestStatus,
         checkedAt: now.toISOString(),
       });
     }
