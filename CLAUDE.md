@@ -7,14 +7,17 @@
 When the user says "Jarvis run my newsletter" (or similar), invoke the `/jarvis-newsletter` skill. This defaults to Building Materials & Building Products industry coverage across both industry news and 7 market health drivers (Interest Rates, Labor, Material Costs, Demand, Infrastructure Spending, Credit, GDP).
 
 ## Daily Automated Task
-A remote scheduled trigger (`building-materials-daily-review`, ID: `trig_015uykDko3ppsdJ7kNN5ezSW`) runs at 11:59 PM EDT every night on Anthropic's cloud (works even when laptop is off). It:
+The nightly ingest runs at **04:00 UTC** every night via a Vercel cron (`vercel.json` -> `/api/daily-scan?key=cron`). The 2026-05-11 audit established that this is the only path actually firing — the previously documented Anthropic remote trigger (`trig_015uykDko3ppsdJ7kNN5ezSW`, 11:59 PM EDT) does not appear in `daily_run_lock` and has not been verified as live. If you need true dual-path redundancy, verify the trigger at https://claude.ai/code/scheduled/ or move the canonical schedule to Vercel only. The `daily_run_lock` unique-on-run_date constraint makes both triggers safely idempotent if the Anthropic one is restored.
+
+Nightly ingest steps:
 1. Searches for today's Building Materials & Building Products news
 2. Filters through a 9-tier approved source whitelist
 3. Archives EVERY article into a search-optimized knowledge base (KB_Raw HTML on SharePoint)
 4. Deep dives all 39 tracked companies (KB_Companies HTML on SharePoint)
 5. Curates top 10-15 stories into a briefing (Building_Materials_Briefing HTML on SharePoint)
 6. Emails the digest to gavin.gattuso@appliedvalue.com
-- Manage at: https://claude.ai/code/scheduled/trig_015uykDko3ppsdJ7kNN5ezSW
+
+(Trigger management page if the Anthropic backup gets revived: https://claude.ai/code/scheduled/trig_015uykDko3ppsdJ7kNN5ezSW)
 
 ## Website / Intelligence Platform
 - Run with: `bun run site` (http://localhost:3000)

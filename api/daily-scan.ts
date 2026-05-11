@@ -107,6 +107,81 @@ async function resolveGoogleNewsUrl(
   return { url, resolved: false };
 }
 
+// ── Article Body Fetching ──
+//
+// Pre-2026-05 the extraction pipeline was called with just the RSS headline
+// (`article.title`) as the "article text" — which is why article_extractions
+// has been an empty table for the lifetime of the system. Fetching the body
+// here, for whitelisted articles only, gives extraction and summary real text
+// to work with. Failures are expected (paywalls, bot protection, Google News
+// redirect URLs that can't be followed) — we count attempts and surface the
+// success rate so the regression is visible if it drops over time.
+
+interface BodyFetchStats { attempted: number; succeeded: number; failed: number; }
+
+async function fetchArticleBody(url: string, timeoutMs = 4000): Promise<string | null> {
+  if (!url) return null;
+  // Skip Google News redirect URLs — they require either the URL decoder or a
+  // browser-like environment to follow; the body fetch will hit a consent wall.
+  if (url.includes("news.google.com")) return null;
+  try {
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), timeoutMs);
+    const res = await fetch(url, {
+      redirect: "follow",
+      signal: controller.signal,
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+      },
+    });
+    clearTimeout(t);
+    if (!res.ok) return null;
+    const ct = res.headers.get("content-type") || "";
+    if (!ct.includes("html") && !ct.includes("text")) return null;
+    const html = await res.text();
+    const body = extractMainText(html);
+    return body && body.length >= 200 ? body : null;
+  } catch {
+    return null;
+  }
+}
+
+function extractMainText(html: string): string {
+  let cleaned = html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi, "")
+    .replace(/<!--[\s\S]*?-->/g, "");
+
+  // Prefer <article>, then <main>, else fall back to whole doc
+  const articleMatch = cleaned.match(/<article[^>]*>([\s\S]*?)<\/article>/i);
+  if (articleMatch?.[1]) cleaned = articleMatch[1];
+  else {
+    const mainMatch = cleaned.match(/<main[^>]*>([\s\S]*?)<\/main>/i);
+    if (mainMatch?.[1]) cleaned = mainMatch[1];
+  }
+
+  const paragraphs: string[] = [];
+  const pMatches = cleaned.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi);
+  for (const m of pMatches) {
+    const text = (m[1] || "")
+      .replace(/<[^>]+>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&#x27;/g, "'")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (text.length > 40) paragraphs.push(text);
+  }
+  return paragraphs.join("\n\n").slice(0, 10000);
+}
+
 // ── Utilities ──
 
 function slugify(date: string, title: string): string {
@@ -388,6 +463,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const supplementalGaps: string[] = [];
   const resolutionStats: ResolutionStats = { attempted: 0, succeeded: 0, failed: 0 };
   const resolveErrors: string[] = [];
+  const bodyFetchStats: BodyFetchStats = { attempted: 0, succeeded: 0, failed: 0 };
 
   // ── Daily run-lock (idempotency across dual triggers) ──
   // Attempt to claim today's run. Unique-constraint violation = another
@@ -493,11 +569,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Step 2: Deduplicate, whitelist-check, and archive
     for (const article of articles) {
+      // Forensic snapshot — captured on every rejection so we can re-resolve
+      // and re-ingest later if a whitelist or resolver change makes a rejected
+      // candidate viable. Stored as JSONB in rejected_articles.raw_feed_data.
+      const rawForensic = {
+        googleUrl: article.googleUrl,
+        publisherUrl: article.url,
+        sourceName: article.source,
+        date: article.date,
+      };
+
       // Title-based noise filter: reject listicle / stock-picking articles
       const titleLower = article.title.toLowerCase();
       if (/stocks?\s+to\s+watch/.test(titleLower) || /top\s+\d+\s+stocks/.test(titleLower)) {
         await logRejection(article.url, article.title, "title_noise_filter",
-          "Stock-picking listicle — not relevant to industry intelligence");
+          "Stock-picking listicle — not relevant to industry intelligence", rawForensic);
         rejected++;
         continue;
       }
@@ -505,7 +591,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Whitelist check (Phase 3.4) — uses publisher homepage URL (cheap)
       if (!isApprovedSource(article.url)) {
         await logRejection(article.url, article.title, "domain_not_whitelisted",
-          `Domain ${getSourceDomain(article.url)} is not in the approved source whitelist`);
+          `Domain ${getSourceDomain(article.url)} is not in the approved source whitelist`, rawForensic);
         rejected++;
         continue;
       }
@@ -548,7 +634,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .limit(1);
       if (titleMatch && titleMatch.length > 0) {
         await logRejection(article.url, article.title, "duplicate_title",
-          `Matched existing article by title similarity: "${titlePhrase}..."`);
+          `Matched existing article by title similarity: "${titlePhrase}..."`, rawForensic);
         skipped++;
         continue;
       }
@@ -575,7 +661,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         await logRejection(article.url, article.title, "duplicate_syndication_hash",
-          `Matched syndication hash of existing article "${original.slug}" from ${getSourceDomain(original.url)}. Added ${newDomain} as corroborating source.`);
+          `Matched syndication hash of existing article "${original.slug}" from ${getSourceDomain(original.url)}. Added ${newDomain} as corroborating source.`, rawForensic);
         skipped++;
         continue;
       }
@@ -586,23 +672,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const isEarnings = category === "Earnings";
       const sourceTier = getSourceTier(article.url);
 
-      // Store full_text for Tier 1-3 sources
-      const fullText = sourceTier <= 3 ? article.title : null;
+      // Try to fetch the full article body. Skips Google News redirect URLs
+      // (those need the decoder) and anything that 4xx/5xx's or doesn't return
+      // enough text. When this succeeds, extraction and summary stop being
+      // headline-only and article_extractions actually gets meaningful rows.
+      bodyFetchStats.attempted++;
+      const fetchedBody = await fetchArticleBody(article.url);
+      if (fetchedBody) bodyFetchStats.succeeded++;
+      else bodyFetchStats.failed++;
+      const articleText = fetchedBody || article.title;
+
+      // Store the fetched body (if any) on the article row. Tier 1-3 articles
+      // without a successful fetch still get the title as a placeholder so the
+      // legacy field is populated; null for tier 4+.
+      const fullText = fetchedBody || (sourceTier <= 3 ? article.title : null);
 
       // Structured extraction (Phase 3.1 Step 1)
-      const extractionResult = await extractStructuredData(article.title);
+      const extractionResult = await extractStructuredData(articleText);
 
       // Prose summary (Phase 3.1 Step 2)
       const summaryResult = await generateSummary(
         article.title,
-        article.title, // In RSS we only have the title; full text comes from fetch
+        articleText,
         extractionResult?.extraction || null,
         isEarnings
       );
 
-      // Source excerpts (Phase 3.2)
-      // Skip for RSS-only articles (we don't have the full text yet)
-      const sourceExcerpts: string[] = [];
+      // Source excerpts (Phase 3.2) — only meaningful when we have real body
+      let sourceExcerpts: string[] = [];
+      if (fetchedBody && fetchedBody.length >= 500) {
+        const ex = await extractSourceExcerpts(fetchedBody);
+        if (ex?.excerpts) sourceExcerpts = ex.excerpts;
+      }
 
       // Company matching (Phase 3.5 — tightened)
       const companyMatches = matchCompanies(article.title, summaryResult.summary);
@@ -655,7 +756,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!articleRow) continue;
       const articleId = articleRow.id;
 
-      // Insert structured extraction (Phase 3.1)
+      // Insert structured extraction (Phase 3.1) — ALWAYS write a row,
+      // including when extraction returned null. The empty-table state we had
+      // before 2026-05-11 made silent failures invisible; now every attempt
+      // leaves a row with confidence=0 / fields_absent=all so the failure mode
+      // is observable.
       if (extractionResult) {
         const ext = extractionResult.extraction;
         await supabase.from("article_extractions").insert({
@@ -681,6 +786,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           extraction_confidence: ext.extraction_confidence,
           fields_present: ext.fields_present,
           fields_absent: ext.fields_absent,
+        });
+      } else {
+        await supabase.from("article_extractions").insert({
+          article_id: articleId,
+          model_version: process.env.MODEL_EXTRACTION || "claude-haiku-4-5-20251001",
+          prompt_version: process.env.PROMPT_VERSION_EXTRACTION || "extraction-v1.0",
+          extraction_confidence: 0,
+          fields_present: [],
+          fields_absent: ["revenue_figure","ebitda_figure","yoy_growth_pct","guidance_verbatim","mentioned_headwinds","mentioned_tailwinds","pricing_action"],
+          additional_metrics: {
+            failure_reason: fetchedBody ? "extraction_returned_null" : "no_article_body_fetched",
+            body_length: articleText.length,
+            source_tier: sourceTier,
+          },
         });
       }
 
@@ -771,6 +890,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (resolveErrors.length > 0) {
         log.push(`Resolution errors (first 3): ${resolveErrors.slice(0, 3).join(" | ")}`);
       }
+    }
+    if (bodyFetchStats.attempted > 0) {
+      const pct = Math.round((bodyFetchStats.succeeded / bodyFetchStats.attempted) * 100);
+      log.push(`Body fetch: ${bodyFetchStats.succeeded}/${bodyFetchStats.attempted} (${pct}%) succeeded, ${bodyFetchStats.failed} failed`);
     }
 
     // Zero-article alert: if ingestion inserted nothing, notify for manual investigation
