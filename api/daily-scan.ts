@@ -410,7 +410,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const ITEMS_PER_FEED = 25;
     log.push(`Feed config: ${FEEDS.length} feeds, window=${whenFilter}${extraQueries.length ? `, extras=[${extraQueries.join(", ")}]` : ""}`);
 
-    const articles: { title: string; url: string; source: string; date: string }[] = [];
+    const articles: { title: string; url: string; googleUrl: string; source: string; date: string }[] = [];
 
     // Fetch feeds in parallel (8 feeds × ~1s each = ~2s wall vs ~15s sequential).
     // URL resolution inside each feed loop stays sequential to bound concurrency.
@@ -444,12 +444,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
           if (!title || !googleUrl) continue;
 
-          // Prefer RSS <source url="..."> (publisher domain). Only resolve the
-          // Google redirect when sourceUrl is missing — resolution is slow (8s
-          // timeout) and for non-whitelisted sourceUrls the redirect almost
-          // always lands on the same publisher, so it wouldn't help.
-          const url = sourceUrl || (await resolveGoogleNewsUrl(googleUrl));
-          articles.push({ title, url, source, date: pubDate });
+          // Two URLs travel together through the pipeline:
+          //   url       — publisher homepage from <source url> (fast whitelist check)
+          //   googleUrl — Google News redirect (resolves to the real article URL)
+          // We resolve googleUrl AFTER the whitelist step so the slow 8s-timeout
+          // resolution only runs on the handful of articles that survive whitelist,
+          // not on the ~200 candidates we see per day.
+          if (!sourceUrl && !googleUrl) continue;
+          articles.push({ title, url: sourceUrl || googleUrl, googleUrl, source, date: pubDate });
         }
       } catch (err: any) { log.push(`Feed error: ${err.message}`); }
     }
@@ -467,12 +469,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         continue;
       }
 
-      // Whitelist check (Phase 3.4)
+      // Whitelist check (Phase 3.4) — uses publisher homepage URL (cheap)
       if (!isApprovedSource(article.url)) {
         await logRejection(article.url, article.title, "domain_not_whitelisted",
           `Domain ${getSourceDomain(article.url)} is not in the approved source whitelist`);
         rejected++;
         continue;
+      }
+
+      // Whitelist passed — resolve the Google News redirect to recover the real
+      // article URL. Without this, article.url is just the publisher homepage
+      // ("https://www.yahoo.com"), which breaks click-through and collapses
+      // multiple same-publisher articles into one dedup hit.
+      if (article.googleUrl && article.googleUrl.includes("news.google.com/rss/articles/")) {
+        const resolved = await resolveGoogleNewsUrl(article.googleUrl);
+        if (resolved && !resolved.includes("news.google.com")) {
+          article.url = resolved;
+        }
       }
 
       // URL dedup

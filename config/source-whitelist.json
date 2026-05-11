@@ -14,6 +14,12 @@
     { "domain": "bbc.com", "tier": 1 },
     { "domain": "axios.com", "tier": 1, "note": "Business/policy news — added 2026-04" },
     { "domain": "vox.com", "tier": 1, "note": "Policy/economics — added 2026-04" },
+    { "domain": "barrons.com", "tier": 1, "note": "WSJ-network financial publication — added 2026-05" },
+    { "domain": "theglobeandmail.com", "tier": 1, "note": "Major Canadian daily — added 2026-05" },
+    { "domain": "chicagotribune.com", "tier": 1, "note": "Major US daily — added 2026-05" },
+    { "domain": "marketplace.org", "tier": 1, "note": "NPR business/economy desk — added 2026-05" },
+    { "domain": "theedgesingapore.com", "tier": 1, "note": "Financial daily — added 2026-05" },
+    { "domain": "esgtoday.com", "tier": 1, "note": "ESG news desk — added 2026-05" },
 
     { "domain": "constructiondive.com", "tier": 2, "note": "Industry-specific" },
     { "domain": "bdcnetwork.com", "tier": 2 },
@@ -24,6 +30,7 @@
     { "domain": "constructionbriefing.com", "tier": 2, "note": "Added 2026-04" },
     { "domain": "constructiondigital.com", "tier": 2, "note": "Added 2026-04" },
     { "domain": "constructionspecifier.com", "tier": 2, "note": "Added 2026-04" },
+    { "domain": "archpaper.com", "tier": 2, "note": "Architect's Newspaper — added 2026-05" },
 
     { "domain": "nucor.com", "tier": 3, "company": "Nucor" },
     { "domain": "investors.tranetechnologies.com", "tier": 3, "company": "Trane Technologies" },
@@ -98,6 +105,9 @@
     { "domain": "thestreet.com", "tier": 6, "note": "Financial news — added 2026-04" },
     { "domain": "tradingview.com", "tier": 6, "note": "Financial news — added 2026-04" },
     { "domain": "bnamericas.com", "tier": 6, "note": "Latam business news — added 2026-04" },
+    { "domain": "aol.com", "tier": 6, "note": "Aggregator — syndicates Reuters/AP. Added 2026-05" },
+    { "domain": "alphastreet.com", "tier": 6, "note": "Earnings transcripts & financial news — added 2026-05" },
+    { "domain": "sahmcapital.com", "tier": 6, "note": "Earnings call transcripts — added 2026-05" },
 
     { "domain": "bain.com", "tier": 7, "note": "Consulting" },
     { "domain": "deloitte.com", "tier": 7 },
@@ -124,6 +134,17 @@
     { "domain": "housingwire.com", "tier": 8 },
     { "domain": "datacenterdynamics.com", "tier": 8 },
     { "domain": "roofingcontractor.com", "tier": 8 },
-    { "domain": "chicagoconstructionnews.com", "tier": 8, "note": "Added 2026-04" }
+    { "domain": "chicagoconstructionnews.com", "tier": 8, "note": "Added 2026-04" },
+    { "domain": "achrnews.com", "tier": 8, "note": "Air Conditioning/Heating/Refrigeration News — added 2026-05" },
+    { "domain": "glassonweb.com", "tier": 8, "note": "Glass industry trade — added 2026-05" },
+    { "domain": "plasticsnews.com", "tier": 8, "note": "Crain's plastics industry trade — added 2026-05" },
+    { "domain": "cdrecycler.com", "tier": 8, "note": "Construction & demolition recycling — added 2026-05" },
+    { "domain": "themortgagepoint.com", "tier": 8, "note": "Mortgage industry news — added 2026-05" },
+    { "domain": "scotsmanguide.com", "tier": 8, "note": "Mortgage industry trade — added 2026-05" },
+    { "domain": "hbsdealer.com", "tier": 8, "note": "Home/Build/Supply retail trade — added 2026-05" },
+    { "domain": "hardwareretailing.com", "tier": 8, "note": "NHRA hardware retail trade — added 2026-05" },
+    { "domain": "propmodo.com", "tier": 8, "note": "Property tech / CRE — added 2026-05" },
+    { "domain": "gmk.center", "tier": 8, "note": "Steel industry analytics — added 2026-05" },
+    { "domain": "azobuild.com", "tier": 8, "note": "AZoNetwork building materials science — added 2026-05" }
   ]
 }
