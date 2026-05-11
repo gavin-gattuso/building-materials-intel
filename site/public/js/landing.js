@@ -28,8 +28,19 @@ export async function loadHome() {
       const today = new Date().toISOString().slice(0, 10);
       return all.filter(e => e.date >= today).slice(0, 10);
     }).catch(() => []),
-    fetch('/weekly-summary.json').then(r => { if (!r.ok) throw new Error(); return r.json(); })
-      .catch(() => fetch('/api/weekly-summary').then(r => r.ok ? r.json() : null).catch(() => null)),
+    // Prefer the live API (Supabase) over the static JSON: build-static.ts uses
+    // the anon key which RLS may filter, so the static can lag behind. Fall
+    // back to static if the API errors. Both return the same shape; we pick
+    // whichever has the later week_end so old static never overrides fresh.
+    Promise.all([
+      fetch('/api/weekly-summary').then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch('/weekly-summary.json').then(r => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([api, stat]) => {
+      if (!api && !stat) return null;
+      if (!api) return stat;
+      if (!stat) return api;
+      return (api.week_end || '') >= (stat.week_end || '') ? api : stat;
+    }),
   ]);
 
   // Weekly AI summary
