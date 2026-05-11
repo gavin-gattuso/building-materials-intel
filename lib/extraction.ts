@@ -63,8 +63,47 @@ export interface SourceExcerptResult {
 //   - summary-standard-v1.0  (used by generateSummary, non-earnings)
 //   - summary-earnings-v1.0  (used by generateSummary, earnings)
 //   - source-excerpt-v1.0    (used by extractSourceExcerpts)
+//
+// Process-wide failure telemetry. Pre-2026-05 the catch handler here swallowed
+// every error silently, which is why article_extractions stayed at 0 rows for
+// the system's entire lifetime: every Anthropic call was failing with no
+// observable signal. We now write a structured failure code to console.error
+// (visible in Vercel function logs) AND keep a small counter the caller can
+// read after a run to summarize health.
+export interface AnthropicTelemetry {
+  totalCalls: number;
+  noKey: number;
+  http400: number;
+  http401: number;
+  http429: number;
+  http5xx: number;
+  fetchError: number;
+  parseError: number;
+  empty: number;
+  ok: number;
+  lastError: string | null;
+}
+
+export const anthropicTelemetry: AnthropicTelemetry = {
+  totalCalls: 0, noKey: 0, http400: 0, http401: 0, http429: 0, http5xx: 0,
+  fetchError: 0, parseError: 0, empty: 0, ok: 0, lastError: null,
+};
+
+export function resetAnthropicTelemetry(): void {
+  Object.assign(anthropicTelemetry, {
+    totalCalls: 0, noKey: 0, http400: 0, http401: 0, http429: 0, http5xx: 0,
+    fetchError: 0, parseError: 0, empty: 0, ok: 0, lastError: null,
+  });
+}
+
 async function callAnthropic(model: string, systemPrompt: string | undefined, userContent: string, maxTokens: number): Promise<string | null> {
-  if (!ANTHROPIC_KEY) return null;
+  anthropicTelemetry.totalCalls++;
+  if (!ANTHROPIC_KEY) {
+    anthropicTelemetry.noKey++;
+    anthropicTelemetry.lastError = "ANTHROPIC_API_KEY env var is not set";
+    console.error("[anthropic] no API key set");
+    return null;
+  }
   try {
     const body: any = {
       model,
@@ -82,10 +121,31 @@ async function callAnthropic(model: string, systemPrompt: string | undefined, us
       },
       body: JSON.stringify(body),
     });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.content?.[0]?.text || null;
-  } catch {
+    if (!res.ok) {
+      if (res.status === 400) anthropicTelemetry.http400++;
+      else if (res.status === 401) anthropicTelemetry.http401++;
+      else if (res.status === 429) anthropicTelemetry.http429++;
+      else if (res.status >= 500) anthropicTelemetry.http5xx++;
+      const errText = await res.text().catch(() => "");
+      const errMsg = `${res.status}: ${errText.slice(0, 200)}`;
+      anthropicTelemetry.lastError = errMsg;
+      console.error(`[anthropic] ${errMsg}`);
+      return null;
+    }
+    const data = await res.json() as any;
+    const text = data.content?.[0]?.text;
+    if (!text) {
+      anthropicTelemetry.empty++;
+      anthropicTelemetry.lastError = "200 OK but empty content";
+      return null;
+    }
+    anthropicTelemetry.ok++;
+    return text;
+  } catch (err: any) {
+    anthropicTelemetry.fetchError++;
+    const msg = `fetch error: ${(err?.message || "?").slice(0, 200)}`;
+    anthropicTelemetry.lastError = msg;
+    console.error(`[anthropic] ${msg}`);
     return null;
   }
 }

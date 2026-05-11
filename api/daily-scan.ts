@@ -5,6 +5,8 @@ import {
   extractStructuredData,
   generateSummary,
   extractSourceExcerpts,
+  anthropicTelemetry,
+  resetAnthropicTelemetry,
 } from "../lib/extraction.js";
 import { sendEmail, idempotencyKey } from "../lib/email.js";
 import { decodeGoogleNewsUrl, type DecodeMethod } from "../lib/google-news-decoder.js";
@@ -414,6 +416,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const resolutionStats: ResolutionStats = { attempted: 0, succeeded: 0, failed: 0 };
   const resolveMethods: MethodCounts = { "base64": 0, "batchexecute": 0, "redirect-follow": 0, "failed": 0 };
   const bodyFetchStats: BodyFetchStats = { attempted: 0, succeeded: 0, failed: 0 };
+  resetAnthropicTelemetry();
 
   // ── Daily run-lock (idempotency across dual triggers) ──
   // Attempt to claim today's run. Unique-constraint violation = another
@@ -841,6 +844,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (bodyFetchStats.attempted > 0) {
       const pct = Math.round((bodyFetchStats.succeeded / bodyFetchStats.attempted) * 100);
       log.push(`Body fetch: ${bodyFetchStats.succeeded}/${bodyFetchStats.attempted} (${pct}%) succeeded, ${bodyFetchStats.failed} failed`);
+    }
+    if (anthropicTelemetry.totalCalls > 0) {
+      const t = anthropicTelemetry;
+      const okPct = Math.round((t.ok / t.totalCalls) * 100);
+      const breakdown = [
+        t.noKey > 0 ? `noKey=${t.noKey}` : null,
+        t.http400 > 0 ? `400=${t.http400}` : null,
+        t.http401 > 0 ? `401=${t.http401}` : null,
+        t.http429 > 0 ? `429=${t.http429}` : null,
+        t.http5xx > 0 ? `5xx=${t.http5xx}` : null,
+        t.fetchError > 0 ? `fetch_err=${t.fetchError}` : null,
+        t.empty > 0 ? `empty=${t.empty}` : null,
+      ].filter(Boolean).join(" ");
+      log.push(`Anthropic: ${t.ok}/${t.totalCalls} (${okPct}%) ok${breakdown ? " — " + breakdown : ""}${t.lastError ? ` — last_err: ${t.lastError.slice(0, 120)}` : ""}`);
     }
 
     // Zero-article alert: if ingestion inserted nothing, notify for manual investigation
