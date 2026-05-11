@@ -46,9 +46,26 @@ function getSourceTier(url: string): number {
 }
 
 // ── Google News URL Resolution ──
+//
+// Google News RSS <link> elements are signed redirect URLs
+// (https://news.google.com/rss/articles/CBM...). Resolution requires fetching
+// that URL and either following the redirect or scraping the final URL out of
+// the interstitial HTML. Both paths are fragile: Google rotates patterns and
+// will serve a consent wall to non-browser user agents (which is what was
+// silently breaking the post-ccbeaed pipeline). We track outcomes explicitly
+// so the daily log surfaces resolution health.
 
-async function resolveGoogleNewsUrl(url: string): Promise<string> {
-  if (!url.includes("news.google.com/rss/articles/")) return url;
+interface ResolutionStats { attempted: number; succeeded: number; failed: number; }
+
+async function resolveGoogleNewsUrl(
+  url: string,
+  stats: ResolutionStats,
+  errorLog: string[],
+): Promise<{ url: string; resolved: boolean }> {
+  if (!url.includes("news.google.com/rss/articles/")) {
+    return { url, resolved: false };
+  }
+  stats.attempted++;
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
@@ -56,24 +73,38 @@ async function resolveGoogleNewsUrl(url: string): Promise<string> {
       redirect: "follow",
       signal: controller.signal,
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; BuildingMaterialsBot/1.0; +https://building-materials-intel.vercel.app)",
+        // Real Chrome UA — BuildingMaterialsBot/1.0 was getting a consent wall
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
       },
     });
     clearTimeout(timeout);
-    if (res.url && !res.url.includes("news.google.com")) return res.url;
+    if (res.url && !res.url.includes("news.google.com")) {
+      stats.succeeded++;
+      return { url: res.url, resolved: true };
+    }
     const html = await res.text();
-    // Try multiple known Google News URL shapes (they rotate)
     const patterns = [
       /data-n-au="([^"]+)"/,
       /<c-wiz[^>]*jsdata="[^"]*?;([^;"]+?);/,
       /"(https?:\/\/(?!news\.google\.com)[^"\s]+?)"\s*,\s*"[A-Z]{2}"/,
+      /"@id":"(https?:\/\/(?!news\.google\.com)[^"]+)"/,
+      /<meta\s+(?:http-equiv="refresh"|name="referrer")[^>]*url=([^"'>\s]+)/i,
     ];
     for (const p of patterns) {
       const m = html.match(p);
-      if (m?.[1] && !m[1].includes("news.google.com")) return m[1];
+      if (m?.[1] && !m[1].includes("news.google.com")) {
+        stats.succeeded++;
+        return { url: m[1], resolved: true };
+      }
     }
-  } catch { /* fall through — timeout or network error */ }
-  return url;
+    errorLog.push(`resolve_unresolved status=${res.status} ct=${res.headers.get("content-type") || "?"}`);
+  } catch (err: any) {
+    errorLog.push(`resolve_error ${err.name || "?"}: ${(err.message || "?").slice(0, 80)}`);
+  }
+  stats.failed++;
+  return { url, resolved: false };
 }
 
 // ── Utilities ──
@@ -355,6 +386,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   let rejected = 0;
   let reviewQueued = 0;
   const supplementalGaps: string[] = [];
+  const resolutionStats: ResolutionStats = { attempted: 0, succeeded: 0, failed: 0 };
+  const resolveErrors: string[] = [];
 
   // ── Daily run-lock (idempotency across dual triggers) ──
   // Attempt to claim today's run. Unique-constraint violation = another
@@ -478,13 +511,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       // Whitelist passed — resolve the Google News redirect to recover the real
-      // article URL. Without this, article.url is just the publisher homepage
-      // ("https://www.yahoo.com"), which breaks click-through and collapses
-      // multiple same-publisher articles into one dedup hit.
+      // article URL. If resolution fails (Google bot-walls, pattern rotation,
+      // timeout), fall back to the Google News URL itself: it's unique per
+      // article AND it works for click-through (Google does the redirect when
+      // a human clicks it). Both outcomes beat keeping the publisher homepage,
+      // which collapses every same-publisher story into one dedup hit.
       if (article.googleUrl && article.googleUrl.includes("news.google.com/rss/articles/")) {
-        const resolved = await resolveGoogleNewsUrl(article.googleUrl);
-        if (resolved && !resolved.includes("news.google.com")) {
-          article.url = resolved;
+        const result = await resolveGoogleNewsUrl(article.googleUrl, resolutionStats, resolveErrors);
+        if (result.resolved) {
+          article.url = result.url;
+        } else {
+          // Resolution failed — use the Google News redirect URL as the
+          // canonical URL so each article still has a unique row.
+          article.url = article.googleUrl;
         }
       }
 
@@ -726,6 +765,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     log.push(`Archived: ${archived}, Skipped (dupes): ${skipped}, Rejected: ${rejected}, Company links: ${linked}, Review queued: ${reviewQueued}`);
+    if (resolutionStats.attempted > 0) {
+      const pct = Math.round((resolutionStats.succeeded / resolutionStats.attempted) * 100);
+      log.push(`URL resolution: ${resolutionStats.succeeded}/${resolutionStats.attempted} (${pct}%) succeeded, ${resolutionStats.failed} failed`);
+      if (resolveErrors.length > 0) {
+        log.push(`Resolution errors (first 3): ${resolveErrors.slice(0, 3).join(" | ")}`);
+      }
+    }
 
     // Zero-article alert: if ingestion inserted nothing, notify for manual investigation
     if (archived === 0) {
