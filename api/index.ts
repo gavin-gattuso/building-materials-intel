@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import { expandTerms, extractExcerpts, scoreEntry } from "../lib/search.js";
 import { buildSmartSearchResponse, buildSearchContext, buildSourceList, SYSTEM_PROMPT_PREFIX } from "../lib/chat.js";
+import { isAuthorizedCronOrPrivileged, verifyActionToken } from "../lib/auth.js";
 
 const SUPABASE_URL = (process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co").trim();
 const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
@@ -705,19 +706,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(405).json({ error: "GET or POST required" });
     }
 
-    // /api/review-queue/action — one-click approve/dismiss from email links
+    // /api/review-queue/action — one-click approve/dismiss from email links.
+    // Auth is per-link HMAC over (id, action) signed with CRON_SECRET. The
+    // older "cron" literal let anyone with the URL pattern approve any review-
+    // queue item by UUID — see RELIABILITY-AUDIT risk #1. A privileged
+    // caller (manual approval via curl with the cron secret) is also accepted
+    // as a fallback so operators can still drive the endpoint from the CLI.
     if (path === "review-queue/action") {
       const id = req.query.id as string;
       const action = req.query.action as string;
-      const key = req.query.key as string;
-
-      // Light auth: service role key, CRON_SECRET, or "cron" shorthand
-      const validKeys = [process.env.SUPABASE_SERVICE_ROLE_KEY, process.env.CRON_SECRET, "cron"].filter(Boolean);
-      if (!key || !validKeys.includes(key)) {
-        return res.status(401).send(htmlPage("Unauthorized", "Invalid or missing key."));
-      }
+      const sig = req.query.sig as string;
       if (!id || !action) {
         return res.status(400).send(htmlPage("Bad Request", "Missing id or action parameter."));
+      }
+      const sigOk = sig && verifyActionToken(id, action, sig);
+      if (!sigOk && !isAuthorizedCronOrPrivileged(req)) {
+        return res.status(401).send(htmlPage("Unauthorized", "This email link is invalid or expired. Use the dashboard to review."));
       }
       const validActions = ["approved", "rejected", "dismissed"];
       const status = action === "dismissed" ? "rejected" : action;
@@ -792,9 +796,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // function is broken. Called by the nightly trigger after the scan, and by
     // the Vercel cron as a second safety net.
     if (path === "healthcheck") {
-      const key = req.query.key as string;
-      const validKeys = [process.env.SUPABASE_SERVICE_ROLE_KEY, process.env.CRON_SECRET, "cron"].filter(Boolean);
-      if (!key || !validKeys.includes(key)) {
+      if (!isAuthorizedCronOrPrivileged(req)) {
         return res.status(401).json({ error: "Unauthorized" });
       }
 
@@ -853,6 +855,79 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         } catch { /* non-fatal */ }
       }
 
+      // Stuck-lock detection — a daily_run_lock row in 'in_progress' for >15m
+      // means the function crashed mid-execution. Latent corruption surface;
+      // alert so the operator can clean up before it cascades.
+      const { data: stuck } = await supabase
+        .from("daily_run_lock")
+        .select("run_date, started_at")
+        .eq("status", "in_progress")
+        .lt("started_at", new Date(Date.now() - 15 * 60 * 1000).toISOString());
+      if (stuck && stuck.length > 0 && process.env.RESEND_API_KEY) {
+        try {
+          await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              from: process.env.RESEND_FROM_EMAIL || "Jarvis AI <onboarding@resend.dev>",
+              to: ["gavin.gattuso@appliedvalue.com"],
+              subject: `[STUCK RUN] daily_run_lock has ${stuck.length} stuck in_progress rows`,
+              html: `<p>Stuck rows: ${stuck.map((s: any) => `${s.run_date} (since ${s.started_at})`).join(", ")}.</p><p>UPDATE daily_run_lock SET status='failed', completed_at=now() WHERE status='in_progress' AND started_at &lt; now() - interval '15 minutes';</p>`,
+              tags: [{ name: "type", value: "stuck-lock" }],
+            }),
+          });
+        } catch { /* non-fatal */ }
+      }
+
+      // Trend-based regression alert — catches the "70% degraded but not zero"
+      // failure mode that hid April's 3-week drought. Compares the last 7 days
+      // against the prior 7 against pipeline_runs telemetry; fires if any rate
+      // (URL decode / body fetch / Anthropic OK) drops more than 25 points.
+      let trendAlert: { metric: string; current: number; baseline: number; drop: number } | null = null;
+      try {
+        const { data: recent } = await supabase
+          .from("pipeline_runs")
+          .select("url_decode_pct, body_fetch_pct, anthropic_pct")
+          .gte("started_at", new Date(Date.now() - 7 * 86400000).toISOString())
+          .eq("invocation", "scheduled");
+        const { data: prior } = await supabase
+          .from("pipeline_runs")
+          .select("url_decode_pct, body_fetch_pct, anthropic_pct")
+          .gte("started_at", new Date(Date.now() - 14 * 86400000).toISOString())
+          .lt("started_at", new Date(Date.now() - 7 * 86400000).toISOString())
+          .eq("invocation", "scheduled");
+        const avg = (rows: any[] | null, key: string) => {
+          const nums = (rows || []).map(r => r[key]).filter(n => n != null && Number.isFinite(Number(n)));
+          return nums.length > 0 ? nums.reduce((a, b) => a + Number(b), 0) / nums.length : null;
+        };
+        const checks: Array<[string, number | null, number | null]> = [
+          ["url_decode_pct", avg(recent, "url_decode_pct"), avg(prior, "url_decode_pct")],
+          ["body_fetch_pct", avg(recent, "body_fetch_pct"), avg(prior, "body_fetch_pct")],
+          ["anthropic_pct", avg(recent, "anthropic_pct"), avg(prior, "anthropic_pct")],
+        ];
+        for (const [metric, cur, base] of checks) {
+          if (cur != null && base != null && base >= 25 && (base - cur) >= 25) {
+            trendAlert = { metric, current: Math.round(cur * 10) / 10, baseline: Math.round(base * 10) / 10, drop: Math.round((base - cur) * 10) / 10 };
+            break;
+          }
+        }
+        if (trendAlert && process.env.RESEND_API_KEY) {
+          try {
+            await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: { "Authorization": `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+              body: JSON.stringify({
+                from: process.env.RESEND_FROM_EMAIL || "Jarvis AI <onboarding@resend.dev>",
+                to: ["gavin.gattuso@appliedvalue.com"],
+                subject: `[DEGRADED] ${trendAlert.metric} dropped ${trendAlert.drop} points week-over-week`,
+                html: `<p>Pipeline metric <code>${trendAlert.metric}</code> averaged <strong>${trendAlert.current}%</strong> this week vs <strong>${trendAlert.baseline}%</strong> the prior week — a <strong>${trendAlert.drop} point</strong> drop.</p><p>This is the kind of degradation that hid the April 2026 drought. Investigate via <code>SELECT * FROM pipeline_runs WHERE started_at &gt; NOW() - INTERVAL '14 days' ORDER BY started_at DESC;</code></p>`,
+                tags: [{ name: "type", value: "pipeline-degraded" }],
+              }),
+            });
+          } catch { /* non-fatal */ }
+        }
+      } catch { /* trend check is best-effort */ }
+
       // Weekly digest staleness check — emails an alert if no weekly_summaries
       // row exists for the current week by Saturday morning. Catches both
       // (a) cron not firing and (b) cron firing but returning no_articles.
@@ -905,12 +980,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       return res.json({
-        ok: !isStale,
+        ok: !isStale && !trendAlert && (!stuck || stuck.length === 0),
         latestArticleDate: latestDate,
         staleHours,
         isStale,
         scanStatus,
         digestStatus,
+        stuckLocks: stuck?.length || 0,
+        trendAlert,
         checkedAt: now.toISOString(),
       });
     }

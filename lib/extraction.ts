@@ -132,7 +132,16 @@ async function callAnthropic(model: string, systemPrompt: string | undefined, us
       console.error(`[anthropic] ${errMsg}`);
       return null;
     }
-    const data = await res.json() as any;
+    let data: any;
+    try {
+      data = await res.json();
+    } catch (parseErr: any) {
+      anthropicTelemetry.parseError++;
+      const msg = `200 OK but JSON parse failed: ${(parseErr?.message || "?").slice(0, 120)}`;
+      anthropicTelemetry.lastError = msg;
+      console.error(`[anthropic] ${msg}`);
+      return null;
+    }
     const text = data.content?.[0]?.text;
     if (!text) {
       anthropicTelemetry.empty++;

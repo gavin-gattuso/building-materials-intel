@@ -31,6 +31,7 @@ export type EmailType =
   | "alert-zero-articles"
   | "alert-stale-queue"
   | "alert-numeric-correction"
+  | "alert-pipeline-degraded"
   | "briefing-passthrough"
   | "smoke-test";
 

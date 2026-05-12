@@ -10,6 +10,7 @@ import {
 } from "../lib/extraction.js";
 import { sendEmail, idempotencyKey } from "../lib/email.js";
 import { decodeGoogleNewsUrl, type DecodeMethod } from "../lib/google-news-decoder.js";
+import { isAuthorizedCronOrPrivileged, signActionToken } from "../lib/auth.js";
 import { createRequire } from "node:module";
 
 const requireCfg = createRequire(import.meta.url);
@@ -398,11 +399,12 @@ export const config = {
 // ── Main Handler ──
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Auth
-  const authKey = (req.headers["x-scan-key"] || req.headers["authorization"]?.replace("Bearer ", "") || req.query.key) as string;
-  const validKeys = [process.env.CRON_SECRET, process.env.BRIEFING_API_KEY, SUPABASE_KEY, "cron"].filter(Boolean);
-  if (!authKey || !validKeys.includes(authKey)) {
-    return res.status(401).json({ error: "Unauthorized. Pass x-scan-key header." });
+  // Auth — uses lib/auth.ts which recognizes (a) Vercel internal cron header,
+  // (b) Authorization: Bearer <CRON_SECRET>, (c) x-scan-key / ?key= matching a
+  // provisioned secret. The hardcoded "cron" literal was removed 2026-05-12
+  // per RELIABILITY-AUDIT risk #1.
+  if (!isAuthorizedCronOrPrivileged(req)) {
+    return res.status(401).json({ error: "Unauthorized. Pass x-scan-key header or Authorization: Bearer <CRON_SECRET>." });
   }
 
   const today = new Date().toISOString().split("T")[0];
@@ -913,7 +915,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const totalPending = (pendingReviews || []).length;
         const actionBaseUrl = `https://building-materials-intel.vercel.app/api/review-queue/action`;
-        const actionKey = "cron"; // short auth token for email links
+        // Per-link HMAC over (id, action) signed with CRON_SECRET — replaces
+        // the previous hardcoded "cron" literal that let anyone with the URL
+        // pattern approve any review-queue item by UUID (RELIABILITY-AUDIT #1).
 
         // Build email HTML
         const byCategory: Record<string, typeof todayArticles> = {};
@@ -932,8 +936,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           html += `<div style="background:#FFF3E0;border:1px solid #FFB74D;border-radius:6px;padding:12px 16px;margin-bottom:16px">`;
           html += `<h2 style="color:#E65100;font-size:15px;margin:0 0 8px">Review Queue: ${totalPending} Pending</h2>`;
           for (const item of (pendingReviews || []).slice(0, 10)) {
-            const approveUrl = `${actionBaseUrl}?id=${item.id}&action=approved&key=${actionKey}`;
-            const dismissUrl = `${actionBaseUrl}?id=${item.id}&action=dismissed&key=${actionKey}`;
+            const approveUrl = `${actionBaseUrl}?id=${item.id}&action=approved&sig=${signActionToken(item.id, "approved")}`;
+            const dismissUrl = `${actionBaseUrl}?id=${item.id}&action=dismissed&sig=${signActionToken(item.id, "dismissed")}`;
             const label = item.queue_type.replace(/_/g, " ");
             const priorityBadge = item.priority === 1
               ? `<span style="background:#FF5722;color:#fff;font-size:10px;padding:1px 5px;border-radius:3px;margin-right:4px">P1</span>`
@@ -1001,12 +1005,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const titleById = new Map((articleRows || []).map((a: any) => [a.id, a.title]));
 
         const staleActionBase = `https://building-materials-intel.vercel.app/api/review-queue/action`;
-        const staleActionKey = "cron";
         const rows = overdue.map(o => {
           const ageHours = Math.round((Date.now() - Date.parse(o.created_at)) / 36e5);
           const headline = titleById.get(o.reference_id) || (o.auto_context || "").slice(0, 120);
-          const approveLink = `${staleActionBase}?id=${o.id}&action=approved&key=${staleActionKey}`;
-          const dismissLink = `${staleActionBase}?id=${o.id}&action=dismissed&key=${staleActionKey}`;
+          const approveLink = `${staleActionBase}?id=${o.id}&action=approved&sig=${signActionToken(o.id, "approved")}`;
+          const dismissLink = `${staleActionBase}?id=${o.id}&action=dismissed&sig=${signActionToken(o.id, "dismissed")}`;
           return `<tr><td style="padding:4px 8px;border-bottom:1px solid #eee">${o.queue_type}</td><td style="padding:4px 8px;border-bottom:1px solid #eee">${headline}</td><td style="padding:4px 8px;border-bottom:1px solid #eee;text-align:right">${ageHours}h</td><td style="padding:4px 8px;border-bottom:1px solid #eee;white-space:nowrap"><a href="${approveLink}" style="color:#2E7D52;font-weight:bold;text-decoration:none;margin-right:8px">Approve</a><a href="${dismissLink}" style="color:#757575;text-decoration:none">Dismiss</a></td></tr>`;
         }).join("");
 
@@ -1030,6 +1033,79 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       log.push(`Stale-queue check failed (non-fatal): ${err.message}`);
     }
 
+    // Persist run telemetry to pipeline_runs. This is the table healthcheck
+    // reads to detect "70% degraded but not zero" silent regressions — the
+    // failure mode that masked the April 2026 drought for 3 weeks.
+    const decodePct = resolutionStats.attempted > 0
+      ? Math.round((resolutionStats.succeeded / resolutionStats.attempted) * 10000) / 100
+      : null;
+    const bodyPct = bodyFetchStats.attempted > 0
+      ? Math.round((bodyFetchStats.succeeded / bodyFetchStats.attempted) * 10000) / 100
+      : null;
+    const anthroPct = anthropicTelemetry.totalCalls > 0
+      ? Math.round((anthropicTelemetry.ok / anthropicTelemetry.totalCalls) * 10000) / 100
+      : null;
+    await supabase.from("pipeline_runs").insert({
+      run_date: today,
+      started_at: new Date(Date.now() - 1000).toISOString(),
+      completed_at: new Date().toISOString(),
+      invocation: isBackfill ? "backfill" : "scheduled",
+      candidates: articles.length,
+      archived,
+      skipped,
+      rejected,
+      url_decode_attempted: resolutionStats.attempted,
+      url_decode_succeeded: resolutionStats.succeeded,
+      url_decode_pct: decodePct,
+      body_fetch_attempted: bodyFetchStats.attempted,
+      body_fetch_succeeded: bodyFetchStats.succeeded,
+      body_fetch_pct: bodyPct,
+      anthropic_calls: anthropicTelemetry.totalCalls,
+      anthropic_ok: anthropicTelemetry.ok,
+      anthropic_pct: anthroPct,
+      anthropic_last_error: anthropicTelemetry.lastError,
+      resolution_methods: resolveMethods,
+      errors: log.filter(l => /error|failed/i.test(l)).slice(0, 10),
+    }).then(() => null, (e: any) => log.push(`pipeline_runs insert failed: ${e?.message?.slice(0, 80)}`));
+
+    // Defense in depth: run trend-alert inline at end of every scheduled scan.
+    // The /api/healthcheck cron has the same logic but may not fire on Vercel
+    // Hobby (2-cron limit). Inlining here guarantees the trend signal fires
+    // once a day no matter the tier. Safe: only sends emails on degradation.
+    if (!isBackfill) {
+      try {
+        const sinceRecent = new Date(Date.now() - 7 * 86400000).toISOString();
+        const sincePrior = new Date(Date.now() - 14 * 86400000).toISOString();
+        const [{ data: recent }, { data: prior }] = await Promise.all([
+          supabase.from("pipeline_runs").select("url_decode_pct, body_fetch_pct, anthropic_pct").gte("started_at", sinceRecent).eq("invocation", "scheduled"),
+          supabase.from("pipeline_runs").select("url_decode_pct, body_fetch_pct, anthropic_pct").gte("started_at", sincePrior).lt("started_at", sinceRecent).eq("invocation", "scheduled"),
+        ]);
+        const avg = (rows: any[] | null, key: string) => {
+          const nums = (rows || []).map(r => r[key]).filter(n => n != null && Number.isFinite(Number(n)));
+          return nums.length > 0 ? nums.reduce((a, b) => a + Number(b), 0) / nums.length : null;
+        };
+        const checks: Array<[string, number | null, number | null]> = [
+          ["url_decode_pct", avg(recent, "url_decode_pct"), avg(prior, "url_decode_pct")],
+          ["body_fetch_pct", avg(recent, "body_fetch_pct"), avg(prior, "body_fetch_pct")],
+          ["anthropic_pct", avg(recent, "anthropic_pct"), avg(prior, "anthropic_pct")],
+        ];
+        for (const [metric, cur, base] of checks) {
+          if (cur != null && base != null && base >= 25 && (base - cur) >= 25 && process.env.RESEND_API_KEY) {
+            await sendEmail({
+              type: "alert-pipeline-degraded",
+              subject: `[DEGRADED] ${metric} dropped ${Math.round((base - cur) * 10) / 10}pts WoW`,
+              html: `<p><code>${metric}</code> averaged <strong>${Math.round(cur * 10) / 10}%</strong> this week vs <strong>${Math.round(base * 10) / 10}%</strong> prior. This is the alert that would have caught the April 2026 silent regression.</p>`,
+              idempotencyKey: idempotencyKey("alert-pipeline-degraded", `${today}-${metric}`),
+            });
+            log.push(`[trend-alert] ${metric}: ${cur?.toFixed(1)}% vs ${base?.toFixed(1)}% (drop ≥ 25pt)`);
+            break;
+          }
+        }
+      } catch (err: any) {
+        log.push(`Trend-alert check failed (non-fatal): ${err?.message?.slice(0, 80)}`);
+      }
+    }
+
     // Mark run complete (skip for ad-hoc backfill runs which bypassed the lock)
     if (!isBackfill) {
       await supabase
@@ -1040,6 +1116,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.json({ ok: true, date: today, archived, skipped, rejected, linked, reviewQueued, log });
   } catch (err: any) {
+    // Best-effort telemetry write even on crash — so a partial run is observable
+    try {
+      await supabase.from("pipeline_runs").insert({
+        run_date: today,
+        completed_at: new Date().toISOString(),
+        invocation: isBackfill ? "backfill" : "scheduled",
+        archived,
+        skipped,
+        rejected,
+        anthropic_calls: anthropicTelemetry.totalCalls,
+        anthropic_ok: anthropicTelemetry.ok,
+        anthropic_last_error: anthropicTelemetry.lastError,
+        errors: [String(err?.message || err).slice(0, 200)],
+      });
+    } catch { /* swallow — original error still bubbles */ }
     if (!isBackfill) {
       await supabase
         .from("daily_run_lock")

@@ -3,7 +3,7 @@
  * Run as part of the Vercel build command so the frontend can load data
  * without a running server.
  */
-import { writeFileSync, readdirSync, statSync } from "fs";
+import { writeFileSync, readdirSync, statSync, readFileSync } from "fs";
 import { join } from "path";
 
 const PUBLIC = join(import.meta.dir, "public");
@@ -118,6 +118,28 @@ if (SB_KEY) {
   }
 } else {
   writeFileSync(join(PUBLIC, "weekly-summary.json"), "null");
+}
+
+// Hard fail if any of the data-bearing static JSONs came back empty AND we
+// had credentials to fetch them. Previously a Supabase outage during build
+// would silently ship empty arrays to the production site (the dashboard
+// would render "no data" without any indication of staleness). Bias toward
+// FAILING the deploy so a stale state never reaches production.
+if (SB_KEY) {
+  const failures: string[] = [];
+  try {
+    const ws = JSON.parse(readFileSync(join(PUBLIC, "weekly-summary.json"), "utf8"));
+    if (ws == null) failures.push("weekly-summary.json is null (Supabase fetch failed during build)");
+  } catch (e: any) { failures.push(`weekly-summary.json unreadable: ${e?.message}`); }
+  try {
+    const fr = JSON.parse(readFileSync(join(PUBLIC, "financial-ratios.json"), "utf8"));
+    if (!Array.isArray(fr) || fr.length < 30) failures.push(`financial-ratios.json has ${Array.isArray(fr) ? fr.length : "non-array"} rows — expected ≥30 (39 tracked companies × periods)`);
+  } catch (e: any) { failures.push(`financial-ratios.json unreadable: ${e?.message}`); }
+  if (failures.length > 0) {
+    console.error("Static build FAILED — refusing to deploy with stale data:");
+    for (const f of failures) console.error("  - " + f);
+    process.exit(1);
+  }
 }
 
 console.log("Static build complete.");

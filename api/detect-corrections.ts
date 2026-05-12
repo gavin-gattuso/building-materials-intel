@@ -9,6 +9,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import { classifySeverity, stripHtml, sendNumericCorrectionAlert } from "../lib/correction-severity.js";
+import { isAuthorizedCronOrPrivileged } from "../lib/auth.js";
 
 const SUPABASE_URL = (process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co").trim();
 const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
@@ -41,9 +42,7 @@ export const config = {
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const authKey = (req.headers["x-scan-key"] || req.headers["authorization"]?.replace("Bearer ", "") || req.query.key) as string;
-  const validKeys = [process.env.CRON_SECRET, process.env.BRIEFING_API_KEY, SUPABASE_KEY, "cron"].filter(Boolean);
-  if (!authKey || !validKeys.includes(authKey)) {
+  if (!isAuthorizedCronOrPrivileged(req)) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 

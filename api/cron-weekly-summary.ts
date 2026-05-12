@@ -1,12 +1,11 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { generateWeeklySummary } from "../scripts/generate-weekly-summary.js";
+import { isAuthorizedCronOrPrivileged } from "../lib/auth.js";
 
 export const config = { maxDuration: 300 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const authKey = (req.headers["x-scan-key"] || req.headers["authorization"]?.replace("Bearer ", "") || req.query.key) as string;
-  const validKeys = [process.env.CRON_SECRET, process.env.BRIEFING_API_KEY, process.env.SUPABASE_SERVICE_ROLE_KEY, "cron"].filter(Boolean);
-  if (!authKey || !validKeys.includes(authKey)) {
+  if (!isAuthorizedCronOrPrivileged(req)) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
