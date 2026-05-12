@@ -11,12 +11,11 @@ import {
 import { sendEmail, idempotencyKey } from "../lib/email.js";
 import { decodeGoogleNewsUrl, type DecodeMethod } from "../lib/google-news-decoder.js";
 import { isAuthorizedCronOrPrivileged, signActionToken } from "../lib/auth.js";
+import { isApprovedSource, getSourceDomain, getSourceTier } from "../lib/whitelist.js";
+import { fetchArticleBody, type BodyFetchStats } from "../lib/body-fetch.js";
 import { createRequire } from "node:module";
 
 const requireCfg = createRequire(import.meta.url);
-const whitelistConfig = requireCfg("../config/source-whitelist.json") as {
-  domains: Array<{ domain: string; tier: number; company?: string; note?: string }>;
-};
 
 const SUPABASE_URL = (process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co").trim();
 const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
@@ -24,30 +23,9 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || "";
 
-// ── Approved Source Whitelist (loaded from config/source-whitelist.json) ──
-
-const APPROVED_DOMAINS = new Set<string>(whitelistConfig.domains.map(d => d.domain));
-const TIER_BY_DOMAIN = new Map<string, number>(whitelistConfig.domains.map(d => [d.domain, d.tier]));
-
-function isApprovedSource(url: string): boolean {
-  try {
-    const hostname = new URL(url).hostname.replace(/^www\./, "");
-    return Array.from(APPROVED_DOMAINS).some(d => hostname === d || hostname.endsWith("." + d));
-  } catch { return false; }
-}
-
-function getSourceDomain(url: string): string {
-  try { return new URL(url).hostname.replace(/^www\./, ""); }
-  catch { return "unknown"; }
-}
-
-function getSourceTier(url: string): number {
-  const domain = getSourceDomain(url);
-  for (const [d, tier] of TIER_BY_DOMAIN) {
-    if (domain === d || domain.endsWith("." + d)) return tier;
-  }
-  return 3;
-}
+// Whitelist helpers (isApprovedSource / getSourceDomain / getSourceTier) and
+// the parsed whitelist itself now live in lib/whitelist.ts so they can be
+// unit-tested directly.
 
 // ── Google News URL Resolution ──
 //
@@ -60,80 +38,9 @@ function getSourceTier(url: string): number {
 interface ResolutionStats { attempted: number; succeeded: number; failed: number; }
 type MethodCounts = Record<DecodeMethod, number>;
 
-// ── Article Body Fetching ──
-//
-// Pre-2026-05 the extraction pipeline was called with just the RSS headline
-// (`article.title`) as the "article text" — which is why article_extractions
-// has been an empty table for the lifetime of the system. Fetching the body
-// here, for whitelisted articles only, gives extraction and summary real text
-// to work with. Failures are expected (paywalls, bot protection, Google News
-// redirect URLs that can't be followed) — we count attempts and surface the
-// success rate so the regression is visible if it drops over time.
-
-interface BodyFetchStats { attempted: number; succeeded: number; failed: number; }
-
-async function fetchArticleBody(url: string, timeoutMs = 4000): Promise<string | null> {
-  if (!url) return null;
-  // Skip Google News redirect URLs — they require either the URL decoder or a
-  // browser-like environment to follow; the body fetch will hit a consent wall.
-  if (url.includes("news.google.com")) return null;
-  try {
-    const controller = new AbortController();
-    const t = setTimeout(() => controller.abort(), timeoutMs);
-    const res = await fetch(url, {
-      redirect: "follow",
-      signal: controller.signal,
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-      },
-    });
-    clearTimeout(t);
-    if (!res.ok) return null;
-    const ct = res.headers.get("content-type") || "";
-    if (!ct.includes("html") && !ct.includes("text")) return null;
-    const html = await res.text();
-    const body = extractMainText(html);
-    return body && body.length >= 200 ? body : null;
-  } catch {
-    return null;
-  }
-}
-
-function extractMainText(html: string): string {
-  let cleaned = html
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<noscript[\s\S]*?<\/noscript>/gi, "")
-    .replace(/<!--[\s\S]*?-->/g, "");
-
-  // Prefer <article>, then <main>, else fall back to whole doc
-  const articleMatch = cleaned.match(/<article[^>]*>([\s\S]*?)<\/article>/i);
-  if (articleMatch?.[1]) cleaned = articleMatch[1];
-  else {
-    const mainMatch = cleaned.match(/<main[^>]*>([\s\S]*?)<\/main>/i);
-    if (mainMatch?.[1]) cleaned = mainMatch[1];
-  }
-
-  const paragraphs: string[] = [];
-  const pMatches = cleaned.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi);
-  for (const m of pMatches) {
-    const text = (m[1] || "")
-      .replace(/<[^>]+>/g, "")
-      .replace(/&nbsp;/g, " ")
-      .replace(/&amp;/g, "&")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/&#x27;/g, "'")
-      .replace(/\s+/g, " ")
-      .trim();
-    if (text.length > 40) paragraphs.push(text);
-  }
-  return paragraphs.join("\n\n").slice(0, 10000);
-}
+// fetchArticleBody + extractMainText now live in lib/body-fetch.ts so the
+// parser is unit-testable in isolation (importing api/daily-scan.ts triggers
+// Supabase client init which crashes if env vars are missing at test time).
 
 // ── Utilities ──
 

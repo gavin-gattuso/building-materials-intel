@@ -1,0 +1,37 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# A regression in the URL decoder, whitelist, auth helper, or body-text
+# extractor would silently degrade ingest quality without alerting — those
+# are the paths that broke in April 2026 (3-week silent regression). This
+# workflow runs the deterministic unit tests covering each hot path so the
+# regression is observable at PR time, before it reaches production.
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        # No bun.lock in repo (project uses package-lock.json); rely on bun to
+        # resolve from package.json. Add a bun.lock + use --frozen-lockfile if
+        # we want to harden this against drift.
+        run: bun install
+
+      - name: Run reliability test suite
+        run: bun run test:reliability
+
+      - name: TypeScript typecheck (advisory — does not gate merge)
+        run: bunx tsc --noEmit -p . || true
