@@ -13,6 +13,7 @@ import { decodeGoogleNewsUrl, type DecodeMethod } from "../lib/google-news-decod
 import { isAuthorizedCronOrPrivileged, signActionToken } from "../lib/auth.js";
 import { isApprovedSource, getSourceDomain, getSourceTier } from "../lib/whitelist.js";
 import { fetchArticleBody, type BodyFetchStats } from "../lib/body-fetch.js";
+import { matchCompanies, type CompanyMatch } from "../lib/company-match.js";
 import { createRequire } from "node:module";
 
 const requireCfg = createRequire(import.meta.url);
@@ -68,16 +69,17 @@ function categorize(title: string, content: string): string {
   return "Industry Outlook";
 }
 
-// ── Tightened Company Matching (Phase 3.5) ──
-// Requires at least TWO independent signals before linking. Single-signal matches
-// are tagged low_confidence_match = TRUE.
+// Tightened company matching rules now live in lib/company-match.ts so the
+// re-match endpoint (/api/rematch-companies) can apply them to existing rows
+// without duplicating the rule table. Re-exporting the local interface for
+// callers that still reference it.
 
 interface CompanyMatchConfig {
   slug: string;
-  tickers: string[];         // exact ticker matches (strongest signal)
-  fullNames: string[];       // full company name matches
-  abbreviations: string[];   // common abbreviations (only in financial context)
-  segmentKeywords: string[]; // segment keywords (only with another signal)
+  tickers: string[];
+  fullNames: string[];
+  abbreviations: string[];
+  segmentKeywords: string[];
 }
 
 const COMPANY_MATCH_RULES: CompanyMatchConfig[] = [
@@ -121,78 +123,8 @@ const COMPANY_MATCH_RULES: CompanyMatchConfig[] = [
   { slug: "lixil", tickers: ["5938.T"], fullNames: ["lixil"], abbreviations: [], segmentKeywords: ["water technology", "housing technology"] },
   { slug: "sanwa-holdings", tickers: ["5929.T"], fullNames: ["sanwa holdings"], abbreviations: ["sanwa"], segmentKeywords: ["shutters", "doors", "partitions"] },
 ];
-
-interface CompanyMatch {
-  slug: string;
-  signals: string[];
-  lowConfidence: boolean;
-}
-
-function matchCompanies(title: string, content: string): CompanyMatch[] {
-  const text = (" " + title + " " + content + " ").toLowerCase();
-  const matches: CompanyMatch[] = [];
-
-  // Financial context words (for abbreviation matching)
-  const hasFinancialContext = /\b(earnings|revenue|quarter|fiscal|shares|stock|eps|guidance|analyst|dividend|margin)\b/.test(text);
-
-  for (const rule of COMPANY_MATCH_RULES) {
-    const signals: string[] = [];
-
-    // Check tickers (strongest signal)
-    for (const ticker of rule.tickers) {
-      // Tickers need word boundaries to avoid false positives
-      const tickerPattern = new RegExp(`\\b${ticker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
-      if (tickerPattern.test(text)) {
-        signals.push(`ticker:${ticker}`);
-      }
-    }
-
-    // Check full company names
-    for (const name of rule.fullNames) {
-      if (text.includes(name.toLowerCase())) {
-        signals.push(`name:${name}`);
-      }
-    }
-
-    // Check abbreviations (only in financial context)
-    if (hasFinancialContext) {
-      for (const abbr of rule.abbreviations) {
-        if (text.includes(abbr.toLowerCase())) {
-          signals.push(`abbr:${abbr}`);
-        }
-      }
-    }
-
-    // Check segment keywords (weak signal, only counts with another signal)
-    let segmentHit = false;
-    for (const kw of rule.segmentKeywords) {
-      if (text.includes(kw.toLowerCase())) {
-        segmentHit = true;
-        break;
-      }
-    }
-
-    // Determine match quality
-    const nonSegmentSignals = signals.length;
-    if (segmentHit && nonSegmentSignals > 0) {
-      signals.push("segment_keyword");
-    }
-
-    if (signals.length === 0) continue;
-
-    // Two or more signals = high confidence
-    // One non-segment signal = low confidence (still linked, but flagged)
-    // Segment keyword alone = no match (rejected)
-    if (signals.length >= 2) {
-      matches.push({ slug: rule.slug, signals, lowConfidence: false });
-    } else if (nonSegmentSignals >= 1) {
-      matches.push({ slug: rule.slug, signals, lowConfidence: true });
-    }
-    // Segment-only matches are dropped entirely
-  }
-
-  return matches;
-}
+// COMPANY_MATCH_RULES kept here for any in-file reference; the live ingest
+// path now calls the lib/company-match.ts matchCompanies() (imported above).
 
 // ── Rejected Article Logging ──
 

@@ -9,6 +9,9 @@ import { join } from "path";
 const PUBLIC = join(import.meta.dir, "public");
 
 // --- 1. Earnings Calendar ---
+// Pulled from Supabase `earnings_calendar` table since 2026-05-12; the
+// hardcoded list below is a fallback for offline builds and a source of
+// truth for the initial DB seed (see migration earnings_calendar_table).
 interface EarningsDate {
   company: string;
   ticker: string;
@@ -17,7 +20,7 @@ interface EarningsDate {
   estimated: boolean;
 }
 
-const earningsSchedule: EarningsDate[] = [
+const earningsScheduleFallback: EarningsDate[] = [
   { company: "CRH", ticker: "CRH", date: "2026-05-13", quarter: "Q1 2026", estimated: false },
   { company: "CEMEX", ticker: "CX", date: "2026-04-27", quarter: "Q1 2026", estimated: false },
   { company: "Heidelberg Materials", ticker: "HEI.DE", date: "2026-05-06", quarter: "Q1 2026 Trading Update", estimated: false },
@@ -55,7 +58,33 @@ const earningsSchedule: EarningsDate[] = [
   { company: "Trane Technologies", ticker: "TT", date: "2026-04-29", quarter: "Q1 2026", estimated: false },
 ];
 
-// Write all earnings (sorted by date) — frontend filters by current date
+// Try DB first; fall back to the hardcoded list if Supabase is unreachable
+// or the table is empty. Hardcoded list stays in sync as a "known good"
+// baseline — never let a transient DB failure ship an empty calendar.
+const SB_URL_FOR_EARNINGS = process.env.SUPABASE_URL || "https://pmjqymxdaiwfpfglwqux.supabase.co";
+const SB_KEY_FOR_EARNINGS = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || "";
+let earningsSchedule: EarningsDate[] = earningsScheduleFallback;
+if (SB_KEY_FOR_EARNINGS) {
+  try {
+    const res = await fetch(
+      `${SB_URL_FOR_EARNINGS}/rest/v1/earnings_calendar?select=company,ticker,date,quarter,estimated&order=date.asc`,
+      { headers: { apikey: SB_KEY_FOR_EARNINGS, Authorization: `Bearer ${SB_KEY_FOR_EARNINGS}` } }
+    );
+    if (res.ok) {
+      const fromDb = await res.json() as EarningsDate[];
+      if (Array.isArray(fromDb) && fromDb.length >= earningsScheduleFallback.length * 0.5) {
+        earningsSchedule = fromDb;
+        console.log(`Earnings calendar: ${fromDb.length} rows from DB`);
+      } else {
+        console.log(`Earnings calendar: DB returned ${fromDb?.length || 0} rows (< 50% of fallback), using hardcoded list`);
+      }
+    } else {
+      console.log(`Earnings calendar: DB returned ${res.status}, using fallback`);
+    }
+  } catch (e: any) {
+    console.log(`Earnings calendar DB fetch failed (${e?.message?.slice(0, 80)}), using fallback`);
+  }
+}
 const sorted = [...earningsSchedule].sort((a, b) => a.date.localeCompare(b.date));
 writeFileSync(join(PUBLIC, "earnings-calendar.json"), JSON.stringify(sorted, null, 2));
 console.log(`Generated earnings-calendar.json (${sorted.length} entries)`);

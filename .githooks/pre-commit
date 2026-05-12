@@ -1,0 +1,25 @@
+#!/bin/sh
+# Pre-commit hook — runs the reliability test suite before allowing a commit.
+# Skips itself when no .ts/.js files are staged.
+#
+# Activate once per clone: `git config core.hooksPath .githooks`
+# Bypass for a single commit: `git commit --no-verify`
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|js)$' || true)
+if [ -z "$STAGED" ]; then
+  exit 0
+fi
+
+if ! command -v bun >/dev/null 2>&1; then
+  echo "[pre-commit] bun not installed; skipping test gate"
+  exit 0
+fi
+
+echo "[pre-commit] running bun test:reliability..."
+if ! bun run test:reliability >/dev/null 2>&1; then
+  echo "[pre-commit] FAILED — run 'bun run test:reliability' to see what broke."
+  echo "[pre-commit] bypass with: git commit --no-verify"
+  exit 1
+fi
+echo "[pre-commit] tests passed."
+exit 0
