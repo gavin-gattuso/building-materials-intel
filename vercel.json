@@ -24,6 +24,8 @@
     { "source": "/api/detect-corrections", "destination": "/api/detect-corrections" },
     { "source": "/api/cron-weekly-summary", "destination": "/api/cron-weekly-summary" },
     { "source": "/api/cron-weekly", "destination": "/api/cron-weekly" },
+    { "source": "/api/status", "destination": "/api/status" },
+    { "source": "/api/backfill", "destination": "/api/backfill" },
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/reports/poc-(.*)", "destination": "/reports/poc-removed-404.html" },
     { "source": "/(.*)", "destination": "/index.html" }

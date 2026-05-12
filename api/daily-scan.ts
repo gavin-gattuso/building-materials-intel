@@ -327,6 +327,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const bodyFetchStats: BodyFetchStats = { attempted: 0, succeeded: 0, failed: 0 };
   resetAnthropicTelemetry();
 
+  // ── Anthropic daily budget cap ────────────────────────────────────────
+  // Defends against runaway cost from a stuck loop or an attacker abusing
+  // the /api/backfill or /api/daily-scan?backfill=1 endpoints. Sums today's
+  // anthropic_calls across all pipeline_runs and refuses if the total
+  // already exceeds the configured cap. Default 5,000 calls/day; tunable
+  // via ANTHROPIC_DAILY_CAP env var.
+  const dailyCap = parseInt(process.env.ANTHROPIC_DAILY_CAP || "5000", 10);
+  try {
+    const { data: prev } = await supabase
+      .from("pipeline_runs")
+      .select("anthropic_calls")
+      .eq("run_date", today);
+    const usedToday = (prev || []).reduce((a, b) => a + (b.anthropic_calls || 0), 0);
+    if (usedToday >= dailyCap) {
+      return res.status(429).json({
+        error: `Anthropic daily call cap reached (${usedToday}/${dailyCap}). Set ANTHROPIC_DAILY_CAP env var higher if intentional.`,
+        date: today,
+        used_today: usedToday,
+        cap: dailyCap,
+      });
+    }
+  } catch { /* best-effort cap check */ }
+
   // ── Daily run-lock (idempotency across dual triggers) ──
   // Attempt to claim today's run. Unique-constraint violation = another
   // invocation has already started or completed; skip cleanly.

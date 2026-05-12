@@ -651,6 +651,14 @@
       <h2>Building Materials Intelligence</h2>
       <p>Quick highlights across companies, markets, and financials</p>
     </div>
+    <!-- Data-freshness banner — populated by loadFreshnessBanner() in landing.js
+         from /api/status. Hidden by default; appears only when any tracked data
+         type crosses its staleness threshold. -->
+    <div id="freshness-banner" style="display:none;background:#fff8e1;border:1px solid #f9d68f;border-left:4px solid #f5a623;color:#5b4400;padding:10px 14px;border-radius:4px;margin-bottom:14px;font-size:13px">
+      <strong>⚠️ Data freshness warning</strong>
+      <span id="freshness-banner-msg" style="margin-left:6px"></span>
+      <a href="/status.html" style="margin-left:8px;color:#5b4400;text-decoration:underline">Status page →</a>
+    </div>
     <div id="home-ai-summary"></div>
     <div class="section-title">Market Drivers</div>
     <div class="section-source">Source: Applied Value analysis of industry data</div>
@@ -834,7 +842,7 @@ import { loadDrivers, loadConcepts, openArticle, openWiki, openCompanyByTicker, 
 import { initChat } from './js/chat.js';
 import { loadReportDownloads, loadReports, initReportGenerator } from './js/reports.js';
 import { loadFinancialRatios } from './js/financial.js';
-import { loadHome } from './js/landing.js';
+import { loadHome, loadFreshnessBanner } from './js/landing.js';
 import { toggleFavorite } from './js/favorites.js';
 import { initCompanyPopup } from './js/company-popup.js';
 
@@ -966,6 +974,7 @@ fetch('/financial-ratios.json').then(r => r.ok ? r.json() : Promise.reject())
   .catch(() => initCompanyPopup([]));
 
 // Load all pages
+loadFreshnessBanner();
 loadHome();
 loadArticles();
 loadArticleFilters();

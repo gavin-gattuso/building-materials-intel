@@ -11,6 +11,32 @@ function signalArrow(s) {
   return '↕';
 }
 
+/**
+ * Pull the operational status snapshot and show a banner at the top of the
+ * homepage when any tracked data type is stale. Silent on healthy state.
+ */
+export async function loadFreshnessBanner() {
+  const banner = document.getElementById('freshness-banner');
+  const msgEl = document.getElementById('freshness-banner-msg');
+  if (!banner || !msgEl) return;
+  try {
+    const r = await fetch('/api/status');
+    if (!r.ok) return;
+    const s = await r.json();
+    const f = s.freshness || {};
+    const issues = [];
+    if (f.article_stale_hours != null && f.article_stale_hours > 48) issues.push(`articles ${Math.floor(f.article_stale_hours / 24)}d behind`);
+    if (f.weekly_summary_age_days != null && f.weekly_summary_age_days > 10) issues.push(`weekly digest ${f.weekly_summary_age_days}d behind`);
+    if (f.financial_ratios_age_days != null && f.financial_ratios_age_days > 21) issues.push(`financial ratios ${f.financial_ratios_age_days}d behind`);
+    if (f.market_drivers_age_days != null && f.market_drivers_age_days > 21) issues.push(`market drivers ${f.market_drivers_age_days}d behind`);
+    if (s.counters?.stuck_locks > 0) issues.push(`${s.counters.stuck_locks} stuck ingest run(s)`);
+    if (issues.length > 0) {
+      msgEl.textContent = issues.join(' · ');
+      banner.style.display = 'block';
+    }
+  } catch { /* status endpoint optional; never break the homepage */ }
+}
+
 export async function loadHome() {
   // Show skeleton placeholders while fetching
   const sumEl = document.getElementById('home-ai-summary');

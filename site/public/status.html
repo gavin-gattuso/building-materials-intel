@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pipeline Status — Building Materials Intelligence</title>
+  <style>
+    :root {
+      --bg: #f5f6f7;
+      --surface: #fff;
+      --border: #e1e4e8;
+      --text: #1c2128;
+      --muted: #57606a;
+      --ok: #1a7f37;
+      --warn: #9a6700;
+      --bad: #cf222e;
+      --av-green: #1B3C2D;
+      --av-accent: #2E7D52;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
+    header { background: var(--av-green); color: #fff; padding: 18px 28px; }
+    header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+    header .sub { opacity: 0.8; font-size: 13px; margin-top: 4px; }
+    main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 20px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 16px 18px; }
+    .card h2 { margin: 0 0 12px; font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .big-number { font-size: 28px; font-weight: 600; }
+    .big-number .unit { font-size: 14px; color: var(--muted); margin-left: 4px; font-weight: 400; }
+    .stat-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; border-bottom: 1px solid var(--border); }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-row .label { color: var(--muted); }
+    .stat-row .value { font-weight: 500; }
+    .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .pill.ok { background: #ddf4e0; color: var(--ok); }
+    .pill.warn { background: #fff3cd; color: var(--warn); }
+    .pill.bad { background: #fce7e8; color: var(--bad); }
+    .runs-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .runs-table th, .runs-table td { padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--border); }
+    .runs-table th { background: #f6f8fa; color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 10px; letter-spacing: 0.04em; }
+    .runs-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .pct-bar { display: inline-block; width: 60px; height: 4px; background: #e1e4e8; border-radius: 2px; overflow: hidden; vertical-align: middle; margin-right: 6px; }
+    .pct-bar > span { display: block; height: 100%; background: var(--av-accent); }
+    .footer { text-align: center; color: var(--muted); font-size: 11px; padding: 24px; }
+    .skeleton { background: linear-gradient(90deg, #e1e4e8 25%, #f6f8fa 50%, #e1e4e8 75%); background-size: 200% 100%; animation: shimmer 1.5s linear infinite; height: 24px; border-radius: 3px; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    a.back { color: #fff; text-decoration: none; opacity: 0.85; font-size: 13px; }
+    a.back:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="back" href="/">&larr; Dashboard</a>
+    <h1 style="margin-top:6px">Pipeline Status</h1>
+    <div class="sub" id="header-sub">Loading current state…</div>
+  </header>
+
+  <main>
+    <div class="row">
+      <div class="card">
+        <h2>Overall Health</h2>
+        <div id="overall-pill" class="skeleton" style="width:100px"></div>
+        <div id="overall-detail" style="margin-top:10px;font-size:13px;color:var(--muted)"></div>
+      </div>
+      <div class="card">
+        <h2>Last Scheduled Run</h2>
+        <div class="big-number" id="last-run-articles">—</div>
+        <div id="last-run-detail" style="font-size:12px;color:var(--muted);margin-top:4px"></div>
+      </div>
+      <div class="card">
+        <h2>Total Articles</h2>
+        <div class="big-number" id="total-articles">—</div>
+        <div id="article-fresh" style="font-size:12px;color:var(--muted);margin-top:4px"></div>
+      </div>
+      <div class="card">
+        <h2>Pending Reviews</h2>
+        <div class="big-number" id="pending-reviews">—</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">in human_review_queue</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="card">
+        <h2>Pipeline Quality (last 7 days)</h2>
+        <div class="stat-row"><span class="label">URL decode %</span><span class="value" id="rate-7d-decode">—</span></div>
+        <div class="stat-row"><span class="label">Body fetch %</span><span class="value" id="rate-7d-body">—</span></div>
+        <div class="stat-row"><span class="label">Anthropic OK %</span><span class="value" id="rate-7d-anthropic">—</span></div>
+      </div>
+      <div class="card">
+        <h2>Pipeline Quality (last 14 days)</h2>
+        <div class="stat-row"><span class="label">URL decode %</span><span class="value" id="rate-14d-decode">—</span></div>
+        <div class="stat-row"><span class="label">Body fetch %</span><span class="value" id="rate-14d-body">—</span></div>
+        <div class="stat-row"><span class="label">Anthropic OK %</span><span class="value" id="rate-14d-anthropic">—</span></div>
+      </div>
+      <div class="card">
+        <h2>Data Freshness</h2>
+        <div class="stat-row"><span class="label">Articles</span><span class="value" id="fresh-articles">—</span></div>
+        <div class="stat-row"><span class="label">Weekly digest</span><span class="value" id="fresh-weekly">—</span></div>
+        <div class="stat-row"><span class="label">Financial ratios</span><span class="value" id="fresh-ratios">—</span></div>
+        <div class="stat-row"><span class="label">Market drivers</span><span class="value" id="fresh-drivers">—</span></div>
+      </div>
+      <div class="card">
+        <h2>Alert Activity (14d)</h2>
+        <div class="big-number" id="alerts-count">—</div>
+        <div id="alerts-breakdown" style="font-size:12px;color:var(--muted);margin-top:6px;line-height:1.6"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Recent Runs</h2>
+      <table class="runs-table">
+        <thead><tr><th>Date</th><th>Type</th><th class="num">Candidates</th><th class="num">Inserted</th><th class="num">URL decode</th><th class="num">Body fetch</th><th class="num">Anthropic</th></tr></thead>
+        <tbody id="runs-body"><tr><td colspan="7" style="text-align:center;color:var(--muted)">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </main>
+
+  <div class="footer">building-materials-intel.vercel.app — data from /api/status</div>
+
+<script>
+function pill(cls, label) { return '<span class="pill ' + cls + '">' + label + '</span>'; }
+function pctBar(v) {
+  if (v == null) return '<span style="color:var(--muted)">no data</span>';
+  return '<span class="pct-bar"><span style="width:' + Math.min(100, v) + '%"></span></span>' + v.toFixed(1) + '%';
+}
+function freshLabel(ageDays, warnAt, badAt) {
+  if (ageDays == null) return pill('bad', 'never') + ' <span style="color:var(--muted)">never recorded</span>';
+  let cls = 'ok'; if (ageDays >= badAt) cls = 'bad'; else if (ageDays >= warnAt) cls = 'warn';
+  return pill(cls, ageDays + (ageDays === 1 ? ' day' : ' days') + ' ago');
+}
+function hoursLabel(hours, warnAt, badAt) {
+  if (hours == null) return pill('bad', 'never');
+  let cls = 'ok'; if (hours >= badAt) cls = 'bad'; else if (hours >= warnAt) cls = 'warn';
+  const text = hours < 24 ? hours + 'h' : Math.floor(hours / 24) + 'd';
+  return pill(cls, text + ' ago');
+}
+
+async function load() {
+  try {
+    const r = await fetch('/api/status', { cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const s = await r.json();
+
+    document.getElementById('header-sub').textContent = 'Last checked ' + new Date(s.checked_at).toLocaleString();
+
+    const overall = document.getElementById('overall-pill');
+    overall.classList.remove('skeleton');
+    overall.outerHTML = s.ok ? pill('ok', 'Healthy') : pill('bad', 'Degraded');
+    let detailParts = [];
+    if (s.freshness.article_stale_hours != null) detailParts.push('Newest article ' + Math.floor(s.freshness.article_stale_hours/24) + 'd ago');
+    if (s.counters.stuck_locks > 0) detailParts.push(s.counters.stuck_locks + ' stuck lock(s)');
+    document.getElementById('overall-detail').textContent = detailParts.join(' · ') || '';
+
+    if (s.last_run) {
+      document.getElementById('last-run-articles').innerHTML = s.last_run.articles_inserted + '<span class="unit">articles</span>';
+      document.getElementById('last-run-detail').innerHTML = s.last_run.run_date + ' (' + s.last_run.status + ') ' + (s.last_run.hours_ago != null ? '· ' + s.last_run.hours_ago + 'h ago' : '');
+    } else {
+      document.getElementById('last-run-articles').textContent = 'no runs';
+    }
+
+    document.getElementById('total-articles').textContent = s.counters.total_articles.toLocaleString();
+    document.getElementById('article-fresh').innerHTML = 'Newest: ' + hoursLabel(s.freshness.article_stale_hours, 36, 72);
+    document.getElementById('pending-reviews').textContent = s.counters.pending_reviews;
+
+    document.getElementById('rate-7d-decode').innerHTML = pctBar(s.rates_7d.url_decode_pct);
+    document.getElementById('rate-7d-body').innerHTML = pctBar(s.rates_7d.body_fetch_pct);
+    document.getElementById('rate-7d-anthropic').innerHTML = pctBar(s.rates_7d.anthropic_pct);
+    document.getElementById('rate-14d-decode').innerHTML = pctBar(s.rates_14d.url_decode_pct);
+    document.getElementById('rate-14d-body').innerHTML = pctBar(s.rates_14d.body_fetch_pct);
+    document.getElementById('rate-14d-anthropic').innerHTML = pctBar(s.rates_14d.anthropic_pct);
+
+    document.getElementById('fresh-articles').innerHTML = hoursLabel(s.freshness.article_stale_hours, 36, 72);
+    document.getElementById('fresh-weekly').innerHTML = freshLabel(s.freshness.weekly_summary_age_days, 8, 14);
+    document.getElementById('fresh-ratios').innerHTML = freshLabel(s.freshness.financial_ratios_age_days, 14, 35);
+    document.getElementById('fresh-drivers').innerHTML = freshLabel(s.freshness.market_drivers_age_days, 14, 35);
+
+    document.getElementById('alerts-count').textContent = s.counters.alerts_14d;
+    const breakdown = Object.entries(s.alerts_breakdown).map(([k, v]) => k.replace(/^alert-/, '') + ': ' + v).join(' · ') || '(no alerts)';
+    document.getElementById('alerts-breakdown').textContent = breakdown;
+
+    const tbody = document.getElementById('runs-body');
+    if (s.recent_runs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted)">No runs recorded yet — table was created today</td></tr>';
+    } else {
+      tbody.innerHTML = s.recent_runs.map(r => '<tr>' +
+        '<td>' + r.date + '</td>' +
+        '<td>' + r.invocation + '</td>' +
+        '<td class="num">' + (r.candidates ?? '—') + '</td>' +
+        '<td class="num">' + (r.articles ?? 0) + '</td>' +
+        '<td class="num">' + (r.url_decode_pct != null ? r.url_decode_pct.toFixed(1) + '%' : '—') + '</td>' +
+        '<td class="num">' + (r.body_fetch_pct != null ? r.body_fetch_pct.toFixed(1) + '%' : '—') + '</td>' +
+        '<td class="num">' + (r.anthropic_pct != null ? r.anthropic_pct.toFixed(1) + '%' : '—') + '</td>' +
+        '</tr>').join('');
+    }
+  } catch (err) {
+    document.getElementById('header-sub').textContent = 'Failed to load: ' + (err.message || err);
+  }
+}
+load();
+setInterval(load, 60000);
+</script>
+</body>
+</html>
