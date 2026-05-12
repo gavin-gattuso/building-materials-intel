@@ -7,7 +7,7 @@
     "site": "bun run site/server.ts",
     "lint:prompts": "bun run scripts/lint-prompts.ts",
     "test": "bun test",
-    "test:reliability": "bun test tests/decoder.test.ts tests/auth.test.ts tests/whitelist.test.ts tests/email-idempotency.test.ts tests/body-extract.test.ts tests/company-match.test.ts tests/pipeline.test.ts"
+    "test:reliability": "bun test tests/decoder.test.ts tests/auth.test.ts tests/whitelist.test.ts tests/email-idempotency.test.ts tests/body-extract.test.ts tests/company-match.test.ts tests/no-cron-literal.test.ts tests/pipeline.test.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"

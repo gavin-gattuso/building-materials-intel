@@ -26,6 +26,8 @@ Nightly ingest steps:
 - Features: Dashboard, Articles search, Company profiles, Market Drivers, Concepts, Financial Ratios, Reports, AI Chat
 - Chat mode: Smart Search (no API key needed). Set ANTHROPIC_API_KEY env var to enable AI synthesis mode.
 - Auto-refreshes KB data every 60 seconds
+- **`/status.html`** -- operational health dashboard (pipeline_runs trends, freshness, alerts, recent runs). Public read.
+- **Homepage freshness banner** auto-shows when any tracked data type is stale (articles >48h, weekly digest >10d, ratios/drivers >21d)
 
 ## Report Generation
 - Custom intelligence reports generated as .docx via `/api/build-report` (POST)
@@ -35,7 +37,19 @@ Nightly ingest steps:
 - Important: ESM imports in `api/` must use `.js` extensions for Vercel Node.js runtime compatibility
 
 ## Vercel API Endpoints
-The main API (`api/index.ts`) handles all endpoints except build-report and detect-corrections:
+The main API (`api/index.ts`) handles many endpoints; several heavier or cron-triggered paths live in their own files. Auth on cron + privileged endpoints uses `lib/auth.ts:isAuthorizedCronOrPrivileged()` — accepts the Vercel `x-vercel-cron: 1` header, `Authorization: Bearer <CRON_SECRET>`, or `x-scan-key`/`?key=` matching a provisioned secret. The legacy literal `"cron"` key is no longer accepted (RELIABILITY-AUDIT risk #1).
+
+Standalone endpoints (each in their own `api/*.ts`):
+- `POST /api/daily-scan?key=cron` -- main nightly ingest. Supports `?backfill=1&days=N&extra=Q1|Q2` for ad-hoc runs.
+- `GET /api/healthcheck?key=cron` -- staleness monitor + stuck-lock detection + weekend digest-missing alert
+- `POST /api/cron-weekly?key=cron` -- consolidated Friday job (corrections + weekly summary)
+- `POST /api/cron-weekly-summary?key=cron` -- standalone digest generator (manual fallback)
+- `POST /api/detect-corrections?key=cron` -- re-fetches Tier 1-2 article URLs, flags content changes
+- `POST /api/backfill?op=google-news-urls|article-bodies[&limit=N][&dry=1]` -- maintenance backfills
+- `POST /api/rematch-companies?limit=N[&dry=1]` -- re-runs matchCompanies on existing unlinked articles
+- `GET  /api/status` -- operational telemetry JSON for `/status.html` (public, 60s CDN cache)
+
+Endpoints handled by `api/index.ts`:
 - `GET /api/stats` -- Article counts, category breakdown, company mentions
 - `GET /api/mode` -- Whether AI synthesis is enabled
 - `GET /api/articles?q=&category=&company=&limit=` -- Search/filter articles (includes report_ready field)
@@ -59,13 +73,14 @@ The main API (`api/index.ts`) handles all endpoints except build-report and dete
 
 ## Database (Supabase)
 - All data served from Supabase (PostgreSQL)
-- Core tables: articles, companies, market_drivers, concepts, financial_ratios, weekly_summaries, av_report_sections, article_av_sections, earnings_calendar
-- Pipeline tables (added April 2026): article_extractions (structured financial data per article), rejected_articles (audit trail of filtered articles), human_review_queue (earnings/anomaly review workflow)
+- Core tables: articles, companies, market_drivers, concepts, financial_ratios, weekly_summaries, av_report_sections, article_av_sections, earnings_calendar (table created 2026-05-12, seeded from `site/build-static.ts`)
+- Pipeline tables: article_extractions (structured financial data per article), rejected_articles (audit trail of filtered articles with `raw_feed_data` forensic snapshot), human_review_queue (earnings/anomaly review workflow), `pipeline_runs` (one row per /api/daily-scan invocation — URL decode %, body fetch %, Anthropic OK %, used by healthcheck trend alerts)
 - Junction tables: article_companies (with low_confidence_match flag), article_tags, article_av_sections (with scoring_model_version, scoring_prompt_version, scoring_signals)
 - Articles have provenance fields: source_excerpt, full_text, model_version, prompt_version, pull_timestamp, syndication_hash, corroborating_sources, correction_flag, report_ready
 - Financial ratios have provenance: data_source (capital_iq or yahoo_finance_fallback), currency, fx_rate_used, capiq_unique_id, manually_verified
-- Env vars: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_ANON_KEY
-- Migration scripts in `scripts/` (migrate-to-supabase.ts, migrate-provenance-pipeline.ts, etc.)
+- `daily_run_lock.status` has a CHECK constraint enforcing `'in_progress' | 'complete' | 'failed'`
+- Env vars: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_ANON_KEY, ANTHROPIC_API_KEY (extraction/summary — **not currently set on Vercel**, telemetry tracks noKey count), CRON_SECRET (cron + privileged endpoints + HMAC email action tokens), RESEND_API_KEY (emails), ANTHROPIC_DAILY_CAP (default 5000, refuses ingest above this)
+- Migration scripts in `scripts/` and via Supabase MCP `apply_migration`
 
 ## Scripts
 - `scripts/push-to-supabase.ts` -- Upload parsed KB to Supabase
@@ -88,9 +103,14 @@ The main API (`api/index.ts`) handles all endpoints except build-report and dete
 ## Services
 - `services/financial-data/capiq-client.ts` -- S&P Capital IQ API client with Yahoo Finance fallback and anomaly detection
 - `services/financial-data/fx-rates.ts` -- FX rate fetching from ECB for non-USD company conversions
-- `lib/extraction.ts` -- Two-step article processing: structured extraction (article_extractions) then prose summary
+- `lib/extraction.ts` -- Two-step article processing (structured extraction + prose summary) with `anthropicTelemetry` counters (totalCalls/noKey/http4xx/5xx/fetchError/parseError/empty/ok) surfaced in daily-scan log
 - `lib/syndication.ts` -- Syndication hash computation for cross-outlet duplicate detection
 - `lib/report-validation.ts` -- 5 post-generation validation checks and provenance appendix generation
+- `lib/google-news-decoder.ts` -- 3-tier decoder (offline base64 → batchexecute RPC → redirect-follow). 100% success on production URLs.
+- `lib/auth.ts` -- `isAuthorizedCronOrPrivileged()` + `signActionToken()`/`verifyActionToken()` (HMAC over CRON_SECRET for email links). Replaces the hardcoded "cron" literal from RELIABILITY-AUDIT risk #1.
+- `lib/whitelist.ts` -- `isApprovedSource()`, `getSourceDomain()`, `getSourceTier()` (extracted from daily-scan for unit testing).
+- `lib/body-fetch.ts` -- `fetchArticleBody()` + `extractMainText()` for whitelisted Tier 1-3 article bodies.
+- `lib/company-match.ts` -- `matchCompanies()` and the 39-company `COMPANY_MATCH_RULES` table (sole source of truth; daily-scan and rematch both import from here).
 
 ## Pipeline & Data Quality
 - Articles go through: RSS fetch → whitelist check → URL/title/syndication dedup → structured extraction → prose summary → company matching (2-signal minimum) → section tagging → report_ready promotion
@@ -104,12 +124,13 @@ The main API (`api/index.ts`) handles all endpoints except build-report and dete
 - Vercel build command: `npm install && npx bun site/build-static.ts`
 
 ## Knowledge Base Structure
-- `knowledge-base/raw/articles/` -- 353+ markdown articles with YAML frontmatter (date, source, url, category, companies, tags)
+- `knowledge-base/raw/articles/` -- 353+ legacy markdown articles with YAML frontmatter (pre-Supabase, kept for archival)
 - `knowledge-base/wiki/companies/` -- 39 company profiles
 - `knowledge-base/wiki/market-drivers/` -- 7 market health driver pages
 - `knowledge-base/wiki/concepts/` -- 6 concept/analysis pages
 - `knowledge-base/wiki/indexes/` -- MASTER-INDEX.md, COMPANY-INDEX.md, etc.
 - `knowledge-base/outputs/` -- Generated briefings and reports
+- **`knowledge-base/by-company/{slug}/{date}-{title}.md`** -- Per-company filesystem mirror of the live Supabase articles. Rich YAML frontmatter (source tier, all linked companies, sections, extraction figures, body length). Articles linked to multiple companies are written once per company so each folder is a complete company-pivot view. Regenerate with `SUPABASE_SERVICE_ROLE_KEY=... bun scripts/export-articles-by-company.ts`. See `knowledge-base/by-company/_index.md` for common queries.
 
 ## 39 Tracked Companies (by segment)
 **Aggregates & Cement:** CRH, CEMEX, Heidelberg Materials, Holcim, Martin Marietta, Taiheiyo Cement, Vulcan Materials
