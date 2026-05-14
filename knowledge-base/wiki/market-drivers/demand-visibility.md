@@ -1,36 +1,54 @@
 ---
 title: Demand Visibility
 created: 2026-04-06
-last_updated: 2026-04-06
+last_updated: 2026-05-12
 current_signal: weakening
 ---
 
 # Demand Visibility
 
-## Current State (Q1 2026)
-- New home sales (Jan): 713,104 SAAR (down 7.2% YoY)
-- NAHB HMI (March): 38 (up 1 from Feb)
-- 70% of builders say conditions weaker than expected
-- 2026 forecast: ~1% increase in single-family building
+## Current State (April 2026) — BIFURCATED
 
-## Housing Starts (January 2026)
-- Total starts: 1,487,000 SAAR (+9.5% YoY)
-- But: driven entirely by multifamily
-- Single-family starts and permits declined
-- Building permits: 1,376,000 (-5.8% YoY)
+### The "good" print
+- **March housing starts: +10.8% MoM** (highest since Dec 2024)
+- **Single-family starts: 13-month high** (Reuters)
+- **Multifamily starts: rose in March** (Construction Dive)
+- **ABC Construction Backlog Indicator: 8.6 months in March** (rebounded from 4-year low in January)
+- Data center contractors: **10.6 months** backlog vs 8.3 without
 
-## Market Dynamics
-- Defined by hesitant buyers, not absent demand
-- Pent-up demand from rate-locked homeowners
-- Each sale requires more effort, tighter margins, more incentives
+### The "bad" print — leading indicators all turned
+- **Building permits: -10.8% MoM in March** (single-family permits "decline sharply" — LBM Journal)
+- **NAHB HMI (April): 34** — down 4 points, **lowest since September 2025**
+- **62% of builders reported supplier cost increases** tied to fuel
+- **36% of builders cut home prices in April** to maintain volume
+- **Project abandonments: +22.8% MoM** (ConstructConnect Project Stress Index, March)
+- **Remodeling Market Sentiment edged down in Q1** (NAHB, Apr 14)
+
+## Interpretation
+March starts data is **lagged validation of late-2025 backlog**; April leading indicators (permits, HMI, price cuts) say the spring buying season is already softer than expected. Bifurcation between data center demand (still expanding) and traditional residential (cooling) is the defining 2026 pattern.
+
+## 2026 Forecast Context
+- AGC 2026 Construction Industry Outlook (Apr 8): "demand shifts and rising uncertainty"
+- 2026 forecast: ~1% increase in single-family building (carried from prior estimate)
+- Pent-up demand exists but requires either rate relief OR cost relief to materialize
 
 ## Impact on Building Materials
-Weakening demand visibility creates uncertainty for material suppliers on production planning and inventory. However, pent-up demand suggests a potential snapback when rates decline or confidence improves.
+Demand visibility is bifurcated, not uniformly weak: **infrastructure + data center + multifamily** remain strong (favors heavy materials, cement, aggregates, structural steel); **single-family residential** is softening (drags on lumber, residential insulation, builder-channel hardware). Producers with diversified end-market mix (Carlisle, Owens Corning) cushion better than pure-resi players (Builders FirstSource, Masco, Fortune Brands).
 
 ## Signal History
-| Date | HMI | New Home Sales | Permits | Direction | Source |
-|------|-----|----------------|---------|-----------|--------|
+| Date | HMI | Single-Fam Starts | Permits | Direction | Source |
+|------|-----|------------------|---------|-----------|--------|
 | 2026-04-06 | 38 | 713K SAAR | 1,376K | weakening | NAHB / Zonda |
+| 2026-04-14 | 34 | — | — | weakening | NAHB / HousingWire |
+| 2026-04-29 | 34 | 13-mo high | -10.8% MoM | mixed/weakening | NAHB / Reuters / WSJ |
+| 2026-05-12 | (carried 34) | (carried) | (carried) | weakening | KB review |
 
 ## Related Articles
-- [Spring 2026 Housing Demand](../../raw/articles/2026-04-06-housing-demand-spring-2026.md)
+- [AGC 2026 Construction Industry Outlook: Demand Shifts and Rising Uncertainty (Apr 8)](../../raw/articles/2026-04-08-agc-2026-outlook.md)
+- [US Construction Materials Prices Rise 3.5% as Contractor Backlog Declines (Apr 10)](../../raw/articles/2026-04-10-materials-prices-backlog-declines.md)
+- [Homebuilder Confidence Ticks Down Amid Economic Uncertainty (Apr 14)](../../raw/articles/2026-04-14-homebuilder-confidence-down.md)
+- [Builder Sentiment Posts Notable Decline (Apr 14)](../../raw/articles/2026-04-14-builder-sentiment-decline.md)
+- [Backlog Rebounded in March, Contractors Unphased by Iran (Apr 15)](../../raw/articles/2026-04-15-backlog-rebounded-march.md)
+- [Single-Family Permits Decline Sharply (Apr 20)](../../raw/articles/2026-04-20-single-family-permits-decline.md)
+- [US Single-Family Housing Starts Jump to 13-Month High (Apr 29)](../../raw/articles/2026-04-29-housing-starts-13-mo-high.md)
+- [Multifamily Housing Starts Rose in March, but Permits Fell (May 1)](../../raw/articles/2026-05-01-multifamily-starts-permits.md)

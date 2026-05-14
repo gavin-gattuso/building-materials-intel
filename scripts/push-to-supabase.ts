@@ -101,7 +101,12 @@ async function migrateMarketDrivers() {
     const signal = meta.current_signal ? dollarQuote(meta.current_signal) : "NULL";
     values.push(`(${dollarQuote(slug)}, ${dollarQuote(title)}, ${signal}, ${dollarQuote(content)})`);
   }
-  const sql = `INSERT INTO market_drivers (slug, title, current_signal, content) VALUES ${values.join(",\n")} ON CONFLICT (slug) DO NOTHING;`;
+  const sql = `INSERT INTO market_drivers (slug, title, current_signal, content) VALUES ${values.join(",\n")}
+    ON CONFLICT (slug) DO UPDATE SET
+      title = EXCLUDED.title,
+      current_signal = EXCLUDED.current_signal,
+      content = EXCLUDED.content,
+      updated_at = NOW();`;
   await execSQL(sql);
   console.log(`  ${files.length}/${files.length}`);
 }
@@ -154,9 +159,25 @@ async function migrateArticles() {
     console.log(`  ${allTags.size} tags inserted`);
   }
 
+  // The articles table has TWO unique constraints: slug, and a partial unique
+  // index on url (where url IS NOT NULL AND url <> ''). Postgres only accepts
+  // one conflict target per INSERT, so we pre-filter rows whose url already
+  // exists. Without this, a legacy seed row whose slug is new but whose url
+  // was already ingested by daily-scan crashes the whole batch.
+  const candidateUrls = articleData.map((a) => a.url).filter((u) => u && u.length > 0);
+  const existingUrls = new Set<string>();
+  if (candidateUrls.length > 0) {
+    const urlListSql = candidateUrls.map((u) => dollarQuote(u)).join(",");
+    const res = await execSQL(`SELECT url FROM articles WHERE url IN (${urlListSql});`);
+    const rows = Array.isArray(res) ? res : (res?.result || []);
+    for (const r of rows) existingUrls.add(r.url);
+    if (existingUrls.size > 0) console.log(`  ${existingUrls.size} url collisions pre-filtered`);
+  }
+  const articlesToInsert = articleData.filter((a) => !a.url || !existingUrls.has(a.url));
+
   // Insert articles in batches of 10
-  for (let i = 0; i < articleData.length; i += 10) {
-    const batch = articleData.slice(i, i + 10);
+  for (let i = 0; i < articlesToInsert.length; i += 10) {
+    const batch = articlesToInsert.slice(i, i + 10);
     const values = [];
     for (const a of batch) {
       const source = a.source ? dollarQuote(a.source) : "NULL";
@@ -166,7 +187,7 @@ async function migrateArticles() {
     }
     const sql = `INSERT INTO articles (slug, title, date, source, url, category, content) VALUES ${values.join(",\n")} ON CONFLICT (slug) DO NOTHING;`;
     await execSQL(sql);
-    console.log(`  Articles: ${Math.min(i + 10, articleData.length)}/${articleData.length}`);
+    console.log(`  Articles: ${Math.min(i + 10, articlesToInsert.length)}/${articlesToInsert.length}`);
   }
 
   // Link articles to companies
