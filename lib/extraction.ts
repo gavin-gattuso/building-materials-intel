@@ -96,6 +96,61 @@ export function resetAnthropicTelemetry(): void {
   });
 }
 
+/**
+ * Parse a JSON object from a model response, tolerating common wrappings.
+ *
+ * Haiku frequently wraps responses in ```json ... ``` fences or adds a brief
+ * preamble despite "no markdown" instructions. Strict JSON.parse on the raw
+ * text was failing 100% of the time in 2026-05, leaving article_extractions
+ * with 46 rows of zeros. This helper tries three strategies in order:
+ *   1. Direct JSON.parse (works when the model complies)
+ *   2. Strip markdown code fences if present
+ *   3. Slice from first '{' to last '}' as a last-resort recovery
+ * Returns null only if all three fail.
+ */
+export function safeParseJSON(text: string): any | null {
+  if (!text) return null;
+  // 1. Direct
+  try { return JSON.parse(text); } catch {}
+  // 2. Markdown fence
+  const fence = text.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+  if (fence) {
+    try { return JSON.parse(fence[1]); } catch {}
+  }
+  // 3. Outer braces
+  const first = text.indexOf("{");
+  const last = text.lastIndexOf("}");
+  if (first !== -1 && last > first) {
+    try { return JSON.parse(text.slice(first, last + 1)); } catch {}
+  }
+  return null;
+}
+
+/** Same as safeParseJSON but expects an array (for source excerpt extraction). */
+export function safeParseJSONArray(text: string): any[] | null {
+  if (!text) return null;
+  try {
+    const v = JSON.parse(text);
+    return Array.isArray(v) ? v : null;
+  } catch {}
+  const fence = text.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+  if (fence) {
+    try {
+      const v = JSON.parse(fence[1]);
+      if (Array.isArray(v)) return v;
+    } catch {}
+  }
+  const first = text.indexOf("[");
+  const last = text.lastIndexOf("]");
+  if (first !== -1 && last > first) {
+    try {
+      const v = JSON.parse(text.slice(first, last + 1));
+      if (Array.isArray(v)) return v;
+    } catch {}
+  }
+  return null;
+}
+
 async function callAnthropic(model: string, systemPrompt: string | undefined, userContent: string, maxTokens: number): Promise<string | null> {
   anthropicTelemetry.totalCalls++;
   if (!ANTHROPIC_KEY) {
@@ -164,9 +219,9 @@ async function callAnthropic(model: string, systemPrompt: string | undefined, us
  * Extracts only explicitly stated facts — no inference.
  */
 export async function extractStructuredData(articleText: string): Promise<ExtractionResult | null> {
-  const prompt = `You are a structured data extraction system for building materials industry articles. Extract ONLY what is explicitly stated in the article. Do not infer, estimate, or paraphrase guidance language. If a figure or statement is not present in the article, return null for that field.
+  const systemPrompt = `You are a structured data extraction API. You return only raw JSON objects. You never wrap output in markdown code fences (no \`\`\`json, no \`\`\`). You never include explanatory text before or after the JSON. The very first character of your response is always '{' and the very last is always '}'.`;
 
-Extract the following from the article text below:
+  const prompt = `Extract the following from the building materials industry article below. Extract ONLY what is explicitly stated. Do not infer, estimate, or paraphrase. Use null for any field not present.
 
 1. **Financial Figures**: revenue_figure (in millions/billions as stated), revenue_period, revenue_currency, ebitda_figure, ebitda_margin_pct, yoy_growth_pct
 2. **Guidance Language**: guidance_verbatim (exact quote from management), guidance_direction (one of: raised, lowered, maintained, initiated, withdrawn), guidance_period
@@ -175,16 +230,19 @@ Extract the following from the article text below:
 5. **Confidence**: extraction_confidence (0.0-1.0 based on how explicit the source data was)
 6. **Field Tracking**: fields_present (array of field names that had data), fields_absent (array of field names with no data in article)
 
-Respond with JSON only, no preamble or markdown fences. Every field must be present in the response; use null for absent data.
-
 ARTICLE:
 ${articleText.slice(0, 6000)}`;
 
-  const text = await callAnthropic(MODEL_EXTRACTION, undefined, prompt, 1500);
+  const text = await callAnthropic(MODEL_EXTRACTION, systemPrompt, prompt, 2500);
   if (!text) return null;
 
+  const parsed = safeParseJSON(text);
+  if (!parsed) {
+    console.error(`[extraction] JSON parse failed after all strategies. First 300 chars: ${text.slice(0, 300)}`);
+    return null;
+  }
+
   try {
-    const parsed = JSON.parse(text);
 
     // Ensure fields_present and fields_absent are arrays
     const allFields = [
@@ -301,13 +359,12 @@ ${articleText.slice(0, 5000)}`;
   const text = await callAnthropic(MODEL_EXTRACTION, undefined, prompt, 800);
   if (!text) return null;
 
-  try {
-    const parsed = JSON.parse(text);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      return { excerpts: parsed.slice(0, 5), model_version: MODEL_EXTRACTION };
+  const parsed = safeParseJSONArray(text);
+  if (!parsed || parsed.length === 0) {
+    if (text.length > 0) {
+      console.error(`[source-excerpts] JSON array parse failed. First 200 chars: ${text.slice(0, 200)}`);
     }
     return null;
-  } catch {
-    return null;
   }
+  return { excerpts: parsed.slice(0, 5), model_version: MODEL_EXTRACTION };
 }
