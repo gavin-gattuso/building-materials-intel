@@ -40,9 +40,10 @@ Nightly ingest steps:
 The main API (`api/index.ts`) handles many endpoints; several heavier or cron-triggered paths live in their own files. Auth on cron + privileged endpoints uses `lib/auth.ts:isAuthorizedCronOrPrivileged()` — accepts the Vercel `x-vercel-cron: 1` header, `Authorization: Bearer <CRON_SECRET>`, or `x-scan-key`/`?key=` matching a provisioned secret. The legacy literal `"cron"` key is no longer accepted (RELIABILITY-AUDIT risk #1).
 
 Standalone endpoints (each in their own `api/*.ts`):
-- `POST /api/daily-scan?key=cron` -- main nightly ingest. Supports `?backfill=1&days=N&extra=Q1|Q2` for ad-hoc runs.
-- `GET /api/healthcheck?key=cron` -- staleness monitor + stuck-lock detection + weekend digest-missing alert
-- `POST /api/cron-weekly?key=cron` -- consolidated Friday job (corrections + weekly summary)
+- `POST /api/daily-scan` -- main nightly ingest. Supports `?backfill=1&days=N&extra=Q1|Q2` for ad-hoc runs.
+- `POST /api/auto-heal` -- daily self-healing cron (06:00 UTC, 2h after nightly). Detects 9 failure modes (no recent run, stuck lock, zero archive with candidates, freshness drift, anthropic dead, body fetch drop, url decode drop, digest missing, review overdue). Auto-fixes stuck locks + missing nightly runs + freshness drift via internal `/api/daily-scan?backfill=1` calls (capped at 1 backfill per invocation). Escalates Anthropic/decoder/UA-block issues via one consolidated daily email (`type=auto-heal-summary`, idempotency-keyed on date). Paper trail in `auto_heal_runs` table. Replaces the deprecated `/api/healthcheck` cron entry.
+- `GET /api/healthcheck` -- still handled by `api/index.ts` for manual GET, no longer cron-fired (superseded by `/api/auto-heal`)
+- `POST /api/cron-weekly` -- consolidated Friday job (corrections + weekly summary)
 - `POST /api/cron-weekly-summary?key=cron` -- standalone digest generator (manual fallback)
 - `POST /api/detect-corrections?key=cron` -- re-fetches Tier 1-2 article URLs, flags content changes
 - `POST /api/backfill?op=google-news-urls|article-bodies[&limit=N][&dry=1]` -- maintenance backfills
@@ -74,7 +75,7 @@ Endpoints handled by `api/index.ts`:
 ## Database (Supabase)
 - All data served from Supabase (PostgreSQL)
 - Core tables: articles, companies, market_drivers, concepts, financial_ratios, weekly_summaries, av_report_sections, article_av_sections, earnings_calendar (table created 2026-05-12, seeded from `site/build-static.ts`)
-- Pipeline tables: article_extractions (structured financial data per article), rejected_articles (audit trail of filtered articles with `raw_feed_data` forensic snapshot), human_review_queue (earnings/anomaly review workflow), `pipeline_runs` (one row per /api/daily-scan invocation — URL decode %, body fetch %, Anthropic OK %, used by healthcheck trend alerts)
+- Pipeline tables: article_extractions (structured financial data per article), rejected_articles (audit trail of filtered articles with `raw_feed_data` forensic snapshot), human_review_queue (earnings/anomaly review workflow), `pipeline_runs` (one row per /api/daily-scan invocation — URL decode %, body fetch %, Anthropic OK %, used by auto-heal trend detection), `auto_heal_runs` (one row per /api/auto-heal invocation — detected/fixed/escalated JSONB arrays, paper trail for the self-healing cron)
 - Junction tables: article_companies (with low_confidence_match flag), article_tags, article_av_sections (with scoring_model_version, scoring_prompt_version, scoring_signals)
 - Articles have provenance fields: source_excerpt, full_text, model_version, prompt_version, pull_timestamp, syndication_hash, corroborating_sources, correction_flag, report_ready
 - Financial ratios have provenance: data_source (capital_iq or yahoo_finance_fallback), currency, fx_rate_used, capiq_unique_id, manually_verified

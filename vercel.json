@@ -4,7 +4,7 @@
   "crons": [
     { "path": "/api/daily-scan", "schedule": "0 4 * * *" },
     { "path": "/api/cron-weekly", "schedule": "0 22 * * 5" },
-    { "path": "/api/healthcheck", "schedule": "30 4 * * *" }
+    { "path": "/api/auto-heal", "schedule": "0 6 * * *" }
   ],
   "headers": [
     {
@@ -28,6 +28,7 @@
     { "source": "/api/backfill", "destination": "/api/backfill" },
     { "source": "/api/rematch-companies", "destination": "/api/rematch-companies" },
     { "source": "/api/diag-env", "destination": "/api/diag-env" },
+    { "source": "/api/auto-heal", "destination": "/api/auto-heal" },
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/reports/poc-(.*)", "destination": "/reports/poc-removed-404.html" },
     { "source": "/(.*)", "destination": "/index.html" }
