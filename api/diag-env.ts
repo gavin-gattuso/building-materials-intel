@@ -49,9 +49,14 @@ function inspect(name: string, opts: { showShape?: boolean } = {}): EnvInsight {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (!isAuthorizedCronOrPrivileged(req)) {
-    return res.status(401).json({ error: "Unauthorized." });
-  }
+  // Auth is intentionally relaxed: this endpoint never returns key values,
+  // only presence + length + (for non-secret keys) prefix/suffix fingerprints.
+  // The bootstrap problem we hit on 2026-05-27 was that CRON_SECRET was the
+  // missing env var we were trying to diagnose, so requiring CRON_SECRET to
+  // probe presence was a chicken-and-egg deadlock. When the auth header IS
+  // present, we expose prefix/suffix shape; when absent, presence + length
+  // only. Delete this endpoint once env vars are confirmed stable.
+  const authorized = isAuthorizedCronOrPrivileged(req);
 
   // Expected keys grouped by sensitivity. shape=true reveals prefix/suffix
   // (useful to identify key type, e.g. sk-a... = Anthropic). shape=false only
@@ -83,7 +88,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     { name: "ANTHROPIC_DAILY_CAP", showShape: true },
   ];
 
-  const insights = expected.map(e => inspect(e.name, { showShape: e.showShape }));
+  // When unauthorized, downgrade shape=true to shape=false so prefix/suffix
+  // are never revealed without auth. Length + presence stay visible.
+  const insights = expected.map(e =>
+    inspect(e.name, { showShape: authorized && e.showShape })
+  );
 
   // Catch typos: any env var name containing ANTHROPIC, CLAUDE, or matching
   // common typo roots. Returns only the names, no values.
@@ -101,6 +110,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   return res.json({
     checked_at: new Date().toISOString(),
+    authorized,
     vercel: vercelContext,
     expected: insights,
     wildcard_anthropic_or_claude_matches: wildcardMatches,
