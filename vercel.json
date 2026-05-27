@@ -27,7 +27,6 @@
     { "source": "/api/status", "destination": "/api/status" },
     { "source": "/api/backfill", "destination": "/api/backfill" },
     { "source": "/api/rematch-companies", "destination": "/api/rematch-companies" },
-    { "source": "/api/diag-env", "destination": "/api/diag-env" },
     { "source": "/api/auto-heal", "destination": "/api/auto-heal" },
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/reports/poc-(.*)", "destination": "/reports/poc-removed-404.html" },
