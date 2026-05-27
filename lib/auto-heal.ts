@@ -76,21 +76,22 @@ async function detectNoRecentRun(sb: SupabaseClient): Promise<Detection | null> 
     .eq("invocation", "scheduled")
     .order("started_at", { ascending: false })
     .limit(1);
-  if (error || !data || data.length === 0) {
+  const row = data?.[0];
+  if (error || !row) {
     return {
       code: "no_recent_run",
       severity: "fixable",
       detail: "Zero scheduled pipeline_runs rows found. Cron has never recorded a successful run.",
     };
   }
-  const last = new Date(data[0].started_at).getTime();
+  const last = new Date(row.started_at).getTime();
   const hoursAgo = (Date.now() - last) / 36e5;
   if (hoursAgo > 28) {
     return {
       code: "no_recent_run",
       severity: "fixable",
-      detail: `Last scheduled run was ${hoursAgo.toFixed(1)}h ago (run_date=${data[0].run_date}). Expected within 28h.`,
-      context: { last_started_at: data[0].started_at, hours_ago: hoursAgo },
+      detail: `Last scheduled run was ${hoursAgo.toFixed(1)}h ago (run_date=${row.run_date}). Expected within 28h.`,
+      context: { last_started_at: row.started_at, hours_ago: hoursAgo },
     };
   }
   return null;
@@ -131,8 +132,8 @@ async function detectZeroArchiveWithCandidates(sb: SupabaseClient): Promise<Dete
     .eq("invocation", "scheduled")
     .order("started_at", { ascending: false })
     .limit(1);
-  if (!data || data.length === 0) return null;
-  const row = data[0];
+  const row = data?.[0];
+  if (!row) return null;
   if (row.candidates > 20 && row.archived === 0) {
     return {
       code: "zero_archive_with_candidates",
@@ -155,20 +156,21 @@ async function detectFreshnessDrift(sb: SupabaseClient): Promise<Detection | nul
     .select("date, created_at")
     .order("created_at", { ascending: false })
     .limit(1);
-  if (!data || data.length === 0) {
+  const row = data?.[0];
+  if (!row) {
     return {
       code: "freshness_drift",
       severity: "fixable",
       detail: "Articles table is empty.",
     };
   }
-  const last = new Date(data[0].created_at).getTime();
+  const last = new Date(row.created_at).getTime();
   const hoursAgo = (Date.now() - last) / 36e5;
   if (hoursAgo > 48) {
     return {
       code: "freshness_drift",
       severity: "fixable",
-      detail: `Newest article ${hoursAgo.toFixed(1)}h old (created_at=${data[0].created_at}, article date=${data[0].date}).`,
+      detail: `Newest article ${hoursAgo.toFixed(1)}h old (created_at=${row.created_at}, article date=${row.date}).`,
       context: { hours_ago: hoursAgo, suggested_days_window: Math.min(14, Math.ceil(hoursAgo / 24) + 1) },
     };
   }
@@ -187,7 +189,8 @@ async function detectAnthropicDead(sb: SupabaseClient): Promise<Detection | null
     .eq("invocation", "scheduled")
     .order("started_at", { ascending: false })
     .limit(3);
-  if (!data || data.length < 3) return null;
+  const first = data?.[0];
+  if (!data || data.length < 3 || !first) return null;
   const totalCalls = data.reduce((a, b) => a + (b.anthropic_calls || 0), 0);
   const totalOk = data.reduce((a, b) => a + (b.anthropic_ok || 0), 0);
   if (totalCalls < 10) return null; // not enough signal
@@ -195,8 +198,8 @@ async function detectAnthropicDead(sb: SupabaseClient): Promise<Detection | null
     return {
       code: "anthropic_dead",
       severity: "escalation",
-      detail: `Anthropic 0/${totalCalls} OK across last 3 scheduled runs. Last error: ${data[0].anthropic_last_error || "(none recorded)"}`,
-      context: { total_calls: totalCalls, last_error: data[0].anthropic_last_error },
+      detail: `Anthropic 0/${totalCalls} OK across last 3 scheduled runs. Last error: ${first.anthropic_last_error || "(none recorded)"}`,
+      context: { total_calls: totalCalls, last_error: first.anthropic_last_error },
     };
   }
   return null;
@@ -351,7 +354,7 @@ async function triggerBackfill(daysWindow: number, cronSecret: string, baseUrl: 
       method: "POST",
       headers: { Authorization: `Bearer ${cronSecret}` },
     });
-    const body = await res.json().catch(() => ({}));
+    const body = (await res.json().catch(() => ({}))) as { archived?: number };
     if (!res.ok) return { ok: false, error: `HTTP ${res.status}: ${JSON.stringify(body).slice(0, 200)}` };
     return { ok: true, archived: body.archived };
   } catch (err: any) {
@@ -413,7 +416,7 @@ export async function runFixes(
       ...wantsBackfill.map(d => (d.context?.suggested_days_window as number) || 2),
       2
     );
-    const result = await withTimeout(
+    const result: { ok: boolean; archived?: number; error?: string } = await withTimeout(
       triggerBackfill(days, opts.cronSecret, opts.baseUrl),
       FIX_TIMEOUT_MS * 3, // backfill can legitimately take 40s+
       "triggerBackfill"
