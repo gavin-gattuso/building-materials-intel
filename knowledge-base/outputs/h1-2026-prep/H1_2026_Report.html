@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AV Building Materials &amp; Products — Market Health Report, H1 2026 (DRAFT)</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --av-dark:#163E2D;--av-mid:#2E7D52;--av-light:#4CAF7D;
+  --pos-bg:#E8F5E9;--pos-text:#2E7D52;
+  --neu-bg:#FFF8E1;--neu-text:#B84700;
+  --neg-bg:#FFEBEE;--neg-text:#C62828;
+  --bg:#FFFFFF;--bg-alt:#F5F7F6;--bg-callout:#F0F7F3;
+  --text:#1A1A1A;--text2:#555;--text3:#777;
+  --border:#E0E0E0;--sidebar-w:248px;--header-h:56px;
+}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:15px;color:var(--text);line-height:1.7;background:var(--bg-alt);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+a{color:var(--av-mid);text-decoration:none}a:hover{text-decoration:underline}
+
+.sticky-header{position:fixed;top:0;left:0;right:0;height:var(--header-h);background:var(--av-dark);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:1000}
+.sticky-header .brand{font-weight:700;letter-spacing:.5px}
+.sticky-header .header-title{font-size:13px;opacity:.85;position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap}
+.draft-pill{background:var(--neu-text);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;text-transform:uppercase;letter-spacing:1px}
+
+.sidebar{position:fixed;top:var(--header-h);left:0;bottom:0;width:var(--sidebar-w);background:#fff;border-right:1px solid var(--border);overflow-y:auto;padding:16px 0;z-index:900}
+.sidebar h3{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);padding:8px 20px 4px}
+.sidebar a{display:block;padding:7px 20px;font-size:13px;color:var(--text2);border-left:3px solid transparent;transition:all .15s}
+.sidebar a:hover,.sidebar a.active{color:var(--av-dark);background:var(--bg-callout);border-left-color:var(--av-mid);text-decoration:none}
+
+.main-content{margin-left:var(--sidebar-w);margin-top:var(--header-h);padding:32px 48px 100px;max-width:1180px}
+.report-section{margin-bottom:52px;scroll-margin-top:72px}
+.section-heading{font-size:21px;font-weight:700;color:var(--av-dark);line-height:1.3;padding-bottom:8px;border-bottom:2px solid var(--av-light);margin-bottom:20px}
+.section-num{color:var(--av-light);font-weight:700;margin-right:8px}
+.sub-heading{font-size:16px;font-weight:600;color:var(--av-mid);margin:26px 0 12px}
+p{margin:0 0 14px}.lead-in{font-weight:700;color:var(--av-dark)}
+
+.hero{background:linear-gradient(135deg,var(--av-dark),var(--av-mid));color:#fff;border-radius:14px;padding:48px 40px;text-align:center;margin-bottom:40px}
+.hero .brand-eyebrow{font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;opacity:.85}
+.hero h1{font-size:32px;font-weight:700;line-height:1.25;margin:14px 0 8px}
+.hero .subtitle{font-size:17px;opacity:.92}
+.hero .authors{font-size:13px;opacity:.8;margin-top:14px}
+.hero-rule{width:120px;height:3px;background:var(--av-light);margin:22px auto 0;border-radius:2px}
+
+.stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}
+.stat-card{text-align:center;background:#fff;border:1px solid var(--border);border-radius:10px;padding:18px 12px}
+.stat-card .val{font-size:26px;font-weight:700;color:var(--av-dark)}
+.stat-card .lbl{font-size:12px;color:var(--text3);margin-top:4px;line-height:1.4}
+
+.callout{background:var(--bg-callout);border-left:4px solid var(--av-mid);padding:16px 20px;margin:18px 0;border-radius:0 8px 8px 0;font-size:14.5px}
+.callout.neg{border-left-color:var(--neg-text)}
+.callout.star{background:#FBF6E8;border-left-color:var(--neu-text)}
+.callout .ct{font-weight:700;color:var(--av-dark);display:block;margin-bottom:4px}
+.draft-note{background:var(--neu-bg);border:1px dashed var(--neu-text);color:#7A5A07;padding:10px 14px;border-radius:8px;font-size:13px;margin:14px 0;font-style:italic}
+
+.badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:700}
+.badge-pos{background:var(--pos-bg);color:var(--pos-text)}
+.badge-neu{background:var(--neu-bg);color:var(--neu-text)}
+.badge-neg{background:var(--neg-bg);color:var(--neg-text)}
+.badge-hit{background:var(--pos-bg);color:var(--pos-text)}
+.badge-partial{background:var(--neu-bg);color:var(--neu-text)}
+.badge-miss{background:var(--neg-bg);color:var(--neg-text)}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:14px 0;background:#fff;border-radius:8px;overflow:hidden}
+thead{background:var(--av-dark);color:#fff}
+th{padding:11px 12px;text-align:left;font-weight:600;font-size:12px}
+td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:nth-child(even) td{background:var(--bg-alt)}
+.num{text-align:center;font-weight:600}
+.num.pos{color:var(--pos-text)}.num.neg{color:var(--neg-text)}
+
+.driver-mini-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:18px 0}
+.driver-mini{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;transition:box-shadow .2s}
+.driver-mini:hover{box-shadow:0 2px 10px rgba(0,0,0,.08);border-color:var(--av-light)}
+.driver-mini .dm-name{font-size:13px;font-weight:600;color:var(--av-dark);margin-bottom:8px;min-height:34px;display:flex;align-items:center;justify-content:center}
+
+.theme-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:18px 0}
+.theme-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:18px;border-top:3px solid var(--av-mid)}
+.theme-card h4{font-size:14px;color:var(--av-dark);margin-bottom:6px}
+.theme-card p{font-size:12.5px;color:var(--text2);line-height:1.5;margin:0}
+
+.service-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:18px 0}
+.service-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:20px}
+.service-card h4{font-size:14px;color:var(--av-dark);margin-bottom:6px}
+.service-card p{font-size:12.5px;color:var(--text2);margin:0}
+
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin:18px 0}
+.chart-block{background:#fff;border:1px solid var(--border);border-radius:10px;padding:18px}
+.chart-block h4{font-size:13px;color:var(--av-dark);margin-bottom:10px;text-align:center;font-weight:600}
+.chart-wrapper{position:relative;width:100%;height:280px}
+.chart-caption{font-size:11.5px;color:var(--text3);margin-top:8px;text-align:center}
+
+.av-footer{text-align:center;margin-top:40px;padding:28px;border-top:2px solid var(--av-mid)}
+.av-footer .nm{font-size:18px;font-weight:700;color:var(--av-dark)}
+.av-footer .ad{font-size:13px;color:var(--text3);margin-top:4px}
+
+@media (max-width:880px){.sidebar{display:none}.main-content{margin-left:0;padding:24px 18px 80px}.stat-cards{grid-template-columns:repeat(2,1fr)}.chart-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="sticky-header">
+  <span class="brand">APPLIED VALUE</span>
+  <span class="header-title">Building Materials &amp; Products · Market Health Report · H1 2026</span>
+  <span class="draft-pill">Draft</span>
+</header>
+
+<nav class="sidebar">
+  <h3>Contents</h3>
+  <a href="#s1" class="active">1 · Executive Summary</a>
+  <a href="#s3">3 · Context &amp; Outlook</a>
+  <a href="#s4">4 · Drivers of Market Health</a>
+  <a href="#s5">5 · Data-Center Demand</a>
+  <a href="#s6">6 · Consolidation Wave (M&amp;A)</a>
+  <a href="#s7">7 · Performance Snapshot</a>
+  <a href="#s8">8 · Postmortem</a>
+  <a href="#s9">9 · How AV Can Help</a>
+</nav>
+
+<main class="main-content">
+
+  <div class="hero">
+    <div class="brand-eyebrow">Applied Value · Lean Growth</div>
+    <h1>Building Materials &amp; Products<br>Market Health Report — H1 2026</h1>
+    <div class="subtitle">A postmortem-forward mid-year update</div>
+    <div class="authors">Jacob Wozniewski · Gavin Gattuso &nbsp;|&nbsp; Mid-Year 2026</div>
+    <div class="hero-rule"></div>
+  </div>
+
+  <div class="draft-note">Working draft. All market figures sourced from the Applied Value knowledge base (Jan–Jun 2026); financials are FY 2025 actuals (Capital IQ refresh pending). Items marked <b>[AV CASE STUDY]</b> and a few light refreshes remain owner inputs before publication.</div>
+
+  <!-- ===== 1 Executive Summary ===== -->
+  <section class="report-section" id="s1">
+    <h2 class="section-heading"><span class="section-num">1</span>Introduction &amp; Executive Summary</h2>
+    <p>Six months ago, our 2025 year-end report made four central calls: residential construction would stay muted until interest rates eased, tariffs were the cost threat to watch, federal infrastructure programs would keep nonresidential demand resilient, and merger activity would stay hot. <span class="lead-in">Three of the four held</span> — and the exceptions are as instructive as the hits.</p>
+    <div class="stat-cards">
+      <div class="stat-card"><div class="val">5 / 9</div><div class="lbl">Forward calls that landed cleanly</div></div>
+      <div class="stat-card"><div class="val">+$17,500</div><div class="lbl">Tariff cost added per new home (Brookings)</div></div>
+      <div class="stat-card"><div class="val">$8.5B</div><div class="lbl">Berkshire's bet on homebuilder Taylor Morrison</div></div>
+      <div class="stat-card"><div class="val">$4B</div><div class="lbl">Modine data-center capacity deal through 2029</div></div>
+    </div>
+    <p>H1 2026 was a half of divergence. Rate-sensitive residential stayed weak and choppy; nonresidential held up — but the engine was a private, AI-driven <b>data-center construction boom</b>, not the federal programs we emphasized. Material costs escalated hard on Section 232 tariffs, then partially reversed in June, leaving cost planning hostage to policy. And the corporate story of the half was <b>consolidation</b>, capped by Berkshire Hathaway's bet on American housing.</p>
+    <h3 class="sub-heading">Key risks for H2 2026</h3>
+    <div class="theme-cards">
+      <div class="theme-card"><h4>Rate-gated recovery</h4><p>Mortgage rates stayed in the low-6% range but volatile; the easing-into-recovery path did not arrive on schedule.</p></div>
+      <div class="theme-card"><h4>Tariff &amp; policy whipsaw</h4><p>The cost line now moves with policy in both directions. The uncertainty itself is the planning risk.</p></div>
+      <div class="theme-card"><h4>Demand concentration</h4><p>Data centers are a real tailwind — but concentrate exposure in a single capital-, power- and politically-constrained source.</p></div>
+      <div class="theme-card"><h4>Affordability ceiling</h4><p>A ~$440K median new-home price and fragile confidence cap any organic residential rebound.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 3 Context & Outlook ===== -->
+  <section class="report-section" id="s3">
+    <h2 class="section-heading"><span class="section-num">3</span>Market Context &amp; Outlook</h2>
+    <p><span class="lead-in">The H1 2026 backdrop.</span> The macroeconomy softened rather than firmed. Q4 2025 GDP was revised down sharply to <b>0.7%</b> from a 1.4% advance, and the Atlanta Fed's GDPNow tracked Q1 2026 down to roughly <b>1.6%</b> from an initial 3.1%. Recession-probability estimates spanned 20–42%. Consumer confidence cratered to a 12-year low of <b>84.5</b> in January before clawing back to <b>91.8</b> by March.</p>
+    <p><span class="lead-in">Outlook for H2 2026.</span> We carry three lessons forward: the residential recovery is delayed and rate-gated (we won't anchor its timing to Fed-cut expectations again); tariffs remain the swing factor on cost, but the frame is now policy volatility; and data centers are the most reliable demand thread into the back half, even as consolidation reshapes procurement leverage for every manufacturer.</p>
+  </section>
+
+  <!-- ===== 4 Drivers ===== -->
+  <section class="report-section" id="s4">
+    <h2 class="section-heading"><span class="section-num">4</span>Drivers of Market Health</h2>
+    <p>Seven drivers, ranked by influence this half. Three changed enough to rewrite (rates, costs, demand); four are updates to a still-valid story.</p>
+    <div class="driver-mini-grid">
+      <div class="driver-mini"><div class="dm-name">Interest &amp; Mortgage Rates</div><span class="badge badge-neg">Negative</span></div>
+      <div class="driver-mini"><div class="dm-name">Labor</div><span class="badge badge-neg">Tight · cracks</span></div>
+      <div class="driver-mini"><div class="dm-name">Material &amp; Energy Costs</div><span class="badge badge-neg">Negative</span></div>
+      <div class="driver-mini"><div class="dm-name">Demand Visibility</div><span class="badge badge-neu">Mixed</span></div>
+      <div class="driver-mini"><div class="dm-name">Infrastructure Spending</div><span class="badge badge-pos">Positive</span></div>
+      <div class="driver-mini"><div class="dm-name">Credit &amp; Lending</div><span class="badge badge-neg">Negative</span></div>
+      <div class="driver-mini"><div class="dm-name">GDP &amp; Sentiment</div><span class="badge badge-neg">Negative</span></div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-block"><h4>30-Year Fixed Mortgage Rate — volatile in the low-6s</h4><div class="chart-wrapper"><canvas id="chartRates"></canvas></div><div class="chart-caption">A quarter-point round trip in under two weeks (Mar–Apr 2026). Source: Freddie Mac / Zillow / Optimal Blue, AV KB.</div></div>
+      <div class="chart-block"><h4>Architecture Billings Index — bottoming below 50</h4><div class="chart-wrapper"><canvas id="chartABI"></canvas></div><div class="chart-caption">Stabilized but did not reverse into expansion. Source: AIA, AV KB.</div></div>
+    </div>
+
+    <h3 class="sub-heading">① Interest &amp; Mortgage Rates — the call we missed</h3>
+    <p>The Fed held at 3.50–3.75% (March 18), and the 30-year fixed mortgage stayed in the low-6% range but unusually volatile — climbing five straight weeks to 6.46%, falling to 6.20% within days, then edging to 6.36%. Our easing-into-recovery base case did not play out; new-home sales slumped in April. <b>Implication:</b> reframe around volatility and a delayed, rate-gated recovery.</p>
+    <h3 class="sub-heading">③ Material &amp; Energy Costs — the lead lever, under-called</h3>
+    <p>Our strongest call, understated. Section 232 tariffs reached 50% on steel, aluminum and copper (eff. April 2–6). Producer prices rose 4.0% YoY in March; nonres construction inputs surged at a 12.6% annualized rate; hot-rolled coil steel breached $1,000/ton (+23% off January lows). Brookings put the hit at ~$17,500 per new home. Then came a June partial reversal. <b>Implication:</b> costs are the headline lever, and the risk is the escalation-then-reversal whipsaw.</p>
+    <div class="callout"><span class="ct">[AV CASE STUDY — cost / tariff mitigation]</span>One-line kicker: an anonymized AV re-sourcing or cost-down engagement and its quantified outcome.</div>
+    <h3 class="sub-heading">④ Demand Visibility — split the story</h3>
+    <p>Residential was choppy and ultimately soft (March starts +10.8%, April −2.8% to 1.47M SAAR, May starts and permits both down more than expected). Nonresidential held — but the driver was data centers, not federal programs. The ABI stabilized below the growth line (48.5 → 43.8 → 49.4). <b>Implication:</b> report residential as rate-gated chop and break data-center-led nonres out as its own thread.</p>
+    <p style="font-size:13.5px;color:var(--text2)"><b>The four refresh levers:</b> Labor — still tight, first cracks (ISM Services employment contracting). Infrastructure — $430B+ federal floor intact, eclipsed by private data-center capex. Credit — restrictive for small/spec, large caps raised freely (CEMEX $3B revolver). GDP/Sentiment — the gap persisted, now closing downward.</p>
+  </section>
+
+  <!-- ===== 5 Data Centers ===== -->
+  <section class="report-section" id="s5">
+    <h2 class="section-heading"><span class="section-num">5</span>Data-Center &amp; AI-Infrastructure Demand</h2>
+    <p>The defining demand surprise of the half — and the clearest growth story in the sector. AI data-center construction pulled demand through nearly every tracked segment.</p>
+    <div class="theme-cards">
+      <div class="theme-card"><h4>Thermal &amp; HVAC</h4><p>Modine's $4B capacity deal through 2029; Trane/LiquidStack; JCI guiding to 1GW + a 3.5MW YORK unit; Carrier AquaEdge; AAON's $1B opportunity.</p></div>
+      <div class="theme-card"><h4>Construction &amp; engineering</h4><p>Sterling Infrastructure emerged as a pure-play data-center builder.</p></div>
+      <div class="theme-card"><h4>Envelope, coatings &amp; finishes</h4><p>Sherwin-Williams as the single coatings partner; USG/Subzero alliance; Kingspan expanding internationally.</p></div>
+      <div class="theme-card"><h4>The constraints</h4><p>Power, water, and rising local opposition — Ohio suspended a data-center tax break; activism in IL, TX, AZ.</p></div>
+    </div>
+    <div class="callout"><span class="ct">For our clients</span>Exposure to data-center demand — direct or pull-through into HVAC, electrical, structural and finishing products — is the cleanest growth opportunity in the sector, but it concentrates risk in a single, capital- and power-intensive demand source.</div>
+    <div class="callout"><span class="ct">[AV CASE STUDY — data-center supply-chain]</span>An AV engagement helping a client capture or qualify into digital-infrastructure demand.</div>
+  </section>
+
+  <!-- ===== 6 M&A ===== -->
+  <section class="report-section" id="s6">
+    <h2 class="section-heading"><span class="section-num">6</span>The Consolidation Wave (M&amp;A)</h2>
+    <div class="callout star"><span class="ct">⭐ The headline: Berkshire's housing bet</span>On May 31, Berkshire Hathaway agreed to acquire homebuilder <b>Taylor Morrison for ~$8.5B</b> — all-cash at $72.50/share, a ~24% premium, for a builder with 350+ communities across 21 markets. The significance is the buyer: a famously conservative, long-horizon institution making a direct, premium bet on U.S. homebuilding at a cyclical low. CNBC called it a signal the market "may have bottomed." Paired with Berkshire's Nucor stake, the message is that patient capital is going big on American construction.</div>
+    <h3 class="sub-heading">Distribution mega-consolidation — the structural story</h3>
+    <table>
+      <thead><tr><th>Acquirer</th><th>Target</th><th>Value</th><th>Date</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td>QXO</td><td>TopBuild</td><td>$17B</td><td>Apr 19</td><td>Brad Jacobs' roll-up goes mega-cap; insulation/installation.</td></tr>
+        <tr><td>Home Depot (SRS)</td><td>GMS</td><td>$5.5B</td><td>Mar 1 (closed)</td><td>Pro-market / specialty distribution transformation.</td></tr>
+        <tr><td>Lowe's</td><td>FBM</td><td>—</td><td>Mar 25</td><td>Lowe's pushes into pro distribution (vs. HD/GMS).</td></tr>
+        <tr><td>QXO</td><td>Kodiak Building Partners</td><td>$2.25B</td><td>Apr 1 (closed)</td><td>Plus a $1.8B raise + Apollo-led $1.2B war chest.</td></tr>
+      </tbody>
+    </table>
+    <p>The result is a step-change in procurement leverage, pricing power, and channel access — a direct strategic question for every manufacturer client. Cement, aggregates and HVAC consolidated in parallel (Holcim's 15-deal 2026 plan, Martin Marietta/Quikrete, Trane/LiquidStack, JCI/Alloy), against a backdrop of ~30% higher 2025 deal volume.</p>
+    <div class="callout"><span class="ct">Sales hook</span>When a buyer like Berkshire pays a 24% premium for a homebuilder at a cyclical low, and three national players race to roll up distribution, the questions for our clients are immediate: where does this leave your procurement leverage, your channel access, and your buy-versus-build calculus?</div>
+    <div class="callout"><span class="ct">[AV CASE STUDY — M&amp;A / post-merger integration]</span>An AV integration or portfolio-review engagement.</div>
+  </section>
+
+  <!-- ===== 7 Performance ===== -->
+  <section class="report-section" id="s7">
+    <h2 class="section-heading"><span class="section-num">7</span>Public Company Performance Snapshot</h2>
+    <p>Across the 39-company universe, FY 2025 actuals already foreshadowed the H1 2026 split — segments aligned with this half's tailwinds led; residential-exposed segments lagged.</p>
+    <div class="chart-block" style="margin:18px 0"><h4>FY 2025 Revenue Growth by Segment (average)</h4><div class="chart-wrapper" style="height:360px"><canvas id="chartSeg"></canvas></div><div class="chart-caption">Steel led on tariffs; lumber &amp; wood was the clear laggard. Source: AV KB financial_ratios (FY 2025).</div></div>
+    <table>
+      <thead><tr><th>Segment</th><th class="num">Avg rev. growth</th><th class="num">Avg EBITDA margin</th><th>Read</th></tr></thead>
+      <tbody>
+        <tr><td>Steel</td><td class="num pos">+8.1%</td><td class="num">10.3%</td><td>Tariff tailwind on price + volume</td></tr>
+        <tr><td>HVAC-R, Fire &amp; Security</td><td class="num pos">+3.6%</td><td class="num">16.5%</td><td>Data-center pull-through</td></tr>
+        <tr><td>Cement, Aggregates &amp; Ready-mix</td><td class="num pos">+3.4%</td><td class="num">23.3%</td><td>Pricing power; richest margins (+1.7pp)</td></tr>
+        <tr><td>Retail &amp; Distribution</td><td class="num pos">+3.2%</td><td class="num">14.9%</td><td>R&amp;R resilience (HD, Lowe's)</td></tr>
+        <tr><td>Piping (ADS)</td><td class="num pos">+0.4%</td><td class="num">30.1%</td><td>Infrastructure / water demand</td></tr>
+        <tr><td>Kitchen &amp; Bath</td><td class="num">0.0%</td><td class="num">22.4%</td><td>Flat; soft remodel</td></tr>
+        <tr><td>Building Envelope / Roofing / Insulation</td><td class="num neg">−0.7%</td><td class="num">14.1%</td><td>BLDR drag offset by Carlisle, IBP</td></tr>
+        <tr><td>Doors &amp; Windows</td><td class="num neg">−3.7%</td><td class="num">10.5%</td><td>Residential drag (JELD-WEN −10.5%)</td></tr>
+        <tr><td>Glass</td><td class="num neg">−5.5%</td><td class="num">17.3%</td><td>Mixed; portfolio reshaping</td></tr>
+        <tr><td>Bricks &amp; Masonry (Wienerberger)</td><td class="num neg">−6.4%</td><td class="num">14.0%</td><td>European residential softness</td></tr>
+        <tr><td>Lumber &amp; Wood</td><td class="num neg">−11.1%</td><td class="num">4.4%</td><td>The laggard — demand + price collapse</td></tr>
+      </tbody>
+    </table>
+    <div class="draft-note">Data vintage: FY 2025 actuals — the most recent complete period in our dataset (Capital IQ wiring pending; last refresh April 2026). H1 2026 company results update as the universe reports.</div>
+  </section>
+
+  <!-- ===== 8 Postmortem ===== -->
+  <section class="report-section" id="s8">
+    <h2 class="section-heading"><span class="section-num">8</span>Postmortem — What We Said vs. What Happened</h2>
+    <p>New this edition, and the change repeat readers will value most: an honest accounting of our last set of calls. <span class="lead-in">Five of nine landed cleanly, three were partially right, and one missed.</span></p>
+    <div class="chart-grid">
+      <div class="chart-block"><h4>Scorecard — 9 forward calls</h4><div class="chart-wrapper"><canvas id="chartScore"></canvas></div><div class="chart-caption">Right on cost, labor, credit, the GDP gap, and M&amp;A; early on housing; missed the data-center engine.</div></div>
+      <div class="chart-block"><h4>The credibility move</h4><p style="font-size:13.5px;color:var(--text2);text-align:left">This candor doubles as a disclaimer. We don't pretend to have a crystal ball — and neither does anyone else forecasting this market. That is precisely why operators benefit from an advisor who revisits the call, learns from it, and adjusts.</p></div>
+    </div>
+    <table>
+      <thead><tr><th>Prediction (Nov 2025)</th><th>What happened (H1 2026)</th><th class="num">Verdict</th><th>Implication</th></tr></thead>
+      <tbody>
+        <tr><td>Rates ease → residential recovers</td><td>Rates higher and volatile; recovery slipped</td><td class="num"><span class="badge badge-miss">MISS</span></td><td>Drop easing→recovery; rate-gated frame</td></tr>
+        <tr><td>Single-family demand muted</td><td>Choppy, resolved downward (Mar +10.8% → May down)</td><td class="num"><span class="badge badge-partial">PARTIAL</span></td><td>"Muted" right; timing was hard</td></tr>
+        <tr><td>Tariffs the renewed cost threat</td><td>PPI +4.0% YoY; steel &gt;$1,000/ton; ~$17,500/home; June reversal</td><td class="num"><span class="badge badge-hit">HIT</span></td><td>Track the whipsaw; policy is the risk</td></tr>
+        <tr><td>Nonres resilient on IIJA/CHIPS/IRA</td><td>Resilient — but data centers were the engine</td><td class="num"><span class="badge badge-partial">PARTIAL</span></td><td>Biggest blind spot; new §5</td></tr>
+        <tr><td>Labor binding; watch wage moderation</td><td>Still tight; ISM employment contracting</td><td class="num"><span class="badge badge-hit">HIT</span></td><td>"Still tight, first cracks"</td></tr>
+        <tr><td>Credit stays restrictive</td><td>Held; large caps raised freely</td><td class="num"><span class="badge badge-hit">HIT</span></td><td>Low change; compress</td></tr>
+        <tr><td>GDP–sentiment gap persists</td><td>Persisted; GDP now softening too</td><td class="num"><span class="badge badge-hit">HIT</span></td><td>Keep the analysis box</td></tr>
+        <tr><td>M&amp;A continues (+24% YoY)</td><td>Accelerated; +30% volume; Berkshire $8.5B</td><td class="num"><span class="badge badge-hit">HIT</span></td><td>Promoted to §6</td></tr>
+        <tr><td>ABI reversal; backlog moderation</td><td>Stabilized below 50 (48.5→43.8→49.4); no reversal</td><td class="num"><span class="badge badge-partial">PARTIAL</span></td><td>"Bottoming, not recovering"</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===== 9 AV Help ===== -->
+  <section class="report-section" id="s9">
+    <h2 class="section-heading"><span class="section-num">9</span>How Applied Value Can Help</h2>
+    <p>Applied Value helps building materials and products companies turn market dynamics — headwinds and tailwinds alike — into operational advantage, through our Lean Growth approach: <b>Focus, Simplicity, and Speed.</b> The dynamics in this report map directly to where we add value:</p>
+    <div class="service-cards">
+      <div class="service-card"><h4>Cost &amp; tariff mitigation <span class="badge badge-neu">§4</span></h4><p>[AV CASE STUDY: anonymized re-sourcing / cost-down engagement and quantified outcome]</p></div>
+      <div class="service-card"><h4>M&amp;A &amp; post-merger integration <span class="badge badge-neu">§6</span></h4><p>[AV CASE STUDY: integration or portfolio-review engagement]</p></div>
+      <div class="service-card"><h4>Data-center supply-chain capture <span class="badge badge-neu">§5</span></h4><p>[AV CASE STUDY: helping a client win digital-infrastructure demand]</p></div>
+      <div class="service-card"><h4>Procurement leverage <span class="badge badge-neu">§6</span></h4><p>[AV CASE STUDY: procurement / channel engagement under distribution consolidation]</p></div>
+    </div>
+    <p style="text-align:center;color:var(--text2);font-size:14px"><em>To learn how Applied Value can help your business prepare for and benefit from these dynamics, contact [team].</em></p>
+  </section>
+
+  <div class="av-footer">
+    <div class="nm">Applied Value</div>
+    <div class="ad">One Biscayne Tower · 2 S Biscayne Blvd. Suite 1750 · Miami, FL 33131 · www.appliedvaluegroup.com</div>
+  </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<script>
+const GREEN='#2E7D52',DARK='#163E2D',RED='#C62828',AMBER='#B84700',GRID='#ECECEC';
+const baseOpts=(extra={})=>Object.assign({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}},extra);
+
+// Mortgage rate volatility
+new Chart(document.getElementById('chartRates'),{type:'line',
+  data:{labels:['Mar 20','Mar 24','Mar 31','Apr 2','Apr 6','Apr 7','Apr 9'],
+    datasets:[{data:[6.25,6.43,6.37,6.46,6.22,6.20,6.36],borderColor:GREEN,backgroundColor:'rgba(46,125,82,.08)',fill:true,tension:.3,pointRadius:4,pointBackgroundColor:GREEN}]},
+  options:baseOpts({scales:{y:{min:6.0,max:6.6,ticks:{callback:v=>v+'%'},grid:{color:GRID}},x:{grid:{display:false}}}})});
+
+// ABI
+new Chart(document.getElementById('chartABI'),{type:'line',
+  data:{labels:['Dec 2025','Jan 2026','Feb 2026'],
+    datasets:[{data:[48.5,43.8,49.4],borderColor:AMBER,backgroundColor:'rgba(184,71,0,.08)',fill:true,tension:.3,pointRadius:5,pointBackgroundColor:AMBER}]},
+  options:baseOpts({scales:{y:{min:40,max:52,grid:{color:GRID}},x:{grid:{display:false}}}})});
+
+// Segment revenue growth bar (horizontal)
+const segLabels=['Steel','HVAC-R','Cement/Agg','Retail/Dist','Piping (ADS)','Kitchen & Bath','Bldg Envelope','Doors & Windows','Glass','Bricks','Lumber & Wood'];
+const segVals=[8.1,3.6,3.4,3.2,0.4,0.0,-0.7,-3.7,-5.5,-6.4,-11.1];
+new Chart(document.getElementById('chartSeg'),{type:'bar',
+  data:{labels:segLabels,datasets:[{data:segVals,backgroundColor:segVals.map(v=>v>=0?GREEN:RED)}]},
+  options:baseOpts({indexAxis:'y',scales:{x:{ticks:{callback:v=>v+'%'},grid:{color:GRID}},y:{grid:{display:false}}},
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.x+'% avg revenue growth'}}}})});
+
+// Scorecard donut
+new Chart(document.getElementById('chartScore'),{type:'doughnut',
+  data:{labels:['Hit (5)','Partial (3)','Miss (1)'],datasets:[{data:[5,3,1],backgroundColor:[GREEN,AMBER,RED],borderWidth:2,borderColor:'#fff'}]},
+  options:baseOpts({cutout:'58%',plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:12,font:{size:12}}}}})});
+
+// Mark chart wrappers loaded + scrollspy
+document.querySelectorAll('.chart-wrapper').forEach(w=>w.classList.add('loaded'));
+const links=[...document.querySelectorAll('.sidebar a')];
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove('active'));const a=document.querySelector('.sidebar a[href="#'+e.target.id+'"]');if(a)a.classList.add('active');}}),{rootMargin:'-40% 0px -55% 0px'});
+document.querySelectorAll('.report-section').forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>

@@ -26,7 +26,7 @@ For each driver: **what the last report said → what the KB recorded in H1 2026
 
 ## 4. Demand Visibility — Trend was Neutral; **residential weak/choppy, nonres reshaped by data centers**
 - **Said:** Residential muted into 2026; nonres solid on 6–8-mo backlogs; ABI contracting 16 months signals private softening.
-- **Actual (residential):** Single-family starts **−2.8% in April → 1.47M SAAR** (NAHB/Census); permits choppy (rose 5.8% one month); affordability barrier ($440K). But March starts +10.8% and "fastest pace in 2 years" — **volatile, no clean trend.**
+- **Actual (residential):** March starts +10.8% ("fastest pace in 2 years") → single-family starts **−2.8% in April → 1.47M SAAR** (NAHB/Census; permits rose 5.8% that month) → **both starts and permits dropped more than expected in May** (Jun 4). Affordability barrier ($440K). **Volatile, resolving downward into mid-year.**
 - **Actual (nonres — the surprise):** **Data-center / AI-infrastructure construction became the dominant nonres driver** (Modine $4B, Trane, JCI 1GW, Sterling Infrastructure, Amazon HVAC) — not the IIJA/CHIPS/IRA programs we emphasized.
 - **Verdict:** 🟡 Residential call OK; **nonres engine misidentified.**
 - **Call: NET-NEW.** Split the section: (a) choppy rate-gated residential, (b) **data-center-led nonres** as its own thread. ⚠ Pull current ABI to settle prediction #9.
@@ -45,9 +45,9 @@ For each driver: **what the last report said → what the KB recorded in H1 2026
 
 ## 7. GDP Growth & Consumer Confidence — Trend was ❌ Negative; **gap persisted**
 - **Said:** Q1'25 contraction then rebound; sentiment near 3-yr low (U-Mich 50.3); affordability near 40-yr lows (mortgage = 36% of median income).
-- **Actual:** Affordability still dragging demand and adjacent sectors (freight, SONAR Jun 5); sentiment still soft.
-- **Verdict:** ✅ The divergence we flagged held.
-- **Call: REFRESH** — update GDP print + sentiment index, keep the "why GDP strength isn't felt" analysis box (it landed well).
+- **Actual:** GDP itself softened — Q4'25 advance 1.4% **revised down to 0.7%** (BEA, Mar 13); Atlanta Fed **GDPNow Q1'26 at 1.6%** (Apr 2); recession odds **20–42%** (Goldman/Moody's/JPM, Mar 15). Consumer confidence **plunged to 84.5 in Jan** (12-yr low) then edged back to **91.8 by March** (Conference Board) — soft and fragile. Affordability still dragging demand and adjacent sectors (freight, SONAR Jun 5).
+- **Verdict:** ✅ The divergence we flagged held — and GDP is now slowing toward the weak sentiment rather than the gap closing upward.
+- **Call: REFRESH** — drop in the verified Q4'25 0.7% / GDPNow 1.6% / confidence 84.5→91.8 figures; keep the "why GDP strength isn't felt" analysis box (it landed well). ⚠→✅ figures pulled.
 
 ---
 
@@ -64,8 +64,8 @@ For each driver: **what the last report said → what the KB recorded in H1 2026
 
 **Net-new effort concentrates on 3 levers** (rates, costs, demand). The other 4 are refresh — so the tool's "refresh vs. net-new content" workflow should prioritize regenerating rates/costs/demand and lightly updating the rest.
 
-## ⚠ Verification list before publication
-- Current Fed funds target + 30-yr fixed mortgage (lever 1)
-- Latest construction PPI / lumber / steel / aluminum prints + tariff-reversal status (lever 3)
-- Latest housing starts & permits + **current ABI** (levers 4, prediction #9)
-- Latest GDP print + U-Mich sentiment (lever 7)
+## Verification list (status as of Jun 10, 2026)
+- ✅ **ABI** — Dec 48.5 → Jan 43.8 → Feb 49.4 (stabilizing below 50; prediction #9 resolved to 🟡 in Scorecard 01).
+- ✅ **Housing starts/permits** — March +10.8%, April −2.8% (1.47M SAAR), May starts & permits both dropped more than expected (Jun 4).
+- ✅ **GDP / sentiment** — Q4'25 revised to 0.7%; GDPNow Q1'26 1.6%; confidence 84.5 (Jan) → 91.8 (Mar).
+- ⚠ **Still to pull (point-in-time prints not yet in KB as discrete figures):** current Fed funds target + 30-yr fixed mortgage rate (lever 1); latest construction-PPI / lumber / steel / aluminum monthly prints + status of the June tariff reversal (lever 3). These are the last figures to confirm against a live source before publication.
