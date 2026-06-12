@@ -4,6 +4,17 @@ Working artifacts for the **mid-year 2026 (H1 2026)** Market Health Report, fram
 
 **Due:** week of June 22–26, 2026 · **Authors:** Jacob Wozniewski, Gavin Gattuso · **Source of truth for predictions:** `site/public/reports/Building_Materials_Report_2025YTD.pdf`
 
+## Status & how to resume (as of 2026-06-12)
+Draft is complete in three aligned formats: **`H1_2026_Report_DRAFT.pdf`** (canonical, reviewed), **`H1_2026_Report_DRAFT.docx`**, and **`06-report-manuscript-h1-2026.md`** (prose source). Work is committed on branch `report/h1-2026-draft` (pushed to GitHub).
+
+- **Structure:** built off the 2025 YTD edition, with standalone **§5 Data Centers** and **§6 M&A** broken out, and the postmortem promoted to **§8 Trend Continuity & Retrospective**.
+- **Figures:** all KB-verified (Supabase `articles`, Jan–Jun 2026); §7 segment performance is FY 2025 actuals from `financial_ratios`.
+- **Case studies:** real AV engagements from the SharePoint case-study DB (`gavin_gattuso/Desktop/Case Study Database`): steel sourcing ($79–114/ST, ±$26M), new-segment GTM, **Heidelberg Materials** RFP ($2.8M/12%, $7.5M/5%), PE-owned negotiation (>20%).
+- **Voice:** the `av-writing-voice` skill was applied across PDF, docx, and manuscript.
+- **Regenerate:** PDF → `node scripts/build-h1-2026-charts.mjs` then headless-Chrome print (command at bottom of this file); docx → `bun scripts/build-h1-2026-report-docx.ts`.
+
+**Open items before publication:** (1) confirm permission to name **Heidelberg Materials** publicly, else anonymize to "a top-three global cement producer"; (2) refresh §2 market-size figures from a current source; (3) generate the per-company Cap IQ charts (Figs 6–12) once the feed is wired; (4) optional: deepen the postmortem "implication" column.
+
 | # | Artifact | What it is |
 |---|----------|------------|
 | 01 | [Prediction Scorecard](01-prediction-scorecard.md) | Every forward call from the last report, scored against H1 2026 actuals. Backbone of the new Postmortem section. |
