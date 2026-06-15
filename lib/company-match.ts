@@ -67,7 +67,8 @@ export const COMPANY_MATCH_RULES: CompanyMatchConfig[] = [
 ];
 
 export function matchCompanies(title: string, content: string): CompanyMatch[] {
-  const text = (" " + title + " " + content + " ").toLowerCase();
+  const raw = " " + title + " " + content + " ";
+  const text = raw.toLowerCase();
   const matches: CompanyMatch[] = [];
 
   const hasFinancialContext = /\b(earnings|revenue|quarter|fiscal|shares|stock|eps|guidance|analyst|dividend|margin)\b/.test(text);
@@ -75,9 +76,14 @@ export function matchCompanies(title: string, content: string): CompanyMatch[] {
   for (const rule of COMPANY_MATCH_RULES) {
     const signals: string[] = [];
 
+    // Tickers are matched case-SENSITIVELY against the original-case text. Real
+    // ticker mentions are uppercase ("NYSE:LOW", "$LOW", "(LOW)"); matching them
+    // case-insensitively against lowercased text made short tickers collide with
+    // common words — e.g. LOW (Lowe's) firing on "low carbon" / "low-carbon",
+    // the single biggest source of false-positive matches on this beat.
     for (const ticker of rule.tickers) {
-      const tickerPattern = new RegExp(`\\b${ticker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
-      if (tickerPattern.test(text)) signals.push(`ticker:${ticker}`);
+      const tickerPattern = new RegExp(`\\b${ticker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`);
+      if (tickerPattern.test(raw)) signals.push(`ticker:${ticker}`);
     }
 
     for (const name of rule.fullNames) {
