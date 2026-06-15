@@ -2,7 +2,9 @@
 ## Market Health Report — H1 2026
 *Applied Value · Mid-Year 2026 · Authors: Jacob Wozniewski, Gavin Gattuso*
 
-> **Editorial status:** Publication-prose manuscript, draft for review. All market figures sourced from the Applied Value knowledge base (Jan–Jun 2026). The four AV case studies are now **real engagements** drawn from the AV case-study database (anonymized where required; confirm disclosure permissions + final figures). §7 financials remain FY 2025 pending the Capital IQ refresh. This file is the source text for the rendered `.docx`.
+> **Editorial status:** Publication-prose manuscript, draft for review. All market figures sourced from the Applied Value knowledge base (Jan–Jun 2026). The four AV case studies are now **real engagements** drawn from the AV case-study database. §7 financials remain FY 2025 pending the Capital IQ refresh. This file is the source text for the rendered `.docx`.
+>
+> **⚠ PRE-PUBLICATION FLAG — NOT FOR EXTERNAL RELEASE AS-IS:** §6 and §9 **name a real client, Heidelberg Materials**, in a confidential procurement engagement. Before any external distribution, confirm client-disclosure permission or anonymize to "a top-three global cement producer." (The separate mention of Heidelberg's public Maas Group acquisition in §6 is a public M&A fact and does not need anonymizing.)
 
 ---
 
@@ -95,7 +97,9 @@ The corporate story of the half was consolidation: broad, cross-segment, and cap
 
 > **Sales hook:** Consolidation is rewriting the competitive map, especially in distribution. When a buyer like Berkshire pays a 24% premium for a homebuilder at a cyclical low and three national players race to roll up distribution, the questions for our clients are immediate: where does this leave your procurement leverage, your channel access, and your own buy-versus-build calculus?
 >
-> **Applied Value in action — procurement leverage at a major building-materials producer** *(real AV engagement):* For **Heidelberg Materials** — one of the world's largest building-materials companies — AV ran a structured RFP across its North American cement outbound-truck network (28 plants/terminals, 250+ carriers, ~**$150.9M** addressable spend), consolidating the carrier base and standardizing contracts and fuel schedules. Early workstreams delivered **$2.8M (12%)** in freight savings and recovered ~**$700K/month** via 50 newly identified haulers, with ~**$7.5M (5%)** targeted across the full network — while cutting RFP cycle time by four months. *(Confirm client-disclosure permission before naming.)*
+> **Applied Value in action — procurement leverage at a major building-materials producer** *(real AV engagement):* For **Heidelberg Materials** — one of the world's largest building-materials companies — AV ran a structured RFP across its North American cement outbound-truck network (28 plants/terminals, 250+ carriers, ~**$150.9M** addressable spend), consolidating the carrier base and standardizing contracts and fuel schedules. Early workstreams delivered **$2.8M (12%)** in freight savings and recovered ~**$700K/month** via 50 newly identified haulers, with ~**$7.5M (5%)** targeted across the full network — while cutting RFP cycle time by four months.
+>
+> **⚠ PRE-PUBLICATION — MUST ANONYMIZE BEFORE ANY EXTERNAL RELEASE:** this case names **Heidelberg Materials**. Do not distribute externally until client-disclosure permission is confirmed; otherwise replace "Heidelberg Materials" with "a top-three global cement producer" here and in §9. Internal review draft only.
 >
 > **Applied Value in action — post-deal value creation** *(real AV engagement, anonymized):* For a private-equity-owned industrial business, AV led commercial supplier negotiations to drive post-deal value — harmonizing competing quotes onto a like-for-like basis, building fact-based negotiation materials, and running multiple rounds — resulting in a **>20% reduction in prices**.
 
@@ -160,7 +164,7 @@ The dynamics in this report map directly to where we add value, and we've flagge
 - **Procurement leverage at scale** (see §6) — Heidelberg Materials cement-network RFP; **$2.8M (12%)** freight savings, **$7.5M (5%)** targeted on **$150.9M** spend.
 - **Post-deal value creation** (see §6) — fact-based supplier negotiations for a PE-owned industrial; **>20%** price reduction.
 
-*These are **real Applied Value cases** from the AV case-study database (anonymized where required). Confirm client-disclosure permissions (e.g., naming Heidelberg Materials) and final figures before publication.*
+> **⚠ PRE-PUBLICATION — MUST ANONYMIZE BEFORE ANY EXTERNAL RELEASE:** these are **real Applied Value cases** from the AV case-study database. The procurement-leverage case **names Heidelberg Materials** (see §6). Before external release, confirm client-disclosure permission or replace with "a top-three global cement producer." Also confirm final figures. Internal review draft only.
 
 *To learn how Applied Value can help your business prepare for and benefit from the dynamics in this report, contact [team].*
 

@@ -81,6 +81,23 @@ function caseStudy(header: string, text: string, note: string) {
     ],
   });
 }
+/** loud pre-publication flag: red-tinted box, bold red warning text */
+function flagPara(text: string) {
+  return new Paragraph({
+    shading: { type: ShadingType.SOLID, color: "FDECEA" },
+    border: {
+      top: { color: "C0392B", space: 4, style: BorderStyle.SINGLE, size: 12 },
+      bottom: { color: "C0392B", space: 4, style: BorderStyle.SINGLE, size: 12 },
+      left: { color: "C0392B", space: 6, style: BorderStyle.SINGLE, size: 18 },
+      right: { color: "C0392B", space: 4, style: BorderStyle.SINGLE, size: 12 },
+    },
+    spacing: { before: 120, after: 160 },
+    children: [
+      new TextRun({ text: "⚠ PRE-PUBLICATION — MUST ANONYMIZE BEFORE EXTERNAL RELEASE.  ", bold: true, size: 22, font: FONT, color: "C0392B" }),
+      new TextRun({ text, bold: true, size: 21, font: FONT, color: "922B21" }),
+    ],
+  });
+}
 /** body paragraph with an inline bold lead-in */
 function leadBody(lead: string, rest: string) {
   return new Paragraph({
@@ -203,7 +220,8 @@ children.push(new Table({
 }));
 children.push(spacer(120));
 children.push(bodyText("Building-products distribution is consolidating into a handful of national players: QXO, Home Depot/SRS, and Lowe's. That shifts procurement leverage, pricing power, and channel access for every manufacturer. Materials and HVAC consolidated in parallel: Holcim's 15-deal 2026 plan and $1.5B Cementos Pacasmayo stake; Martin Marietta's Quikrete asset exchange; Heidelberg's AUD 1.7B Maas Group deal; and the data-center-linked HVAC deals (Trane/LiquidStack, JCI/Alloy). Private equity is expected to turn into an active seller, which should sustain deal flow into 2027."));
-children.push(caseStudy("procurement leverage at a major building-materials producer", "For Heidelberg Materials, one of the world's largest building-materials companies, AV ran a structured RFP across its North American cement outbound-truck network (28 plants and terminals, 250+ carriers, ~$150.9M addressable spend), consolidating the carrier base and standardizing contracts and fuel schedules. Early workstreams delivered $2.8M (12%) in freight savings and recovered ~$700K/month via 50 newly identified haulers, with ~$7.5M (5%) targeted across the full network, while cutting RFP cycle time by four months.", "confirm client-disclosure permission before naming"));
+children.push(caseStudy("procurement leverage at a major building-materials producer", "For Heidelberg Materials, one of the world's largest building-materials companies, AV ran a structured RFP across its North American cement outbound-truck network (28 plants and terminals, 250+ carriers, ~$150.9M addressable spend), consolidating the carrier base and standardizing contracts and fuel schedules. Early workstreams delivered $2.8M (12%) in freight savings and recovered ~$700K/month via 50 newly identified haulers, with ~$7.5M (5%) targeted across the full network, while cutting RFP cycle time by four months.", "real AV engagement — see anonymization flag below"));
+children.push(flagPara("This case study names Heidelberg Materials. Do not distribute externally until client-disclosure permission is confirmed; otherwise replace \"Heidelberg Materials\" with \"a top-three global cement producer\" here and in §9. Internal review draft only."));
 children.push(caseStudy("post-deal value creation", "For a private-equity-owned industrial business, AV led commercial supplier negotiations to drive post-deal value: harmonizing competing quotes onto a like-for-like basis, building fact-based negotiation materials, and running multiple rounds, resulting in a >20% reduction in prices.", "real AV engagement, anonymized"));
 children.push(calloutPara("Sales hook:", "Consolidation is rewriting the competitive map, especially in distribution. When a buyer like Berkshire pays a 24% premium for a homebuilder at a cyclical low and three national players race to roll up distribution, the questions for our clients are immediate: where does this leave your procurement leverage, your channel access, and your own buy-versus-build calculus?"));
 
@@ -281,7 +299,7 @@ children.push(bulletPoint("Steel cost & commodity-volatility mitigation (see §4
 children.push(bulletPoint("New-segment growth capture (see §5) — go-to-market strategy by end-user segment for a building-products manufacturer; sized market opportunity and roll-out plan."));
 children.push(bulletPoint("Procurement leverage at scale (see §6) — Heidelberg Materials cement-network RFP; $2.8M (12%) freight savings, $7.5M (5%) targeted on $150.9M spend."));
 children.push(bulletPoint("Post-deal value creation (see §6) — fact-based supplier negotiations for a PE-owned industrial; >20% price reduction."));
-children.push(calloutPara("Note:", "The engagements above are real Applied Value cases from the AV case-study database, anonymized where required. Confirm client-disclosure permissions (for example, naming Heidelberg Materials) and final figures before publication."));
+children.push(flagPara("The engagements above are real Applied Value cases. The procurement-leverage case names Heidelberg Materials (see §6). Before external release, confirm client-disclosure permission or replace with \"a top-three global cement producer.\" Also confirm final figures. Internal review draft only."));
 children.push(bodyText("To learn how Applied Value can help your business prepare for and benefit from the dynamics in this report, contact [team]."));
 
 // ===== Appendix =====
