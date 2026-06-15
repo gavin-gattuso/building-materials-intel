@@ -106,6 +106,35 @@ describe("matchCompanies — ticker disambiguation", () => {
   });
 });
 
+describe("matchCompanies — case-sensitive ticker guard (common-word collisions)", () => {
+  test("'low carbon' does NOT match Lowe's (lowercase word ≠ LOW ticker)", () => {
+    const m = matchCompanies("Low carbon, high coordination: MEP systems in mass timber buildings", "Designing for low-carbon construction");
+    expect(m.find(x => x.slug === "lowes")).toBeUndefined();
+  });
+
+  test("'Low-Carbon Portland Cement' does NOT match Lowe's (title-case ≠ LOW ticker)", () => {
+    const m = matchCompanies("Low-Carbon Portland Cement Uses Basalt Calcium", "A new low-carbon cement chemistry");
+    expect(m.find(x => x.slug === "lowes")).toBeUndefined();
+  });
+
+  test("'low-e glass' does NOT match Lowe's", () => {
+    const m = matchCompanies("Low-e glass coatings improve envelope performance", "");
+    expect(m.find(x => x.slug === "lowes")).toBeUndefined();
+  });
+
+  test("lowercase 'rpm' does NOT match RPM International", () => {
+    const m = matchCompanies("Engine rpm and torque benchmarks", "rpm tuning guide");
+    expect(m.find(x => x.slug === "rpm-international")).toBeUndefined();
+  });
+
+  test("uppercase ticker still matches: 'shares of LOW' → Lowe's (low-confidence)", () => {
+    const m = matchCompanies("Markets recap: shares of LOW slipped", "Broad retail commentary");
+    const low = m.find(x => x.slug === "lowes");
+    expect(low).toBeDefined();
+    expect(low!.lowConfidence).toBe(true);
+  });
+});
+
 describe("matchCompanies — empty/edge inputs", () => {
   test("empty title and content → no matches", () => {
     expect(matchCompanies("", "")).toEqual([]);
