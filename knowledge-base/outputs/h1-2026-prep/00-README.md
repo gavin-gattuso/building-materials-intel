@@ -11,9 +11,14 @@ Draft is complete in three aligned formats: **`H1_2026_Report_DRAFT.pdf`** (cano
 - **Figures:** all KB-verified (Supabase `articles`, Jan–Jun 2026); §7 segment performance is FY 2025 actuals from `financial_ratios`.
 - **Case studies:** real AV engagements from the SharePoint case-study DB (`gavin_gattuso/Desktop/Case Study Database`): steel sourcing ($79–114/ST, ±$26M), new-segment GTM, **Heidelberg Materials** RFP ($2.8M/12%, $7.5M/5%), PE-owned negotiation (>20%).
 - **Voice:** the `av-writing-voice` skill was applied across PDF, docx, and manuscript.
-- **Regenerate:** PDF → `node scripts/build-h1-2026-charts.mjs` then headless-Chrome print (command at bottom of this file); docx → `bun scripts/build-h1-2026-report-docx.ts`.
+- **Regenerate:** PDF → `node scripts/build-h1-2026-charts.mjs` then headless-Chrome print (command at bottom of this file); docx → `bun scripts/build-h1-2026-report-docx.ts` (set `DOCX_OUT=<path>` to write elsewhere if the canonical file is open in Word).
+- **Last refresh (2026-06-12):** §2 figures + postmortem implications updated; **`H1_2026_Report_DRAFT.pdf` regenerated**. The docx canonical file was locked open in Word, so the refreshed render is at **`H1_2026_Report_DRAFT_v3.docx`** — rename over the canonical once Word is closed.
 
-**Open items before publication:** (1) confirm permission to name **Heidelberg Materials** publicly, else anonymize to "a top-three global cement producer"; (2) refresh §2 market-size figures from a current source; (3) generate the per-company Cap IQ charts (Figs 6–12) once the feed is wired; (4) optional: deepen the postmortem "implication" column.
+**Open items before publication:**
+1. **Heidelberg Materials** — stays named for now (author decision 2026-06-12): reference the real cases through review, then anonymize to "a top-three global cement producer" before any external release.
+2. ✅ **§2 market-size figures refreshed** (2026-06-12) — global construction ~$17.3T in 2026 (up from $16.5T 2025, APAC largest); U.S. $2.17T SAAR (April 2026 Census, +0.9% YoY; residential ~$910B / nonresidential ~$730B). Sourced inline. Applied to manuscript, print HTML, and docx script.
+3. **Per-company Cap IQ charts (Figs 6–12)** — still pending; the Cap IQ feed isn't wired (ratios stuck at FY 2025 actuals). §7 ships on FY 2025 actuals with the data-vintage footnote.
+4. ✅ **Postmortem "implication" column deepened** (2026-06-12) — the nine scorecard rows now carry client-facing, forward-looking calls (how to plan H2 2026) instead of internal editorial notes. Applied to all three formats.
 
 | # | Artifact | What it is |
 |---|----------|------------|

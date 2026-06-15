@@ -113,7 +113,8 @@ const children: any[] = [
 
   // ===== 2. Market Scope =====
   heading("2 · Market Scope", 1),
-  bodyText("This report covers the global and U.S. building materials and building products value chain — aggregates and cement, glass and insulation, wood and lumber, steel and metals, building products and distribution, openings and security, plumbing and fixtures, HVAC and climate, and the big-box retail channel — tracked across the 39 public companies in our coverage universe. [Refresh top-line global/U.S. construction market-size figures from a current source before publication.]"),
+  bodyText("This report covers the global and U.S. building materials and building products value chain — aggregates and cement, glass and insulation, wood and lumber, steel and metals, building products and distribution, openings and security, plumbing and fixtures, HVAC and climate, and the big-box retail channel — tracked across the 39 public companies in our coverage universe."),
+  bodyText("The global construction market these companies serve is on track for roughly $17.3 trillion in 2026, up from $16.5 trillion in 2025, with Asia-Pacific the largest region. The U.S. is the second-largest market: construction spending ran at a $2.17 trillion seasonally adjusted annual rate in April 2026, up 0.9% year-over-year (U.S. Census Bureau), with residential near $910 billion and nonresidential near $730 billion. The growth is modest and mostly price rather than volume, and the split inside the total is the real story — nonresidential held up on private data-center capital spending rather than the federal programs we emphasized last edition, while residential stayed weak under affordability and financing pressure."),
 
   // ===== 3. Market Context & Outlook =====
   heading("3 · Market Context & Outlook", 1),
@@ -246,15 +247,15 @@ children.push(bodyText("New this edition, and the change repeat readers will val
 children.push(leadBody("The report card.  ", "Of nine forward-looking calls in our November 2025 report, five landed cleanly, three were partially right, and one missed. We were right on cost and tariff pressure, labor tightness, credit conditions, the GDP–sentiment gap, and the M&A wave. We were partially right on residential (direction right, timing hard), on nonresidential resilience (the outcome held, but the engine was data-center demand, not the federal programs we named), and on the Architecture Billings Index (it bottomed, as we expected, but stabilized below the growth line instead of reversing). We missed one outright: the rate-driven residential recovery we expected on a 2026 timeline did not arrive."));
 
 const scoreRows: Array<[string, string, V, string]> = [
-  ["Rates ease → residential recovers", "Rates higher and volatile; recovery slipped", "miss", "Drop the easing→recovery base case; rate-gated frame"],
-  ["Single-family demand muted", "Choppy, resolved downward (Mar +10.8% to May down)", "partial", "“Muted” right; timing was the hard part"],
-  ["Tariffs the renewed cost threat", "PPI +4.0% YoY; steel >$1,000/ton; ~$17,500/home; June reversal", "hit", "Track the whipsaw; policy is the risk"],
-  ["Nonres resilient on IIJA/CHIPS/IRA", "Resilient, but data centers were the engine", "partial", "Biggest blind spot; new §5"],
-  ["Labor binding; watch wage moderation", "Still tight; ISM employment contracting", "hit", "“Still tight, first cracks”"],
-  ["Credit stays restrictive", "Held; large caps raised freely", "hit", "Low change; compress"],
-  ["GDP–sentiment gap persists", "Persisted; GDP now softening too", "hit", "Keep the analysis box"],
-  ["M&A continues (+24% YoY)", "Accelerated; +30% volume; Berkshire $8.5B", "hit", "Promoted to §6"],
-  ["ABI reversal; backlog moderation", "Stabilized below 50 (48.5 to 43.8 to 49.4); no reversal", "partial", "“Bottoming, not recovering”"],
+  ["Rates ease → residential recovers", "Rates higher and volatile; recovery slipped", "miss", "Plan residential off rate volatility, not Fed-cut timing; hold capacity for a later, sharper rebound rather than a smooth 2026 ramp."],
+  ["Single-family demand muted", "Choppy, resolved downward (Mar +10.8% to May down)", "partial", "The direction was right and the timing was the hard part; size capacity to choppy demand, not a recovery curve."],
+  ["Tariffs the renewed cost threat", "PPI +4.0% YoY; steel >$1,000/ton; ~$17,500/home; June reversal", "hit", "Model tariffs in both directions and build the swing into cost and pricing plans; the planning risk is policy volatility, not the price level."],
+  ["Nonres resilient on IIJA/CHIPS/IRA", "Resilient, but data centers were the engine", "partial", "The engine changed; reweight commercial exposure toward data-center pull-through, with federal programs as the floor (§5)."],
+  ["Labor binding; watch wage moderation", "Still tight; ISM employment contracting", "hit", "Still the binding constraint on delivery; keep investing in prefab and labor-saving products, and watch the first wage relief as labor loosens."],
+  ["Credit stays restrictive", "Held; large caps raised freely", "hit", "Scale and balance-sheet strength stay the dividing line; well-capitalized players keep the edge in financing and a consolidating market."],
+  ["GDP–sentiment gap persists", "Persisted; GDP now softening too", "hit", "Headline GDP overstates ground-level demand; weight order books, permits, and confidence over the top-line print when planning."],
+  ["M&A continues (+24% YoY)", "Accelerated; +30% volume; Berkshire $8.5B", "hit", "Consolidation is reshaping procurement leverage and channel access; revisit buy-vs-build and supplier strategy now, not after the next deal (§6)."],
+  ["ABI reversal; backlog moderation", "Stabilized below 50 (48.5 to 43.8 to 49.4); no reversal", "partial", "Billings bottomed but have not turned; treat commercial recovery as unconfirmed and gate capacity on an ABI cross back above 50."],
 ];
 children.push(new Table({
   width: { size: W, type: WidthType.DXA },
@@ -304,7 +305,7 @@ const doc = new Document({
   }],
 });
 
-const out = "knowledge-base/outputs/h1-2026-prep/H1_2026_Report_DRAFT.docx";
+const out = process.env.DOCX_OUT || "knowledge-base/outputs/h1-2026-prep/H1_2026_Report_DRAFT.docx";
 const buf = Buffer.from(await Packer.toBuffer(doc));
 writeFileSync(out, buf);
 console.log(`Wrote ${out} (${(buf.length / 1024).toFixed(0)} KB)`);
