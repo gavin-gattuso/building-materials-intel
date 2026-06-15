@@ -135,6 +135,24 @@ describe("matchCompanies — case-sensitive ticker guard (common-word collisions
   });
 });
 
+describe("matchCompanies — abbreviation word-boundary guard (substring collisions)", () => {
+  test("'ads' inside 'upgrades' does NOT match Advanced Drainage Systems", () => {
+    // financial context + a segment keyword present, but the only 'ads' is inside 'upgrades'
+    const m = matchCompanies("Top construction stocks: analysts flag upgrades", "Revenue upside as piping demand and upgrades lift estimates");
+    expect(m.find(x => x.slug === "advanced-drainage-systems")).toBeUndefined();
+  });
+
+  test("'ufp' inside another token does NOT match UFP Industries", () => {
+    const m = matchCompanies("Quarterly revenue review", "the wufpack index rose; wood demand mixed");
+    expect(m.find(x => x.slug === "ufp-industries")).toBeUndefined();
+  });
+
+  test("standalone 'ADS' abbreviation in financial context still matches Advanced Drainage Systems", () => {
+    const m = matchCompanies("ADS Q1 revenue beat", "ADS cited strong stormwater and drainage demand");
+    expect(m.find(x => x.slug === "advanced-drainage-systems")).toBeDefined();
+  });
+});
+
 describe("matchCompanies — empty/edge inputs", () => {
   test("empty title and content → no matches", () => {
     expect(matchCompanies("", "")).toEqual([]);
