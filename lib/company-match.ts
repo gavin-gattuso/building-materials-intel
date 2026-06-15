@@ -92,7 +92,10 @@ export function matchCompanies(title: string, content: string): CompanyMatch[] {
 
     if (hasFinancialContext) {
       for (const abbr of rule.abbreviations) {
-        if (text.includes(abbr.toLowerCase())) signals.push(`abbr:${abbr}`);
+        // Word-boundary match, not substring: "ads" (Advanced Drainage) must
+        // not fire inside "leads"/"upgrades", "ufp" inside other tokens, etc.
+        const abbrPattern = new RegExp(`\\b${abbr.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`);
+        if (abbrPattern.test(text)) signals.push(`abbr:${abbr}`);
       }
     }
 
