@@ -8,9 +8,9 @@ For each driver: **what the last report said → what the KB recorded in H1 2026
 
 ## 1. Interest & Mortgage Rates — Trend was ❌ Negative; **stayed Negative / more volatile**
 - **Said (Nov 2025):** Fed easing (funds 3.75–4.00%), mortgage easing toward 6.2–6.35%, supporting a 2026 residential recovery.
-- **Actual (H1 2026):** Rates **"higher and volatile"** (CNBC, Jun 1); new-home sales slumped in April on higher rates/prices (Reuters/Investing.com, May 28); some segments "showing resistance to the interest-rate cycle" (custom homes +3%, LBM Journal May 26).
-- **Verdict:** ❌ The easing-into-recovery thesis didn't play out on schedule.
-- **Call: NET-NEW.** Rewrite around rate volatility and a delayed, rate-gated recovery. ⚠ Pull current Fed funds + 30-yr fixed for the figure.
+- **Actual (H1 2026):** Rates **"higher and volatile"** (CNBC, Jun 1); new-home sales slumped in April on higher rates/prices (Reuters/Investing.com, May 28); some segments "showing resistance to the interest-rate cycle" (custom homes +3%, LBM Journal May 26). **Capped by the June 17 FOMC: held at 3.50–3.75% (4th straight hold, 12–0), but Warsh's first meeting turned hawkish — forward guidance dropped, end-2026 PCE projection raised to 3.6%, dot-plot median up to ~3.6–4.1%, 9 of 18 projecting a hike (Federal Reserve / CNBC, Jun 17).**
+- **Verdict:** ❌ The easing-into-recovery thesis didn't play out — and the next move is now likelier a hike than a cut.
+- **Call: NET-NEW.** Rewrite around rate volatility, a hawkish hold, and a recovery pushed to 2027 (rise-before-fall risk). ✅ Fed funds figure now confirmed (3.50–3.75%, Jun 17); 30-yr fixed in low-6% range.
 
 ## 2. Labor Dynamics — Trend was ❌ Negative; **stayed Negative, first signs of loosening**
 - **Said:** Record employment but 500k+ unfilled; wages +5.2% YoY; timelines stretched 15–20%. Watch for moderating wage inflation.
@@ -68,4 +68,5 @@ For each driver: **what the last report said → what the KB recorded in H1 2026
 - ✅ **ABI** — Dec 48.5 → Jan 43.8 → Feb 49.4 (stabilizing below 50; prediction #9 resolved to 🟡 in Scorecard 01).
 - ✅ **Housing starts/permits** — March +10.8%, April −2.8% (1.47M SAAR), May starts & permits both dropped more than expected (Jun 4).
 - ✅ **GDP / sentiment** — Q4'25 revised to 0.7%; GDPNow Q1'26 1.6%; confidence 84.5 (Jan) → 91.8 (Mar).
-- ⚠ **Still to pull (point-in-time prints not yet in KB as discrete figures):** current Fed funds target + 30-yr fixed mortgage rate (lever 1); latest construction-PPI / lumber / steel / aluminum monthly prints + status of the June tariff reversal (lever 3). These are the last figures to confirm against a live source before publication.
+- ✅ **Fed funds target** — confirmed 3.50–3.75% via the June 17 FOMC hold (Federal Reserve, Jun 17); 30-yr fixed in the low-6% range (lever 1).
+- ⚠ **Still to pull (point-in-time prints not yet in KB as discrete figures):** latest construction-PPI / lumber / steel / aluminum monthly prints + status of the June tariff reversal (lever 3). These are the last figures to confirm against a live source before publication.
