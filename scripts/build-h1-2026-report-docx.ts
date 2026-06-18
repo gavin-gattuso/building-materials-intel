@@ -178,7 +178,7 @@ children.push(bodyText("The $430B+ committed under IIJA, CHIPS, and the IRA rema
 children.push(impactParagraph("Implication", "Federal programs are the floor; data centers are the growth engine (cross-reference §5)."));
 
 children.push(heading("Labor", 2));
-children.push(bodyText("Labor remained a binding constraint on housing starts per NAHB, and workforce-development initiatives continued across the sector. But ISM Services employment turned to contraction, the first genuine loosening signal and the wage-moderation watchpoint we flagged in November."));
+children.push(bodyText("Labor remained a binding constraint on housing starts per NAHB, and workforce-development initiatives continued across the sector. But ISM Services employment turned to contraction, the first loosening signal and the wage-moderation watchpoint we flagged in November."));
 children.push(impactParagraph("Implication", "Still tight, but the first cracks are appearing."));
 
 children.push(heading("Credit Availability & Lending", 2));
@@ -194,7 +194,7 @@ children.push(heading("5 · Data-Center & AI-Infrastructure Demand", 1));
 children.push(bodyText("The biggest demand surprise of the half was the AI data-center build-out, the dominant driver of nonresidential demand this half and one we under-weighted last edition. It pulls through the full building-materials stack: aggregates, cement, and structural steel for the shell and foundations; electrical gear, power equipment, and HVAC/liquid-cooling for the fit-out; and insulation, coatings, and panels for the envelope."));
 children.push(bodyText("The signals ran across our coverage: Trane and Johnson Controls scaling data-center thermal lines, Carrier and AAON chasing the cooling load, Sterling Infrastructure repositioning as a pure-play data-center builder, and Sherwin-Williams, USG, and Kingspan tying finishes and envelope to a pipeline that now runs from West Texas and DFW to the Nordics and APAC."));
 children.push(bodyText("Demand is not the constraint; deliverable capacity is - and the bottlenecks sit in the construction path. Of the ~16 GW of U.S. capacity planned for 2026, only about 5 GW is on track to energize this year, against a 25.3 GW Americas pipeline (89% pre-committed) and $700 billion of global hyperscaler capex. Power leads: high-voltage transformers run roughly four years out (about 80% imported, against a ~30% U.S. supply deficit through 2027), grid-interconnection queues stretch five to seven years against 12-18-month build times, and behind-the-meter generation is now standard - pushing power-equipment backlogs to records (Caterpillar's engine backlog reached $63 billion, up 79% year-over-year; GE Vernova is sold out of gas turbines through 2030). Permitting and construction labor gate the rest: $156 billion of projects were blocked or delayed across 2025 and Q1 2026 (Texas SB 6, Virginia HB 507), and contractor backlogs have tripled to roughly ten months amid a ~440K-worker shortage led by electricians - roughly $14 million of lost revenue for every month a 60 MW site slips. On cooling, a $15 billion-plus M&A wave (Eaton-Boyd $9.5 billion, Ecolab-CoolIT $4.75 billion) is adding capacity as liquid-cooling adoption climbs from 22% to about 40%. These figures track Applied Value's H1 2026 US Data Center Supply Chain Report."));
-children.push(calloutPara("What it means for our clients:", "data-center demand is the cleanest growth opportunity in the sector, but it is gated by power, grid, permitting, and labor, not by capital. The pull-through into structural steel, concrete, electrical and power equipment, cooling, and envelope products is real, but paced by what can actually be energized. The winners are suppliers tied to the unlocking layers (power and electrical equipment, prefab, and cooling) that can plan around multi-year power and permitting timelines. It remains a concentrated bet on one capital- and power-intensive source."));
+children.push(calloutPara("What it means for our clients:", "data-center demand is the cleanest growth opportunity in the sector, but it is gated by power, grid, permitting, and labor, not by capital. The pull-through into structural steel, concrete, electrical and power equipment, cooling, and envelope products is real, but paced by what can actually be energized. The winners are suppliers in the bottleneck-clearing layers (power and electrical equipment, prefab, and cooling) that can plan around multi-year power and permitting timelines. It remains a concentrated bet on one capital- and power-intensive source."));
 
 // ===== 6. M&A =====
 children.push(heading("6 · The Consolidation Wave (M&A)", 1));
@@ -288,7 +288,7 @@ children.push(new Table({
   ],
 }));
 children.push(spacer());
-children.push(calloutPara("Why this matters:", "This candor doubles as a disclaimer. We don't pretend to have a crystal ball, and neither does anyone else forecasting this market. That is why operators benefit from an advisor who revisits the call, learns from it, and adjusts."));
+children.push(calloutPara("Why this matters:", "This candor doubles as a disclaimer. No one forecasting this market has a crystal ball. That is why operators benefit from an advisor who revisits the call and adjusts when it's wrong."));
 
 // ===== 9. How AV Can Help =====
 children.push(heading("9 · How Applied Value Can Help", 1));
