@@ -52,7 +52,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const result = await runAutoHeal(sb, {
     cronSecret: CRON_SECRET,
     baseUrl: PRODUCTION_BASE_URL,
-    allowBackfill: Boolean(CRON_SECRET),
+    // Nightly /api/daily-scan is intentionally disabled (cron removed from
+    // vercel.json + Anthropic trigger disabled). Keep auto-heal detecting and
+    // escalating, but do NOT let it silently re-trigger the nightly via a
+    // backfill — that would defeat the stop. Re-enable (Boolean(CRON_SECRET))
+    // when the nightly is turned back on.
+    allowBackfill: false,
     sendEmail: true,
     emailFn: async ({ subject, html, idempotencyKey }) => {
       const send = await sendEmail({

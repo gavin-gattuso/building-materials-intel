@@ -2,7 +2,6 @@
   "buildCommand": "npm install && npx bun scripts/lint-prompts.ts && node scripts/check-api-imports.js && npx bun site/build-static.ts",
   "outputDirectory": "site/public",
   "crons": [
-    { "path": "/api/daily-scan", "schedule": "0 4 * * *" },
     { "path": "/api/cron-weekly", "schedule": "0 22 * * 5" },
     { "path": "/api/auto-heal", "schedule": "0 6 * * *" }
   ],
